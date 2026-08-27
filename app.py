@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-BASKET BOT v1.7 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
+BASKET BOT v1.7.1 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
 =======================================================================
 Nowość vs v1.0: bot sam generuje rekomendacje i raporty (API Anthropic
 z wyszukiwaniem internetowym), sam commit'uje signals.json + raport HTML
@@ -651,15 +651,23 @@ def desired_book(sig):
 
 
 def sync():
-    if not LIVE_ODBLOKOWANY:
+    rep_uwaga_live = (None if LIVE_ODBLOKOWANY else
+                      "TRYB LIVE NIEUZBROJONY (brak LIVE_POTWIERDZENIE) — "
+                      "to wyłącznie plan na sucho; realny handel wymaga "
+                      "potwierdzenia i DRY_RUN=false")
+    if not LIVE_ODBLOKOWANY and not DRY_RUN:
         return {"tryb": "LIVE", "handel": "ZABLOKOWANY",
                 "błąd": ("Rachunek rzeczywisty (CAPITAL_DEMO=false) bez zmiennej "
                          "LIVE_POTWIERDZENIE=ROZUMIEM-RYZYKO — handel wstrzymany. "
-                         "To celowy bezpiecznik: patrz INSTRUKCJA, Etap 13.")}
+                         "To celowy bezpiecznik: patrz sekcja o uzbrajaniu LIVE "
+                         "w INSTRUKCJI. Biegi na sucho (DRY_RUN=true) działają "
+                         "bez potwierdzenia.")}
     rep = {"czas_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "dry_run": DRY_RUN, "akcje": [], "pominiete": [], "błędy": []}
     sig, _ = load_signals()
 
+    if rep_uwaga_live:
+        rep["uwaga"] = rep_uwaga_live
     rep["sygnaly"] = {k: sig[k] for k in
                       ("version", "status", "long", "short",
                        "exclude", "tactical")}
@@ -853,7 +861,7 @@ def auth_ok():
 
 @app.get("/health")
 def health():
-    return jsonify(ok=True, wersja="1.7", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
+    return jsonify(ok=True, wersja="1.7.1", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
 
 
 @app.route("/generate", methods=["GET", "POST"])
