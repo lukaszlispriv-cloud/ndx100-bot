@@ -1,27 +1,42 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W0",
-  "status": "NIEAKTUALNA",
+  "version": "2026-W1",
+  "status": "AKTUALNA",
   "long": [
-    "AAPL",
-    "MSFT",
-    "NVDA",
-    "AMZN",
-    "META"
+    "MU",
+    "LITE",
+    "CEG",
+    "AMD",
+    "MSFT"
   ],
   "short": [
+    "INTU",
+    "WDAY",
+    "APP",
     "TSLA",
-    "INTC",
-    "PEP",
-    "SBUX",
     "CMCSA"
   ],
   "exclude": [],
   "tactical": [],
   "last_daily": "2026-08-27",
   "history": [],
-  "d0": null,
-  "generated": "2026-08-26",
+  "d0": {
+    "date": "2026-08-26",
+    "ndx": 29224.52,
+    "prices": {
+      "MU": 938.4,
+      "LITE": 939.03,
+      "CEG": 279.52,
+      "AMD": 480.93,
+      "MSFT": 496.37,
+      "INTU": 345.88,
+      "WDAY": 190.75,
+      "APP": 308.11,
+      "TSLA": 345.82,
+      "CMCSA": 27.2
+    }
+  },
+  "generated": "2026-08-27",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
