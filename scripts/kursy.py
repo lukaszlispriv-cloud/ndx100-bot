@@ -184,6 +184,30 @@ def ostatnia_zakonczona(bary, teraz=None):
     return d, c, pd, pc
 
 
+def vix_cboe():
+    """Rezerwa dla ^VIX: CBOE delayed quotes (jedyne poza-Yahoo źródło
+    przepuszczane przez proxy tego środowiska; Stooq wymaga proof-of-work
+    wiązanego z IP — nie do przejścia przy rotującym IP proxy, FRED blokuje
+    połączenia na poziomie origin).
+
+    Zwraca (wartość_ostatniego_zakończonego_zamknięcia, opis) albo (None, błąd).
+    """
+    url = "https://cdn.cboe.com/api/global/delayed_quotes/quotes/_VIX.json"
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            dane = json.load(r)["data"]
+    except Exception as e:                       # noqa: BLE001 — rezerwa
+        return None, f"CBOE niedostępne: {e}"
+    teraz = datetime.now(NY)
+    po_sesji = (teraz.hour, teraz.minute) >= KONIEC_SESJI
+    if po_sesji and dane.get("close"):
+        return float(dane["close"]), "CBOE delayed (zamknięcie dzisiejsze)"
+    if dane.get("prev_day_close"):
+        return float(dane["prev_day_close"]), "CBOE delayed (prev_day_close)"
+    return None, "CBOE: brak pól close/prev_day_close"
+
+
 def znajdz_signals():
     for p in ("signals.json", os.path.join("..", "signals.json")):
         if os.path.exists(p):
@@ -219,6 +243,9 @@ def rezim_rynkowy(vix_bary=None):
         vix_bary, _ = pobierz("^VIX")
     voz = ostatnia_zakonczona(vix_bary) if vix_bary else None
     v = voz[1] if voz else None
+    vix_zrodlo = "Yahoo" if v is not None else None
+    if v is None:                                # rezerwa: CBOE
+        v, vix_zrodlo = vix_cboe()
     c = zamk[-1]
     ma200 = sum(zamk[-200:]) / min(200, len(zamk))
     ma50 = sum(zamk[-50:]) / 50
@@ -235,7 +262,7 @@ def rezim_rynkowy(vix_bary=None):
     if sesja <= -5: poziom = 2; powody.append(f"sesja {sesja:.1f}% <= -5%")
     return {"poziom": poziom, "ndx": round(c, 1), "ma200": round(ma200, 1),
             "ma50": round(ma50, 1), "drawdown_pct": round(dd, 2),
-            "sesja_pct": round(sesja, 2), "vix": v,
+            "sesja_pct": round(sesja, 2), "vix": v, "vix_zrodlo": vix_zrodlo,
             "powody": powody or ["brak przesłanek — POZIOM 0"],
             "vix_lt25_i_ndx_gt_ma50": bool(v and v < 25 and c > ma50),
             "vix_lt22_i_ndx_gt_ma200": bool(v and v < 22 and c > ma200)}
