@@ -1,76 +1,178 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-kursy.py — zamknięcia NASDAQ/NYSE dla systemu NDX100 (Yahoo chart API).
+kursy.py — zamknięcia NASDAQ/NYSE dla systemu NDX100 (Yahoo chart/spark API).
 
 Użycie (w katalogu repo):  python3 scripts/kursy.py [--json]
 
 Co robi:
-1. Pobiera dzienne świece z query2.finance.yahoo.com (v8/finance/chart)
-   dla wszystkich spółek z mapy epics w signals.json (tickery amerykańskie,
-   bez sufiksu) oraz indeksu Nasdaq-100 (^NDX).
+1. Pobiera dzienne świece dla wszystkich spółek z mapy epics w signals.json
+   (tickery amerykańskie, bez sufiksu) oraz ^NDX i ^VIX.
+   ODPORNOŚĆ NA LIMIT ZAPYTAŃ (HTTP 429):
+   * endpoint batchowy v7/finance/spark — do 20 tickerów NA JEDNO zapytanie
+     (cały bieg to ~7 zapytań zamiast ~104, co wcześniej wyzwalało blokadę
+     Yahoo na 30-60 min);
+   * pauza między zapytaniami (KURSY_PAUZA, domyślnie 2 s), rotacja hostów
+     query1/query2 i wykładniczy backoff przy 429 (45/90/180 s);
+   * cache odpowiedzi na dysku (TTL KURSY_CACHE_TTL, domyślnie 20 min) —
+     ponowny bieg w krótkim odstępie nie zużywa limitu;
+   * fallback: pojedyncze v8/finance/chart, gdy spark zawiedzie.
+   Uwaga na środowisko z proxy egress: z serwisów notowań przepuszczane jest
+   wyłącznie *.finance.yahoo.com — Stooq/FRED/CBOE/StockAnalysis są tam
+   zablokowane, więc jedyną realną rezerwą pozostają depesze agencyjne
+   (oznacz źródło w raporcie).
 2. Do tabel podaje zamknięcie OSTATNIEJ ZAKOŃCZONEJ sesji: jeśli dziś
-   jest dzień sesyjny, a zegar (Europe/Warsaw) nie minął 17:10, ostatnia
+   jest dzień sesyjny, a zegar (America/New_York) nie minął 16:10, ostatnia
    świeca (dzisiejsza, niedokończona) jest odrzucana.
 3. WALIDACJA D0: jeżeli w katalogu bieżącym lub nadrzędnym jest
    signals.json, porównuje zamknięcia z dnia d0.date z d0.prices
-   (tolerancja 0,5%) i raportuje OK / RÓŻNICA / BRAK.
-4. Symbole-kandydaci: dla spółek o niepewnym kodzie próbuje kolejno
-   kilku symboli; braki wypisuje jawnie — wtedy użyj rezerwy (Stooq/PAP)
-   i oznacz źródło w raporcie.
+   (tolerancja 0,5%) i raportuje OK / RÓŻNICA / BRAK. d0 == null (koszyki
+   nieaktywowane) jest obsługiwane i pomija walidację.
 
 Wyjście: czytelna tabela; z flagą --json — struktura maszynowa.
 """
+import hashlib
 import json
 import os
 import sys
-import urllib.request
+import tempfile
+import time
 import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 NY = ZoneInfo("America/New_York")
-WAW = NY  # zgodność nazw w dalszym kodzie: „zegar rynku"
 KONIEC_SESJI = (16, 10)          # 16:10 czasu Nowego Jorku = sesja zakończona
 TOLERANCJA_D0 = 0.005            # 0,5%
 
-# Uniwersum czytane z signals.json (epics) — tu tylko indeks i ewentualne wyjątki
+# Uniwersum czytane z signals.json (epics) — tu tylko indeksy
 SYMBOLE = {"NDX100": ["^NDX"], "VIX": ["^VIX"]}
-URL = ("https://query2.finance.yahoo.com/v8/finance/chart/{sym}"
-       "?range=15d&interval=1d")
+HOSTY = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"]
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
+PAUZA = float(os.environ.get("KURSY_PAUZA", "2"))          # s między zapytaniami
+CACHE_TTL = int(os.environ.get("KURSY_CACHE_TTL", "1200"))  # s ważności cache
+BATCH = 20                       # tickerów na jedno zapytanie spark
+_ostatnie_zapytanie = [0.0]
 
-def pobierz(sym):
-    """Zwraca listę (data 'YYYY-MM-DD', close) albo [] przy braku danych."""
-    req = urllib.request.Request(URL.format(sym=sym), headers={"User-Agent": UA})
+
+def _cache_sciezka(url):
+    kat = os.path.join(tempfile.gettempdir(), "kursy-cache")
+    os.makedirs(kat, exist_ok=True)
+    return os.path.join(kat, hashlib.sha1(url.encode()).hexdigest() + ".json")
+
+
+def http_json(sciezka_url):
+    """GET JSON z Yahoo: cache -> pauza -> rotacja hostów -> backoff na 429.
+
+    Zwraca (dane, None) albo (None, opis_błędu).
+    """
+    plik = _cache_sciezka(sciezka_url)
     try:
-        with urllib.request.urlopen(req, timeout=20) as r:
-            dane = json.load(r)
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError,
-            json.JSONDecodeError, OSError) as e:
-        return [], f"błąd sieci/odpowiedzi: {e}"
+        if os.path.exists(plik) and time.time() - os.path.getmtime(plik) < CACHE_TTL:
+            return json.load(open(plik, encoding="utf-8")), None
+    except (OSError, json.JSONDecodeError):
+        pass
+    blad = "nie próbowano"
+    for proba in range(3):
+        host = HOSTY[proba % len(HOSTY)]
+        czekaj = PAUZA - (time.time() - _ostatnie_zapytanie[0])
+        if czekaj > 0:
+            time.sleep(czekaj)
+        req = urllib.request.Request(f"https://{host}{sciezka_url}",
+                                     headers={"User-Agent": UA})
+        _ostatnie_zapytanie[0] = time.time()
+        try:
+            with urllib.request.urlopen(req, timeout=25) as r:
+                dane = json.load(r)
+            try:
+                json.dump(dane, open(plik, "w", encoding="utf-8"))
+            except OSError:
+                pass
+            return dane, None
+        except urllib.error.HTTPError as e:
+            blad = f"HTTP {e.code}"
+            if e.code == 429:                      # limit Yahoo — backoff
+                time.sleep(45 * (2 ** proba))
+                continue
+            return None, blad
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError,
+                OSError) as e:
+            blad = f"błąd sieci/odpowiedzi: {e}"
+            time.sleep(5)
+    return None, blad
+
+
+def _bary_z_result(res):
+    """Wspólny parser wyniku chart/spark -> [(data 'YYYY-MM-DD', close)]."""
     try:
-        res = dane["chart"]["result"][0]
         ts = res["timestamp"]
         closes = res["indicators"]["quote"][0]["close"]
     except (KeyError, IndexError, TypeError):
-        return [], "brak danych w odpowiedzi"
+        return []
     bary = []
     for t, c in zip(ts, closes):
         if c is None:
             continue
-        d = datetime.fromtimestamp(t, tz=timezone.utc).astimezone(WAW)
+        d = datetime.fromtimestamp(t, tz=timezone.utc).astimezone(NY)
         bary.append((d.strftime("%Y-%m-%d"), round(float(c), 4)))
-    return bary, None
+    return bary
+
+
+def pobierz(sym, zakres="15d"):
+    """Pojedynczy symbol (v8/finance/chart). Zwraca (bary, błąd|None)."""
+    q = urllib.parse.quote(sym)
+    dane, blad = http_json(f"/v8/finance/chart/{q}?range={zakres}&interval=1d")
+    if dane is None:
+        return [], blad
+    try:
+        res = dane["chart"]["result"][0]
+    except (KeyError, IndexError, TypeError):
+        return [], "brak danych w odpowiedzi"
+    bary = _bary_z_result(res)
+    return bary, None if bary else "brak danych w odpowiedzi"
+
+
+def pobierz_batch(symbole, zakres="15d"):
+    """Wiele symboli naraz (v7/finance/spark, paczki po BATCH).
+
+    Zwraca (mapa {symbol: bary}, [problemy]). Symbol bez danych trafia do
+    problemów; gdy spark w ogóle zawiedzie, dzwoniący robi fallback na
+    pobierz() per symbol.
+    """
+    mapa, problemy = {}, []
+    for i in range(0, len(symbole), BATCH):
+        paczka = symbole[i:i + BATCH]
+        q = urllib.parse.quote(",".join(paczka), safe=",")
+        dane, blad = http_json(f"/v7/finance/spark?symbols={q}"
+                               f"&range={zakres}&interval=1d")
+        wyniki = (dane or {}).get("spark", {}).get("result") or []
+        if not wyniki:
+            problemy.append(f"spark: brak odpowiedzi dla paczki "
+                            f"{paczka[0]}..{paczka[-1]} ({blad or 'pusto'})")
+            continue
+        for w in wyniki:
+            try:
+                sym = w["symbol"]
+                bary = _bary_z_result(w["response"][0])
+            except (KeyError, IndexError, TypeError):
+                continue
+            if bary:
+                mapa[sym] = bary
+        for sym in paczka:
+            if sym not in mapa:
+                problemy.append(f"spark: brak danych dla {sym}")
+    return mapa, problemy
 
 
 def ostatnia_zakonczona(bary, teraz=None):
     """(data, close, poprz_data, poprz_close) ostatniej ZAKOŃCZONEJ sesji."""
     if not bary:
         return None
-    teraz = teraz or datetime.now(WAW)
+    teraz = teraz or datetime.now(NY)
     dzis = teraz.strftime("%Y-%m-%d")
     po_sesji = (teraz.hour, teraz.minute) >= KONIEC_SESJI
     if bary[-1][0] == dzis and not po_sesji:
@@ -92,7 +194,7 @@ def znajdz_signals():
     return None, None
 
 
-def rezim_rynkowy():
+def rezim_rynkowy(vix_bary=None):
     """POZIOM 0/1/2 wg prerejestrowanych progów (ochrona przed korektą/bessą).
 
     Dane: ^NDX 1 rok (MA200, MA50, drawdown od 52-tyg. szczytu) + ^VIX.
@@ -102,24 +204,21 @@ def rezim_rynkowy():
     P2->handel: 5 kolejnych sesji VIX<25 ORAZ NDX>MA50
     P1->P0:     3 kolejne sesje  VIX<22 ORAZ NDX>MA200
     """
-    ndx, e1 = pobierz("^NDX?zakres=1y".split("?")[0])  # symbol; zakres niżej
-    # osobne pobranie rocznej serii (range=1y)
-    import urllib.request as _u
-    req = _u.Request(URL.format(sym="^NDX").replace("range=15d", "range=1y"),
-                     headers={"User-Agent": UA})
-    try:
-        with _u.urlopen(req, timeout=25) as r:
-            dane = json.load(r)
-        res = dane["chart"]["result"][0]
-        pary = [(t, c) for t, c in zip(res["timestamp"],
-                res["indicators"]["quote"][0]["close"]) if c is not None]
-        zamk = [c for _, c in pary]
-    except Exception as e:
-        return {"blad": f"brak danych ^NDX 1y: {e}"}
-    vix, _ = pobierz("^VIX")
-    v = vix[-1][1] if vix else None
+    bary_1y, blad = pobierz("^NDX", zakres="1y")
+    if not bary_1y:
+        return {"blad": f"brak danych ^NDX 1y: {blad}"}
+    # dzisiejsza niedokończona świeca nie wchodzi do MA/drawdownu
+    oz = ostatnia_zakonczona(bary_1y)
+    if not oz:
+        return {"blad": "za krótka historia ^NDX"}
+    ostatnia_data = oz[0]
+    zamk = [c for d, c in bary_1y if d <= ostatnia_data]
     if len(zamk) < 60:
         return {"blad": "za krótka historia ^NDX"}
+    if vix_bary is None:
+        vix_bary, _ = pobierz("^VIX")
+    voz = ostatnia_zakonczona(vix_bary) if vix_bary else None
+    v = voz[1] if voz else None
     c = zamk[-1]
     ma200 = sum(zamk[-200:]) / min(200, len(zamk))
     ma50 = sum(zamk[-50:]) / 50
@@ -128,7 +227,7 @@ def rezim_rynkowy():
     sesja = (c / zamk[-2] - 1) * 100 if len(zamk) >= 2 else 0.0
     poziom = 0
     powody = []
-    if c < ma200: poziom, _p = 1, powody.append(f"NDX {c:.0f} < MA200 {ma200:.0f}")
+    if c < ma200: poziom = 1; powody.append(f"NDX {c:.0f} < MA200 {ma200:.0f}")
     if dd < -10:  poziom = max(poziom, 1); powody.append(f"drawdown {dd:.1f}% > 10%")
     if v and v > 28: poziom = max(poziom, 1); powody.append(f"VIX {v:.1f} > 28")
     if dd < -20:  poziom = 2; powody.append(f"drawdown {dd:.1f}% > 20%")
@@ -152,20 +251,27 @@ def main():
     tryb_json = "--json" in sys.argv
     sig, sig_path = znajdz_signals()
     zbuduj_symbole(sig)
-    d0_date = (sig or {}).get("d0", {}).get("date")
-    d0_prices = (sig or {}).get("d0", {}).get("prices", {}) or {}
+    d0 = (sig or {}).get("d0") or {}
+    d0_date = d0.get("date")
+    d0_prices = d0.get("prices") or {}
+
+    # 1) jedno przejście batchem po całym uniwersum...
+    wszystkie = sorted({s for kandydaci in SYMBOLE.values() for s in kandydaci})
+    batch, problemy_batch = pobierz_batch(wszystkie)
 
     wynik, problemy = {}, []
     for ticker, kandydaci in SYMBOLE.items():
         bary, blad, uzyty = [], "nie próbowano", None
         for sym in kandydaci:
-            bary, blad = pobierz(sym)
+            bary = batch.get(sym, [])
+            if not bary:                       # 2) ...fallback per symbol
+                bary, blad = pobierz(sym)
             if bary:
                 uzyty = sym
                 break
         if not bary:
             problemy.append(f"{ticker}: brak danych ({', '.join(kandydaci)}; "
-                            f"{blad}) — użyj rezerwy (Stooq/PAP) i oznacz źródło")
+                            f"{blad}) — użyj depesz agencyjnych i oznacz źródło")
             continue
         oz = ostatnia_zakonczona(bary)
         if not oz:
@@ -173,11 +279,11 @@ def main():
             continue
         d, c, pd, pc = oz
         dd = round((c / pc - 1) * 100, 2) if pc else None
-        # walidacja D0
+        # walidacja D0 (pomijana przy d0 == null — koszyki nieaktywowane)
         d0_close = dict(bary).get(d0_date) if d0_date else None
         ref = d0_prices.get(ticker)
-        if ticker == "WIG20" and sig:
-            ref = (sig.get("d0") or {}).get("wig20")
+        if ticker == "NDX100" and not ref:
+            ref = d0.get("ndx")
         if ref and d0_close:
             odch = abs(d0_close / float(ref) - 1)
             d0_status = ("OK" if odch <= TOLERANCJA_D0
@@ -190,21 +296,25 @@ def main():
                          "poprzednia": pd, "zmiana_dd_pct": dd,
                          "walidacja_d0": d0_status}
 
-    rezim = rezim_rynkowy()
+    rezim = rezim_rynkowy(vix_bary=batch.get("^VIX"))
+    problemy = problemy_batch + problemy
 
     if tryb_json:
-        print(json.dumps({"wygenerowano": datetime.now(WAW).isoformat(timespec="minutes"),
+        print(json.dumps({"wygenerowano": datetime.now(NY).isoformat(timespec="minutes"),
                           "d0": d0_date, "signals": sig_path,
                           "kursy": wynik, "rezim": rezim, "problemy": problemy},
                          ensure_ascii=False, indent=2))
         return
 
     print("REŻIM RYNKOWY:", json.dumps(rezim, ensure_ascii=False))
-    print(f"KURSY GPW — ostatnia zakończona sesja (stan: "
-          f"{datetime.now(WAW).strftime('%Y-%m-%d %H:%M')} CET/CEST)")
-    if sig_path:
+    print(f"KURSY NASDAQ/NYSE — ostatnia zakończona sesja (stan: "
+          f"{datetime.now(NY).strftime('%Y-%m-%d %H:%M')} Nowy Jork)")
+    if sig_path and d0_date:
         print(f"Walidacja D0 ({d0_date}) względem {sig_path}, tolerancja "
               f"{TOLERANCJA_D0*100:.1f}%")
+    elif sig_path:
+        print(f"Walidacja D0: pominięta — d0 puste w {sig_path} "
+              f"(koszyki nieaktywowane)")
     print(f"{'TICKER':10} {'SYMBOL':9} {'SESJA':11} {'CLOSE':>10} "
           f"{'d/d %':>7}  WALIDACJA D0")
     for t, w in wynik.items():
