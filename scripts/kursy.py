@@ -24,6 +24,7 @@ Wyjście: czytelna tabela; z flagą --json — struktura maszynowa.
 import json
 import os
 import sys
+import time
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone
@@ -36,21 +37,33 @@ TOLERANCJA_D0 = 0.005            # 0,5%
 
 # Uniwersum czytane z signals.json (epics) — tu tylko indeks i ewentualne wyjątki
 SYMBOLE = {"NDX100": ["^NDX"], "VIX": ["^VIX"]}
-URL = ("https://query2.finance.yahoo.com/v8/finance/chart/{sym}"
+URL = ("https://{host}/v8/finance/chart/{sym}"
        "?range=15d&interval=1d")
+HOSTY = ("query1.finance.yahoo.com", "query2.finance.yahoo.com")
+PAUZA = 0.7                      # throttling — Yahoo zwraca 429 przy salwie zapytań
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
 
 def pobierz(sym):
     """Zwraca listę (data 'YYYY-MM-DD', close) albo [] przy braku danych."""
-    req = urllib.request.Request(URL.format(sym=sym), headers={"User-Agent": UA})
-    try:
-        with urllib.request.urlopen(req, timeout=20) as r:
-            dane = json.load(r)
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError,
-            json.JSONDecodeError, OSError) as e:
-        return [], f"błąd sieci/odpowiedzi: {e}"
+    dane, blad = None, None
+    for proba in range(4):
+        host = HOSTY[proba % len(HOSTY)]
+        req = urllib.request.Request(URL.format(host=host, sym=sym),
+                                     headers={"User-Agent": UA})
+        try:
+            time.sleep(PAUZA)
+            with urllib.request.urlopen(req, timeout=20) as r:
+                dane = json.load(r)
+            break
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError,
+                json.JSONDecodeError, OSError) as e:
+            blad = f"błąd sieci/odpowiedzi: {e}"
+            if proba < 3:
+                time.sleep(2 * (proba + 1))
+    if dane is None:
+        return [], blad
     try:
         res = dane["chart"]["result"][0]
         ts = res["timestamp"]
@@ -105,9 +118,11 @@ def rezim_rynkowy():
     ndx, e1 = pobierz("^NDX?zakres=1y".split("?")[0])  # symbol; zakres niżej
     # osobne pobranie rocznej serii (range=1y)
     import urllib.request as _u
-    req = _u.Request(URL.format(sym="^NDX").replace("range=15d", "range=1y"),
+    req = _u.Request(URL.format(host=HOSTY[0], sym="^NDX")
+                     .replace("range=15d", "range=1y"),
                      headers={"User-Agent": UA})
     try:
+        time.sleep(PAUZA)
         with _u.urlopen(req, timeout=25) as r:
             dane = json.load(r)
         res = dane["chart"]["result"][0]
@@ -152,8 +167,9 @@ def main():
     tryb_json = "--json" in sys.argv
     sig, sig_path = znajdz_signals()
     zbuduj_symbole(sig)
-    d0_date = (sig or {}).get("d0", {}).get("date")
-    d0_prices = (sig or {}).get("d0", {}).get("prices", {}) or {}
+    d0 = (sig or {}).get("d0") or {}
+    d0_date = d0.get("date")
+    d0_prices = d0.get("prices") or {}
 
     wynik, problemy = {}, []
     for ticker, kandydaci in SYMBOLE.items():
