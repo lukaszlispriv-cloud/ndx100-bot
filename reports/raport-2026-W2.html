@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raport tygodniowy NDX100 — 2026-W2</title>
+<style>
+  :root{
+    --tlo:#F6F7F4; --granat:#10243E; --ziel:#0E7C4A; --czerw:#C4372E;
+    --bursztyn:#B7791F; --karta:#FFFFFF; --ramka:#E3E5E0; --tekst:#1C2430;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--tlo); color:var(--tekst);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       font-size:16px; line-height:1.5; padding-bottom:2rem;}
+  .mono{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;}
+  header{background:var(--granat); color:#fff; padding:1.1rem 1rem 1.3rem;}
+  header .tytul{font-size:0.8rem; letter-spacing:0.12em; text-transform:uppercase; opacity:.75;}
+  header h1{font-size:1.35rem; margin-top:.15rem; font-weight:700;}
+  .pasek-idx{display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:center; margin-top:.8rem;}
+  .ndx-kurs{font-size:1.55rem; font-weight:700;}
+  .ndx-kurs small{font-size:.8rem; font-weight:400; opacity:.7; display:block;}
+  .zmiana-plus{color:#7FD6A4;} .zmiana-minus{color:#F2A9A2;}
+  .badge-rezim{display:inline-block; background:#123B26; border:2px solid var(--ziel);
+    color:#8FE3B4; border-radius:10px; padding:.45rem .8rem; font-size:.78rem; line-height:1.45;}
+  .badge-rezim b{font-size:1rem; color:#B9F2D2;}
+  .stempel-otoczka{display:flex; justify-content:center; margin:1.2rem 0 .4rem;}
+  .stempel{border:3px solid var(--ziel); color:var(--ziel); text-transform:uppercase;
+    font-weight:800; letter-spacing:.18em; padding:.5rem 1.1rem; font-size:1.05rem;
+    transform:rotate(-2.5deg); border-radius:6px; background:rgba(14,124,74,.06);}
+  .stempel small{display:block; font-size:.62rem; letter-spacing:.08em; font-weight:600; text-align:center;}
+  main{max-width:900px; margin:0 auto; padding:0 .8rem;}
+  section{margin-top:1.4rem;}
+  h2{font-size:1.02rem; text-transform:uppercase; letter-spacing:.08em; color:var(--granat);
+     border-bottom:2px solid var(--granat); padding-bottom:.3rem; margin-bottom:.7rem;}
+  h3{font-size:.95rem; color:var(--granat); margin:.9rem 0 .4rem;}
+  .karta{background:var(--karta); border:1px solid var(--ramka); border-radius:10px;
+     padding:.8rem .9rem; margin-bottom:.6rem;}
+  .etyk{display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em;
+     padding:.14rem .45rem; border-radius:4px; color:#fff; margin-right:.4rem; vertical-align:1px;}
+  .e-wyniki{background:#28527A;} .e-makro{background:#6B4E9B;} .e-rezim{background:var(--ziel);}
+  .e-rekom{background:#946200;} .e-info{background:#5B6770;} .e-flaga{background:var(--czerw);}
+  .e-mna{background:#7A2E52;}
+  .karta p{font-size:.92rem;}
+  .zrodlo{display:block; font-size:.74rem; color:#66707C; margin-top:.3rem;}
+  .tab-otoczka{overflow-x:auto; background:var(--karta); border:1px solid var(--ramka); border-radius:10px; margin-bottom:.6rem;}
+  table{border-collapse:collapse; width:100%; min-width:720px; font-size:.86rem;}
+  th{background:#EDEFEA; text-align:left; padding:.45rem .55rem; font-size:.7rem;
+     text-transform:uppercase; letter-spacing:.05em; color:#3C4654;}
+  td{padding:.45rem .55rem; border-top:1px solid var(--ramka); vertical-align:top;}
+  td.num{text-align:right; font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace; font-size:.83rem; white-space:nowrap;}
+  .plus{color:var(--ziel);} .minus{color:var(--czerw);}
+  .kier-long{color:var(--ziel); font-weight:700;} .kier-short{color:var(--czerw); font-weight:700;}
+  .bd{color:#8A939E;}
+  .spread{background:var(--granat); color:#fff; border-radius:10px; padding:.75rem .9rem;
+     margin-top:.6rem; margin-bottom:.6rem; font-size:.92rem; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  .panel li{background:var(--karta); border:1px solid var(--ramka); border-radius:8px;
+     padding:.55rem .7rem; margin-bottom:.45rem; list-style:none; font-size:.9rem;}
+  .panel b{color:var(--granat);}
+  .ok{color:var(--ziel); font-weight:700;} .uwaga{color:var(--bursztyn); font-weight:700;}
+  .alarm{color:var(--czerw); font-weight:700;}
+  footer{max-width:900px; margin:2rem auto 0; padding:0 .8rem; font-size:.74rem; color:#66707C;}
+  footer p{margin-bottom:.4rem;}
+</style>
+</head>
+<body>
+<header>
+  <div class="tytul">Raport tygodniowy NDX100 · audyt 2026-W2</div>
+  <h1>Sobota, 29 sierpnia 2026</h1>
+  <div class="pasek-idx">
+    <div class="ndx-kurs mono">^NDX 29&nbsp;433,43 <span class="zmiana-minus">−0,70%</span>
+      <small>zamknięcie 28.08.2026 (ostatnia zakończona sesja = D0 nowego okna; Yahoo Finance chart-meta, odczyt 29.08.2026 ~3:30 ET; tydzień 21→28.08: +0,43%)</small>
+    </div>
+    <div class="badge-rezim">
+      <b>REŻIM&nbsp;P0</b> · bez ograniczeń<br>
+      NDX vs MA200: <span class="mono">+9,3%</span> (MA200 26&nbsp;925)<br>
+      Drawdown: <span class="mono">−4,0%</span> od szczytu 52-tyg. (30&nbsp;661)<br>
+      VIX: <span class="mono">14,43</span> (zamkn. 28.08; Yahoo)
+    </div>
+  </div>
+</header>
+
+<div class="stempel-otoczka">
+  <div class="stempel">Aktualna<br><small>prognoza 2026-W2 · D0 = 28.08.2026 · okno do 4.09.2026 (D+5)</small></div>
+</div>
+
+<main>
+  <section>
+    <h2>Rozliczenie tygodnia 2026-W1 <span style="font-weight:400; font-size:.8rem; text-transform:none;">(D0 = 26.08 → 28.08.2026; rozliczenie skrócone D+2 — koszyki aktywowano audytem w środku tygodnia, okno przerwane sobotnim rebalansem)</span></h2>
+    <div class="tab-otoczka">
+      <table>
+        <tr><th>Spółka</th><th>Kier.</th><th>Kurs D0 (26.08)</th><th>Kurs D+2 (28.08)</th><th>Zwrot kursu</th><th>Relatywnie do ^NDX (wynik pozycji)</th><th>Trafienie</th></tr>
+        <tr><td><b>MU</b></td><td class="kier-long">LONG</td><td class="num">938,40</td><td class="num">932,86</td><td class="num minus">−0,59%</td><td class="num minus">−1,31 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>LITE</b></td><td class="kier-long">LONG</td><td class="num">939,03</td><td class="num">895,00</td><td class="num minus">−4,69%</td><td class="num minus">−5,40 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>CEG</b></td><td class="kier-long">LONG</td><td class="num">279,52</td><td class="num">276,75</td><td class="num minus">−0,99%</td><td class="num minus">−1,71 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>AMD</b></td><td class="kier-long">LONG</td><td class="num">480,93</td><td class="num">465,58</td><td class="num minus">−3,19%</td><td class="num minus">−3,91 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>MSFT</b></td><td class="kier-long">LONG</td><td class="num">496,37</td><td class="num">513,53</td><td class="num plus">+3,46%</td><td class="num plus">+2,74 p.p.</td><td class="plus">✓</td></tr>
+        <tr><td><b>INTU</b></td><td class="kier-short">SHORT</td><td class="num">345,88</td><td class="num">358,06</td><td class="num plus">+3,52%</td><td class="num minus">−2,81 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>WDAY</b></td><td class="kier-short">SHORT</td><td class="num">190,75</td><td class="num">204,72</td><td class="num plus">+7,32%</td><td class="num minus">−6,61 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>APP</b></td><td class="kier-short">SHORT</td><td class="num">308,11</td><td class="num">317,76</td><td class="num plus">+3,13%</td><td class="num minus">−2,42 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>TSLA</b></td><td class="kier-short">SHORT</td><td class="num">345,82</td><td class="num">348,75</td><td class="num plus">+0,85%</td><td class="num minus">−0,13 p.p.</td><td class="minus">✗</td></tr>
+        <tr><td><b>CMCSA</b></td><td class="kier-short">SHORT</td><td class="num">27,20</td><td class="num">27,06</td><td class="num minus">−0,51%</td><td class="num plus">+1,23 p.p.</td><td class="plus">✓</td></tr>
+      </table>
+    </div>
+    <div class="spread">
+      <span><b>Spread L/S (D+2):</b> <span class="mono">−4,06 p.p.</span> · hit rate TOP5 <span class="mono">1/5</span> · BOTTOM5 <span class="mono">1/5</span></span>
+      <span style="font-size:.8rem; opacity:.8">śr. relatywny LONG −1,92 p.p. + śr. wynik SHORT −2,15 p.p.; ^NDX 29&nbsp;224,52→29&nbsp;433,43 (+0,71%); zamknięcia Yahoo, odczyt 29.08.2026; ex-date dywidend w oknie: brak (CEG 18.08, MSFT 20.08 — przed D0), korekty zbędne</span>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">WARIANTY</span><b>Wariant zarządzany:</b> pulsy dzienne 27.08 i 28.08 nie wydały żadnej reakcji
+      (CLOSE/REDUCE) — <span class="mono">managed_pp = −4,06</span>, <span class="mono">reaction_pp = 0,00</span>.
+      <b>Taktyczne:</b> brak otwartych pozycji przez cały tydzień (kandydaci MRVL/ADSK odrzuceni w pulsie 28.08) —
+      <span class="mono">tactical_pp = null</span>. Skumulowane od startu systemu: reaction 0,00 p.p., tactical 0,00 p.p.</p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">DEKLARACJE W1</span><b>D1</b> (MU pobije ^NDX): na skróconym oknie NIE — <span class="mono">−1,31 p.p.</span>
+      <b>D2</b> (trio software-short przegra ≥1,0 p.p.): <span class="alarm">SFALSYFIKOWANA z hukiem</span> — trio INTU/WDAY/APP <i>pobiło</i> ^NDX średnio o
+      <span class="mono">+3,95 p.p.</span>, głównie przez ofertę przejęcia WDAY (patrz niżej). <b>D3</b> (AVGO podtrzyma cel AI FY27 na wynikach 2.09):
+      wyniki wypadają w nowym oknie — deklaracja przechodzi na W2 bez zmiany treści.</p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">LEKCJA</span>Pojedynczy tydzień z ujemnym spreadem mieści się w losowości 5-sesyjnych zwrotów (a tu ledwie 2 sesje),
+      ale porażka W1 ma strukturalną składową, którą model musi skonsumować: <b>koszyk short zbudowany w całości wokół „ofiar substytucji agentowej”
+      okazał się jednocześnie listą celów przejęć</b>. Pre-mortem W1 dla WDAY („fala M&amp;A — ryzyko oferty”) zrealizował się w 2 sesje.
+      Wniosek wdrożony w W2: rozproszenie koszyka short poza software i jawny czynnik „ryzyko oferty przejęcia” przy selekcji shortów.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Najważniejsze zmiany tygodnia</h2>
+    <div class="karta">
+      <p><span class="etyk e-makro">MAKRO</span><b>Jackson Hole — jastrzębi zwrot Fed.</b> Przewodniczący Kevin Warsh (28.08): inflacja „wciąż za wysoka”
+      (PCE headline 3,7% r/r za lipiec), Fed „ma więcej pracy do wykonania”, podwyżki stóp „w grze”. Rynek przeceniał wcześniej cięcie —
+      po wystąpieniu prawdopodobieństwo PODWYŻKI we wrześniu skoczyło do ~56% (CME FedWatch, +20 p.p. w jeden dzień). 10-letni TIPS 2,34%
+      (odczyt 27–28.08, FRED/CNBC), 10Y nominalnie 4,72%. Sesja 28.08: ^NDX −0,70%, wyprzedaż skoncentrowana w semis/wysokich mnożnikach.
+      To bezpośrednie wzmocnienie czynnika wrażliwości na realne stopy i argument za utrzymaniem reżimowej wagi wyceny 14.
+      <span class="zrodlo">CNBC, NPR, Axios, Washington Post (28.08), FRED DFII10 · odczyt 29.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-mna">M&amp;A</span><b>Fala przejęć w przecenionym software — zmiana profilu ryzyka short-booka.</b>
+      (1) <b>WDAY</b>: doniesienia o rozmowach Silver Lake o wykupie; kurs wstrzymany w trakcie sesji, +5,8% d/d do 204,72 (Needham szacuje widełki oferty 240–250);
+      do tego beat Q2, domknięty rok wcześniej skup 5 mld i nowy 4 mld. (2) <b>PANW</b> wg doniesień składał nieudane oferty na Okta i <b>DDOG</b> (+9,5%/+4,1% od 26.08).
+      (3) <b>PYPL −13,2%</b>: konsorcjum Advent–Stripe porzuciło wart ~50 mld USD wykup. Wniosek systemowy: przecenione software'y [4] mają teraz
+      dwustronne ryzyko — erozja fundamentów kontra premia za przejęcie. WDAY natychmiast usunięty z koszyka short (nigdy nie szortujemy żywego celu wykupu).
+      <span class="zrodlo">Yahoo Finance/Bloomberg (WDAY-Silver Lake), Investing.com/TradingKey (PANW), everhint/TradingKey (PYPL) · 27–28.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-wyniki">WYNIKI</span><b>MRVL</b> — beat kwartału i podniesione prognozy FY27/28, ale rynek −11,6% od 26.08 (−7,7% w piątek):
+      realna monetyzacja wartej 12,2 mld USD umowy z Google przesuwa się na FY29, a koncentracja przychodów (~79% u garstki klientów) rośnie.
+      To NIE jest anulacja zamówień (sygnał systemowy niedźwiedzia nie zapala się) — to reset zawyżonych oczekiwań; flaga eventowa W1 rozstrzygnięta negatywnie, MRVL wypada z TOP15.
+      <b>INTU</b> (wyniki 25.08, przed D0): beat Q4, ale guidance EPS FY27 22,88–23,12 vs kons. 27,31 (−16%) — najtwardszy świeży negatyw w uniwersum; mimo to kurs odbił +3,5% od D0 (squeeze po −53% YTD).
+      <b>CEG</b>: podniesione widełki EPS 2026 do 11,50–12,50 (z 11,00–12,00) przy beacie kwartału — teza energetyczna wzmocniona, choć jastrzębi piątek zdjął kurs −1,7 p.p. relatywnie.
+      <span class="zrodlo">Motley Fool/24-7WallSt/Schaeffers (MRVL, 28.08), Benzinga/Intuit IR (INTU, 25–26.08), Benzinga/ad-hoc-news (CEG, 27–28.08)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">ROTACJA</span><b>Tydzień odwróconej rotacji:</b> od D0 26.08 najmocniejsze były software'y i cyber
+      (CRWD +15,5%, PANW +9,5%, SNPS +8,0%, WDAY +7,3%, ADBE +6,6%, FTNT +5,4%), a najsłabsze semis/AI-hardware (PYPL −13,2%, MRVL −11,6%, ARM −4,8%, LITE −4,7%, KLAC −4,5%, AMAT −3,8%, LRCX −3,5%).
+      Impuls był jednak zdarzeniowy (M&amp;A + wyniki + jastrzębi Fed), nie wycenowy — jeden tydzień nie spełnia warunku „wygaśnięcia rotacji” dla przełączenia wagi wyceny (patrz sekcja rankingu).
+      <span class="zrodlo">obliczenia własne z zamknięć Yahoo 26→28.08 · odczyt 29.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-rekom">ELITA</span><b>MU</b>: Arcuri (UBS) z celem 1&nbsp;625 potwierdzonym w tygodniu; do tego nowe pokrycie BMO (Kumar, spoza elity) z celem 1&nbsp;300 —
+      kierunkowo zgodne; konsensus ~1&nbsp;410. <b>NVDA</b>: po wynikach 26.08 Sur (J.P. Morgan) podniósł cel; elita jednogłośnie bycza. <b>AMD</b>: cel Sura 550 (5.08) pozostaje najświeższą dużą rewizją elity.
+      Sygnałów spadkowych od Rasgona (Bernstein — publicznie w narracji „supercyklu”) ani Curtisa (Jefferies) w tym tygodniu brak.
+      <span class="zrodlo">puls 28.08 (Arcuri), Barchart/Yahoo (BMO 21.08), CNBC/techsurge (Rasgon) · odczyt 29.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">INDEKS</span>Skład Nasdaq-100 bez zmian od rewizji czerwcowej (22.06: +ALAB, CRWV, NBIS, RKLB, TER) i lipcowego fast-tracku SPCX;
+      nowa metodologia (od 1.05) wprowadza kwartalne przeglądy rankingowe marzec/czerwiec/wrzesień — <b>wrześniowy przegląd to potencjalne zdarzenie pasywnych przepływów</b> w przyszłych oknach.
+      Mapa epics pokrywa aktualny skład — bez dopisków.
+      <span class="zrodlo">ir.nasdaq.com (czerwiec 2026), Invesco/Nasdaq (metodologia) · odczyt 29.08.2026</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reżim rynkowy (bramka)</h2>
+    <div class="karta">
+      <p><span class="etyk e-rezim">REŻIM</span><b>POZIOM 0</b> — wszystkie prerejestrowane progi z zapasem (obliczenia z serii dziennej Yahoo, zamknięcie 28.08):
+      ^NDX 29&nbsp;433,43 vs MA200 26&nbsp;925 (<span class="mono">+9,3%</span>); drawdown <span class="mono">−4,0%</span> od szczytu 30&nbsp;661 (próg P1 &gt;10%);
+      VIX <span class="mono">14,43</span> (próg P1 &gt;28) — uwaga: VIX <i>spadł</i> w jastrzębi piątek, rynek opcyjny nie potwierdza paniki; sesja 28.08 <span class="mono">−0,70%</span> (próg P2 ≤−5%).
+      Sygnały systemowe scenariusza niedźwiedziego — wszystkie negatywne: (1) ujemny FCF ≥2 kw. u ≥2 hyperscalerów: NIE (nadal tylko Alphabet, 1 kwartał);
+      (2) pierwsza obniżka cen kontraktowych DRAM/NAND: NIE (TrendForce: 3Q26 DRAM serwerowy +13–18% kw/kw, NAND +10–15% — wzrosty hamują, ale to wciąż wzrosty);
+      (3) anulacje zamówień GPU/optyki: NIE (przecena MRVL to reset oczekiwań, prognozy podniesione); (4) chmury &lt;15% przy capexie &gt;700 mld: NIE (AWS +28%, Azure +43%, GCP +63%).
+      Jastrzębi Fed sam w sobie NIE jest przesłanką eskalacji (eskalować wolno wyłącznie o sygnały systemowe) — poziom pozostaje P0, histereza nie dotyczy.
+      <span class="zrodlo">obliczenia własne wg prerejestrowanych progów (odczyt 29.08 ~3:30 ET), TrendForce (3.07, 9.07), raporty kwartalne big-3 · 29.08.2026</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Panel fundamentów (progi alarmowe)</h2>
+    <ul class="panel">
+      <li><b>1. Konwersja capexu</b> — <span class="ok">OK</span>. Bez nowych odczytów w tym tygodniu; stan: AWS +28% r/r, Azure +43% r/r (&gt;100 mld USD rocznie),
+        Google Cloud +63% r/r (odczyty z raportów 22–30.07) przy capexie big-3 2026 ~725 mld USD. Progi ostrzegawcze (&lt;20%) i P2 (&lt;15%) — odległe.
+        Następny twardy odczyt: wyniki za Q3 (koniec października).</li>
+      <li><b>2. Forward P/E NDX</b> — <span class="uwaga">ŹRÓDŁO ZASTĘPCZE, POZIOM NEUTRALNY-NISKI</span>. WSJ P/Es &amp; Yields nadal zablokowane w tym środowisku;
+        konsekwentnie źródła zastępcze: forward P/E NDX ~20,8 (MacroMicro/trendonify, odczyt 24.08 — 10. percentyl 5-letniego zakresu), trailing 28,4 (GuruFocus, sierpień).
+        Daleko od strefy alarmowej &gt;28–30x forward; tuż nad progiem atrakcyjności &lt;20x. Niski forward to jednak w dużej mierze efekt rekordowych rewizji EPS bloku AI —
+        wrażliwy na każdy miss (AVGO 2.09!).</li>
+      <li><b>3. FCF hyperscalerów</b> — <span class="uwaga">MONITORING IMIENNY: ALPHABET</span>. Bez zmian: GOOGL FCF −5,85 mld USD w Q2'26 (1 spółka, 1 kwartał;
+        MSFT/AMZN/META dodatnie). Próg P2 (≥2 kwartały u ≥2 spółek) niespełniony. Rozstrzygnięcie przy raporcie GOOGL za Q3 (koniec października).</li>
+      <li><b>4. Koncentracja top10</b> — <span class="ok">OK</span>. Waga top10 ~45% (30.06, Nasdaq Global Indexes); przywództwo szerokie — w samym tym tygodniu
+        liderami byli CRWD/PANW/SNPS, nie Mag7. Próg „top10 &gt;70% zwrotu” niespełniony; standardowa preferencja mniejszych wag pozostaje bez wzmocnienia.</li>
+      <li><b>5. Marża brutto NVIDII</b> — <span class="ok">OK</span>. 75,0% w Q2 FY27 (raport 26.08), guidance 74,0% (lekka inflacja kosztów pamięci — obserwowana).
+        Próg 65% z ogromnym zapasem; brak podstaw do obniżki ocen czynników 4/6 bloku infrastruktury.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Ranking — Model 3.0</h2>
+    <div class="karta">
+      <p><span class="etyk e-info">TRYB WYCENY</span>Waga wyceny początkowej = <b>14</b> (tryb rotacyjny, bez zmian). Formalnie: forward ~20,8 &lt; 22 spełnia jeden
+      z trzech warunków przełączenia na 6, ale (a) tygodniowe odbicie software'u było zdarzeniowe (M&amp;A), nie szeroką ekspansją mnożników,
+      (b) „wygaśnięcie rotacji” wymaga potwierdzenia w kolejnych tygodniach, (c) jastrzębi zwrot Fed z podwyżkami w grze to antyteza risk-on.
+      Warunki muszą zajść ŁĄCZNIE — decyzja: 14. Dodatkowo czynnik wrażliwości na realne stopy oceniany surowiej (TIPS 2,34% + ~56% szans na podwyżkę).</p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-flaga">FLAGI OKNA</span>W oknie 31.08–4.09 raportują: <b>PANW (1.09 po sesji)</b> i <b>AVGO (2.09 po sesji)</b> —
+      obie spółki wysoko w rankingu, obie wyłączone z koszyków przez binarny event (precedens W1). <b>NVDA</b> wraca do puli:
+      luka po wynikach z 26–27.08 jest już w cenie odniesienia D0 = 28.08 (zasada świeżej luki wygasła naturalnie).</p>
+    </div>
+
+    <h3>TOP15 (strona LONG)</h3>
+    <div class="tab-otoczka">
+    <table>
+      <tr><th>#</th><th>Ticker</th><th>Wynik</th><th>p</th><th>Ekspozycja AI</th><th>Teza (skrót)</th><th>Ryzyko / pre-mortem</th></tr>
+      <tr><td>1</td><td class="kier-long">MU</td><td class="num">82</td><td class="num">62%</td><td>[1] deficytowa infrastruktura (HBM/DRAM)</td>
+        <td>Pricing power trwa (DRAM serw. +13–18% kw/kw 3Q26, sygnał wyjścia niewyzwolony), fwd P/E ~7 — jedyny tani papier bloku AI w jastrzębim tygodniu; elita zbieżnie byczo (kons. ~1410).</td>
+        <td>Cła na produkty z chipami (Politico 27.08) + wrażliwość na stopy po +255% YTD; wyniki FQ4 ~24.09 tuż ZA oknem. Wchodzi: kontrakty roczne i jednocyfrowy mnożnik amortyzują oba ryzyka.</td></tr>
+      <tr><td>2</td><td class="kier-long">NVDA</td><td class="num">76</td><td class="num">62%</td><td>[1] rdzeń infrastruktury AI</td>
+        <td>Najsilniejsze rewizje w uniwersum: beat + guide 108 mld (kons. 104,2), marża 75%, AWS domawia 2 mln GPU; Sur podniósł cel po wynikach, elita jednogłośna; +3,8% od 26.08 mimo jastrzębiego piątku — popyt broni kursu.</td>
+        <td>Największa waga w NDX = matematycznie trudno pobić indeks relatywnie; AVGO 2.09 może zabrać narrację ASIC vs GPU. Wchodzi: świeżość i skala rewizji (czynnik nr 1) przeważa karę koncentracji.</td></tr>
+      <tr><td>3</td><td class="kier-long">MSFT</td><td class="num">73</td><td class="num">61%</td><td>[2/3] płatnik capexu + monetyzator (Azure)</td>
+        <td>Jedyne trafienie LONG W1 (+2,74 p.p.); Azure +43% przy kursie ~+4% YTD — luka oczekiwań wciąż otwarta; bilans-forteca na wypadek jastrzębiego szoku.</td>
+        <td>Momentum najsłabsze w koszyku; „podatek Warsha” na duration dotyka też mega-capów. Wchodzi: najlepszy stosunek tezy do ryzyka squeeze'u po obu stronach.</td></tr>
+      <tr><td>4</td><td class="kier-long">AMD</td><td class="num">72</td><td class="num">61%</td><td>[1] akceleratory — druga karta rynku</td>
+        <td>Cel Sura 550 (JPM, 5.08) w mocy; czyste okno (wyniki w listopadzie); po −3,9 p.p. w W1 wejście tańsze bez zmiany fundamentów.</td>
+        <td>W jastrzębim tygodniu semis były stroną słabszą — beta może dalej ciążyć. Wchodzi: rewizja +43% celu elity to twardy sygnał, a nie ekstrapolacja rajdu.</td></tr>
+      <tr><td>5</td><td class="kier-long">CEG</td><td class="num">71</td><td class="num">60%</td><td>[1] deficytowa energia dla DC (następna fala)</td>
+        <td>Świeży twardy pozytyw: podniesione widełki EPS 2026 do 11,50–12,50 przy beacie; 31,7 GW floty jądrowej pod popyt DC; dywersyfikuje koszyk poza półprzewodniki.</td>
+        <td>Najbardziej stopowrażliwa pozycja koszyka (utilities vs TIPS 2,34% i podwyżki w grze) — to główny kontrargument. Wchodzi: podniesiony guidance to rewizja w górę TERAZ, a kontrakty są długoterminowe i indeksowane.</td></tr>
+      <tr><td>6</td><td class="kier-long">AVGO</td><td class="num">70</td><td class="num">60%</td><td>[1] custom ASIC + networking</td>
+        <td>AI rev. +200% r/r; Arcuri 345; +3,7% od 26.08 (rynek gra pod raport). <b>FLAGA: wyniki 2.09 — poza koszykiem</b> (precedens: −12,6% kwartał temu mimo beatu).</td>
+        <td>Deklaracja D2 tego okna rozstrzygnie o bloku ASIC.</td></tr>
+      <tr><td>7</td><td class="kier-long">LITE</td><td class="num">69</td><td class="num">61%*</td><td>[1] optyka/CPO — bieżąca fala wąskich gardeł</td>
+        <td>Teza strukturalna bez zmian (miedź nie wywozi klastrów, OM ~40% po beacie 11.08); *wypada z TOP5 taktycznie, nie fundamentalnie.</td>
+        <td>−5,4 p.p. w W1: read-across z MRVL (reset oczekiwań AI-hardware) + crowding po +679%/rok + jastrzębia beta. Wraca do gry, gdy sektor złapie grunt — brak twardego negatywu własnego.</td></tr>
+      <tr><td>8</td><td class="kier-long">CRWD</td><td class="num">68</td><td class="num">59%</td><td>[3] cyber — strukturalny beneficjent AI</td>
+        <td>Beat + podniesiony guidance (26.08); blok cyber najsilniejszy w tygodniu.</td>
+        <td>+15,5% od 26.08 — pogoń za kursem po takim rajdzie ma ujemną wartość oczekiwaną w 5-sesyjnym oknie; poza koszykiem W2, kandydat na W3 po konsolidacji.</td></tr>
+      <tr><td>9</td><td class="kier-long">FTNT</td><td class="num">66</td><td class="num">58%</td><td>[3] cyber/observability</td>
+        <td>+8,1% w tydzień; strukturalny popyt cyber + spekulacyjna premia po nieudanych ofertach PANW (rynek szuka następnych celów).</td>
+        <td>Momentum bez świeżych rewizji = pułapka wg modelu; premia M&amp;A to loteria, nie teza.</td></tr>
+      <tr><td>10</td><td class="kier-long">GOOGL</td><td class="num">65</td><td class="num">57%</td><td>[2/3] płatnik + monetyzator (GCP)</td>
+        <td>GCP +63%, backlog 460 mld; kurs mocny (346,59).</td>
+        <td>Monitoring imienny FCF (−5,85 mld Q2) do wyników Q3 — overhang trzyma poza koszykiem.</td></tr>
+      <tr><td>11</td><td class="kier-long">TER</td><td class="num">64</td><td class="num">57%</td><td>[1] test półprzewodników (fala CPO/HBM)</td>
+        <td>Wąskie gardło testu przy rampach HBM4/CPO; mała waga w indeksie (świeży członek).</td>
+        <td>Cykliczność zamówień; w W1 −2,4% — beta semis ciąży.</td></tr>
+      <tr><td>12</td><td class="kier-long">STX</td><td class="num">63</td><td class="num">56%</td><td>[1] pojemność masowa (HAMR)</td>
+        <td>Deficyt pojemności DC trwa; blok pamięci przed sygnałem wyjścia.</td>
+        <td>Wysoka beta stóp; w jastrzębim otoczeniu drugi szereg za MU.</td></tr>
+      <tr><td>13</td><td class="kier-long">AMZN</td><td class="num">62</td><td class="num">56%</td><td>[2/3] płatnik + monetyzator (AWS)</td>
+        <td>AWS +28% i reakceleracja; chipy własne ~20 mld run-rate.</td>
+        <td>Największy capex 2026 (~200 mld) — najbardziej eksponowany na narrację „kto za to zapłaci” przy droższym pieniądzu.</td></tr>
+      <tr><td>14</td><td class="kier-long">KLAC</td><td class="num">61</td><td class="num">56%</td><td>[1] WFE / kontrola procesu</td>
+        <td>Beneficjent capexu pamięci; marże liderskie.</td>
+        <td>−4,5% w tygodniu; WFE dostaje rykoszetem jastrzębią betę i Chiny.</td></tr>
+      <tr><td>15</td><td class="kier-long">SNPS</td><td class="num">61</td><td class="num">55%</td><td>[3] EDA — narzędzia projektowania AI</td>
+        <td>+8,0% w tygodniu, popyt na projekty custom-ASIC rośnie strukturalnie.</td>
+        <td>Momentum świeże, ale bez potwierdzenia rewizjami; wyniki na horyzoncie wrześniowym.</td></tr>
+    </table>
+    </div>
+    <p style="font-size:.85rem; margin:.2rem 0 .8rem;">Środek stawki (~16–85) bez zmian strukturalnych: jakość defensywna (LIN, CTAS, ORLY, ROST), zdrowa część semis
+    (ADI, TXN, NXPI, MPWR, ASML, QCOM, ARM), platformy o urealnionych wycenach (NFLX, BKNG, MELI, SHOP, DASH, ABNB), biotech/zdrowie (VRTX, REGN, ISRG, ALNY)
+    — statystycznie nieodróżnialne od indeksu w 5 sesji. Nowość: do środka stawki spadają <b>MRVL</b> (reset oczekiwań po wynikach, −11,6% — za świeże na long „po przecenie”,
+    za mocne fundamenty na short) i <b>LRCX/AMAT</b> (jastrzębia beta WFE), awansuje blok cyber.</p>
+
+    <h3>BOTTOM15 (strona SHORT)</h3>
+    <div class="tab-otoczka">
+    <table>
+      <tr><th>#</th><th>Ticker</th><th>Wynik</th><th>p</th><th>Ekspozycja AI</th><th>Teza (skrót)</th><th>Ryzyko / pre-mortem</th></tr>
+      <tr><td>1</td><td class="kier-short">INTU</td><td class="num">24</td><td class="num">62%</td><td>[4] ofiara substytucji agentowej (per-seat)</td>
+        <td>Guidance EPS FY27 22,88–23,12 vs kons. 27,31 (−16%) z wyników 25.08 — najtwardszy świeży negatyw w uniwersum; przymusowe cięcia konsensusu dopiero przed nami; wydzielenie Mailchimp = przyznanie problemu.</td>
+        <td>Odbicie +3,5% od D0 pokazuje siłę squeeze'ów po −53% YTD; kapitalizacja ~100 mld ogranicza (ale nie zeruje) ryzyko oferty PE. Wchodzi: świeża, twarda, liczbowa rewizja w dół bije spekulację squeeze'ową.</td></tr>
+      <tr><td>2</td><td class="kier-short">APP</td><td class="num">28</td><td class="num">61%</td><td>[4] erozja przewagi AI (AXON)</td>
+        <td>Negatyw AI z 5.08 („lżejsze niż zwykle” postępy AXON + słaby guidance Q3) wciąż najświeższym twardym sygnałem; rewizje ujemne.</td>
+        <td>+2,4 p.p. przeciw nam w W1; buybacki + 52-tyg. minimum = paliwo odbicia; teoretyczna atrakcyjność dla przejmującego. Wchodzi: erozja przewagi konkurencyjnej to teza fundamentalna, nie sentymentowa.</td></tr>
+      <tr><td>3</td><td class="kier-short">TSLA</td><td class="num">29</td><td class="num">60%</td><td>[3] narracja robotaxi/Optimus</td>
+        <td>Największa luka oczekiwań in minus w indeksie (Q2: EPS 0,33 vs 0,53) przy wycenie &gt;150x; jastrzębi Fed to podatek od aktyw długoterminowej narracji.</td>
+        <td>Świeże paliwo narracyjne: start produkcji Optimusa we Fremont (28.08) i event Semi zapowiedziany na 24.09 (POZA oknem). Wchodzi: w oknie D+5 brak twardego katalizatora byczego, a liczby są przeciw; przegrana W1 o ledwie 0,13 p.p.</td></tr>
+      <tr><td>4</td><td class="kier-short">CMCSA</td><td class="num">30</td><td class="num">60%</td><td>[0] brak ekspozycji AI</td>
+        <td>Jedyne trafienie short W1 (+1,23 p.p.); strukturalna erozja broadband (FWA/fiber), rewizje ujemne, najniższa beta odbicia — kotwica koszyka.</td>
+        <td>Defensywność może chwilowo pomagać kursowi przy jastrzębim risk-offie. Wchodzi: erozja abonentów jest sekularna, a nie cykliczna.</td></tr>
+      <tr><td>5</td><td class="kier-short">ADBE</td><td class="num">33</td><td class="num">—</td><td>[4] ofiara (kreacja generatywna)</td>
+        <td>Rewizje wciąż ujemne, −31% YTD — rankingowo piąty short...</td>
+        <td>...ale <b>WYKLUCZONA z koszyka</b>: +6,6% od 26.08 w falę M&amp;A software (WDAY/Silver Lake, apetyt PANW) — dokładnie ten profil celu, na którym W1 straciła 6,6 p.p. na WDAY. Lekcja wdrożona.</td></tr>
+      <tr><td>6</td><td class="kier-short">PEP</td><td class="num">34</td><td class="num">58%</td><td>[0]</td>
+        <td>Wchodzi do koszyka za ADBE: staples-przegrany hossy AI, GLP-1 ciąży wolumenom, rewizje relatywnie ujemne, zero ryzyka oferty wykupu (230 mld) i zero ekspozycji na squeeze software'owy.</td>
+        <td>Aktywista w akcjonariacie może wymusić katalizator; przy eskalacji risk-off defensywy relatywnie zyskują. Wchodzi: najczystszy dywersyfikator short-booka po lekcji W1.</td></tr>
+      <tr><td>7</td><td class="kier-short">SBUX</td><td class="num">35</td><td class="num">57%</td><td>[0]</td>
+        <td>Turnaround bez postępów; słaby konsument usług + jastrzębi Fed.</td><td>Każdy sygnał poprawy trafficu = szybkie odbicie.</td></tr>
+      <tr><td>8</td><td class="kier-short">MDLZ</td><td class="num">36</td><td class="num">57%</td><td>[0]</td>
+        <td>Staples + koszty kakao; słabe rewizje.</td><td>Defensywność chroni przy risk-off.</td></tr>
+      <tr><td>9</td><td class="kier-short">KHC</td><td class="num">36</td><td class="num">—</td><td>[0]</td>
+        <td>Najsłabszy bilans marek w staples.</td><td><b>FLAGA: trwający podział spółki — zdarzenie techniczne wyklucza z koszyka</b>.</td></tr>
+      <tr><td>10</td><td class="kier-short">WDAY</td><td class="num">37</td><td class="num">—</td><td>[4→M&amp;A]</td>
+        <td>Fundamentalna teza [4] nie znikła (guidance subskrypcji znów obcięty)...</td>
+        <td>...ale <b>WYKLUCZONA: aktywne rozmowy o wykupie (Silver Lake, widełki wg Needham 240–250)</b> — short wbrew żywej ofercie to hazard, nie analiza. Wynik podniesiony administracyjnie z 25 na 37.</td></tr>
+      <tr><td>11</td><td class="kier-short">MSTR</td><td class="num">37</td><td class="num">—</td><td>[0] krypto-beta</td>
+        <td>VETO-FLAGA krypto-beta (kara −1 kwintyl) — poza koszykiem zgodnie z regułą.</td><td>Zwroty sterowane BTC, nie fundamentami.</td></tr>
+      <tr><td>12</td><td class="kier-short">PDD</td><td class="num">38</td><td class="num">56%</td><td>[0]</td>
+        <td>Geopolityka/cła + kara governance.</td><td>Skrajnie tania; każdy pozytyw z Chin = rajd.</td></tr>
+      <tr><td>13</td><td class="kier-short">PYPL</td><td class="num">39</td><td class="num">55%</td><td>[0/3-lite]</td>
+        <td>Advent–Stripe porzucili wykup (−13,2%) — znika podłoga M&amp;A, wracają słabe fundamenty płatności.</td>
+        <td>Po −13% w dwie sesje ryzyko odbicia technicznego i powrotu spekulacji ofertowej jest zbyt wysokie na wejście TERAZ; obserwacja na W3.</td></tr>
+      <tr><td>14</td><td class="kier-short">GILD</td><td class="num">40</td><td class="num">55%</td><td>[0]</td>
+        <td>Wzrost jednocyfrowy, bez katalizatora.</td><td>Defensywna — słaba wartość oczekiwana shortu.</td></tr>
+      <tr><td>15</td><td class="kier-short">ADP</td><td class="num">41</td><td class="num">54%</td><td>[4-lite]</td>
+        <td>Per-seat payroll — długoterminowa ekspozycja na agentów.</td><td>Jakość compoundera; rewizje neutralne.</td></tr>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Koszyki 2026-W2 (D0 = 28.08.2026, okno do 4.09)</h2>
+    <h3>TOP5 — LONG</h3>
+    <div class="tab-otoczka">
+    <table>
+      <tr><th>Ticker</th><th>Kurs D0</th><th>p</th><th>Nakładka elity</th><th>Teza rozszerzona</th></tr>
+      <tr><td class="kier-long">MU</td><td class="num">932,86</td><td class="num">62%</td>
+        <td>Zbieżność ≥3: Arcuri (UBS, cel 1625, potwierdzony w tygodniu), Sur (JPM) i Rakers (Wells Fargo) byczo na łańcuchu pamięci; kons. ~1410; nowe pokrycie BMO 1300 kierunkowo zgodne. Premia nakładki utrzymana.</td>
+        <td>Bez zmian w silniku tezy: kontrakty DRAM/NAND wciąż rosną (sygnał wyjścia sprawdzony — nie wystąpił), fwd P/E ~7 daje najniższą wrażliwość na jastrzębi Fed w całym bloku AI. Ryzyko celne z 27.08 monitorowane w pulsie (próg reakcji 4% od D0).</td></tr>
+      <tr><td class="kier-long">NVDA</td><td class="num">217,55</td><td class="num">62%</td>
+        <td>Elita jednogłośnie bycza; Sur (JPM) podniósł cel po wynikach 26.08; Malik (Citi) byczo na akceleratorach. Zbieżność ≥3 = premia.</td>
+        <td>Nowa w koszyku (W1: wykluczona zasadą świeżej luki — luka jest już w D0). Największa i najświeższa rewizja prognoz w uniwersum (guide 108 vs 104,2 kons., marża 75%); obroniła się w jastrzębi piątek. Świadomie akceptujemy karę koncentracji (trudniej pobić indeks własną wagą ~1/7 NDX).</td></tr>
+      <tr><td class="kier-long">MSFT</td><td class="num">513,53</td><td class="num">61%</td>
+        <td>Mahaney (Evercore) strukturalnie byczo na mega-cap internet — bez świeżego celu; wybór na danych Azure.</td>
+        <td>Kontynuacja jedynego trafienia LONG z W1: luka oczekiwań (Azure +43%, &gt;100 mld rocznie vs kurs ledwie +4% YTD) domyka się powoli; bilans-forteca jako hedge jastrzębiego scenariusza.</td></tr>
+      <tr><td class="kier-long">AMD</td><td class="num">465,58</td><td class="num">61%</td>
+        <td>Sur (JPM) 385→550 (5.08) — wciąż najświeższa duża rewizja elity; Malik byczo na blok akceleratorów.</td>
+        <td>Czyste okno (wyniki w listopadzie), teza rampu MI nienaruszona, a tygodniowa przecena −3,2% obniża punkt wejścia. Druga karta rynku akceleratorów — odbiorca capexu w fazie budowy.</td></tr>
+      <tr><td class="kier-long">CEG</td><td class="num">276,75</td><td class="num">60%</td>
+        <td>Poza pokryciem elity semis/internet — bez nakładki; wybór fundamentalny.</td>
+        <td>Podniesione widełki EPS 2026 (11,50–12,50) przy beacie = rewizja w górę „na twardo”. Deficyt mocy dla DC jest sztywniejszy niż cykl stóp; pozycja świadomie akceptuje stopowrażliwość (pre-mortem) jako cenę za dywersyfikację koszyka poza semis.</td></tr>
+    </table>
+    </div>
+    <h3>BOTTOM5 — SHORT</h3>
+    <div class="tab-otoczka">
+    <table>
+      <tr><th>Ticker</th><th>Kurs D0</th><th>p</th><th>Nakładka elity</th><th>Teza rozszerzona</th></tr>
+      <tr><td class="kier-short">INTU</td><td class="num">358,06</td><td class="num">62%</td>
+        <td>Brak zgodnego Buy ≥3 elity (elita nie prowadzi software'u aplikacyjnego) — konflikt nie występuje; wymóg „świeżego twardego negatywu” spełniony z nawiązką (guidance 25.08).</td>
+        <td>Cięcie własnej prognozy EPS FY27 o ~16% vs konsensus wymusza falę obniżek modeli sell-side w najbliższych tygodniach — to czynnik nr 1 modelu w czystej postaci, po niewłaściwej stronie. Squeeze +3,5% od D0 poprawia wejście.</td></tr>
+      <tr><td class="kier-short">APP</td><td class="num">317,76</td><td class="num">61%</td>
+        <td>Bez konfliktu z elitą.</td>
+        <td>Twardy negatyw AI (AXON, 5.08) bez przeciw-sygnału; rewizje ujemne. Po lekcji WDAY sprawdzono: brak doniesień o zainteresowaniu przejęciem APP (kontrola założycielska utrudnia wykup) — ryzyko M&amp;A niższe niż w reszcie kohorty [4].</td></tr>
+      <tr><td class="kier-short">TSLA</td><td class="num">348,75</td><td class="num">60%</td>
+        <td>Bez konfliktu (nasza elita nie pokrywa TSLA; konsensus rynkowy rozstrzelony).</td>
+        <td>Rachunek bez zmian: EPS −39% vs kons. przy &gt;150x zysków, a jastrzębi Fed podnosi koszt kapitału dla narracji o dekadę naprzód. Pre-mortem: Optimus/Fremont i zapowiedź eventu Semi (24.09, poza oknem) mogą karmić rajd — akceptujemy jako najzmienniejszy short koszyka.</td></tr>
+      <tr><td class="kier-short">CMCSA</td><td class="num">27,06</td><td class="num">60%</td>
+        <td>Bez konfliktu z elitą.</td>
+        <td>Kotwica potwierdzona wynikiem W1 (+1,23 p.p.): sekularna erozja broadband (FWA/fiber), ujemne rewizje, typ [0] dywersyfikuje book. Bez katalizatorów w oknie.</td></tr>
+      <tr><td class="kier-short">PEP</td><td class="num">141,07</td><td class="num">58%</td>
+        <td>Poza pokryciem elity — bez konfliktu.</td>
+        <td>Zastępuje WDAY (cel wykupu) i wyprzedza rankingowo wyższą ADBE (wykluczoną falą M&amp;A): strukturalny przegrany relatywny hossy AI z ciążącym GLP-1, bez ryzyka oferty i bez squeeze'owej bety software'u. Najniższe p koszyka (58%) uczciwie odzwierciedla defensywny charakter.</td></tr>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Trzy falsyfikowalne deklaracje na okno W2 (28.08 → 4.09)</h2>
+    <ul class="panel">
+      <li><b>D1.</b> MU pobije ^NDX relatywnie (zwrot MU − zwrot ^NDX &gt; 0 na zamknięciach 28.08→4.09) — podtrzymana z W1 po falstarcie −1,31 p.p.</li>
+      <li><b>D2.</b> AVGO na wynikach 2.09 podtrzyma lub podniesie cel przychodów AI FY27 „&gt;100 mld USD” (przeniesiona z W1); rozmycie/obniżka = pierwszy twardy sygnał pęknięcia popytu ASIC i natychmiastowa przesłanka REDUCE dla bloku AI w pulsie dziennym.</li>
+      <li><b>D3.</b> INTU przegra z ^NDX relatywnie o ≥1,0 p.p. w oknie (cięcia modeli sell-side po guidance FY27 przeważą squeeze) — celowo zawężona wobec sfalsyfikowanej szerokiej D2 z W1.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Zastrzeżenie</h2>
+    <div class="karta">
+      <p style="font-size:.85rem;">Zwroty 5-sesyjne są w przeważającej mierze losowe — rozliczenie W1 (spread −4,06 p.p. w 2 sesje, zdominowane przez
+      pojedyncze zdarzenie M&amp;A) jest tego podręcznikową ilustracją i nie przesądza o jakości modelu w żadną stronę; przewaga — jeśli istnieje —
+      ujawnia się w serii tygodni (cel długoterminowy: hit rate 55–60%). Prawdopodobieństwa p są obcięte do pasma 38–62%. Każda liczba ma datę odczytu,
+      bo te same wskaźniki różnią się między snapshotami źródeł. Raport nie jest poradą inwestycyjną; służy pętli nauki systemu NDX100.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Raport tygodniowy NDX100 · audyt 2026-W2 · wygenerowano 29.08.2026 przez rutynę tygodniową (Model 3.0, wagi rotacyjne).</p>
+  <p><b>Źródła kursów:</b> Yahoo Finance chart/spark API (query1/query2), odczyt 29.08.2026 ~3:15–3:45 ET. Świece dzienne z sesji 28.08 miały w chart API puste pole close —
+  zamknięcia piątkowe pobrano z chart-meta (regularMarketPrice, znacznik czasu 28.08 17:15 ET) dla wszystkich 104 symboli; walidacja D0 (26.08): zamknięcia koszyków W1 zgodne
+  z d0.prices (tolerancja 0,5%). ^NDX 29&nbsp;433,43 (−0,70%) spójny z depeszami (Vista Partners/vittarthi: Nasdaq Composite −0,52%, growth słabsze od S&amp;P).
+  Skrypt kursy.py otrzymywał HTTP 429 dla swojej sygnatury zapytań — komplet danych pobrano tym samym API z uproszczonym nagłówkiem (ścieżka rezerwowa jak w pulsie 28.08).</p>
+  <p><b>Fundamenty i wydarzenia:</b> CNBC/NPR/Axios/WaPo (Jackson Hole, 28.08), CME FedWatch via CNBC (~56% szans podwyżki), FRED/CNBC (TIPS 2,34%, 27–28.08),
+  TrendForce (3.07/9.07 — ceny pamięci 3Q26), MacroMicro/trendonify (fwd P/E ~20,8, 24.08) i GuruFocus (trailing 28,4) jako źródła zastępcze za WSJ (blokada sieci),
+  Intuit IR/Benzinga (guidance FY27, 25.08), Benzinga (CEG, 27.08), Yahoo/Bloomberg/TIKR (WDAY–Silver Lake, 28.08), Motley Fool/24-7WallSt (MRVL, 28.08),
+  TradingKey/everhint (PYPL/PANW, 28.08), ir.nasdaq.com (skład indeksu). Daty odczytu przy kartach.</p>
+</footer>
+</body>
+</html>
