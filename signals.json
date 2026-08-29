@@ -1,42 +1,53 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W1",
+  "version": "2026-W2",
   "status": "AKTUALNA",
   "long": [
     "MU",
-    "LITE",
-    "CEG",
+    "NVDA",
+    "MSFT",
     "AMD",
-    "MSFT"
+    "CEG"
   ],
   "short": [
     "INTU",
-    "WDAY",
     "APP",
     "TSLA",
-    "CMCSA"
+    "CMCSA",
+    "PEP"
   ],
   "exclude": [],
   "tactical": [],
   "last_daily": "2026-08-28",
-  "history": [],
+  "history": [
+    {
+      "week": "2026-W1",
+      "spread_pp": -4.06,
+      "hit_top": "1/5",
+      "hit_bottom": "1/5",
+      "tactical_pp": null,
+      "managed_pp": -4.06,
+      "reaction_pp": 0.0,
+      "rezim": "P0"
+    }
+  ],
   "d0": {
-    "date": "2026-08-26",
-    "ndx": 29224.52,
+    "date": "2026-08-28",
+    "ndx": 29433.43,
     "prices": {
-      "MU": 938.4,
-      "LITE": 939.03,
-      "CEG": 279.52,
-      "AMD": 480.93,
-      "MSFT": 496.37,
-      "INTU": 345.88,
-      "WDAY": 190.75,
-      "APP": 308.11,
-      "TSLA": 345.82,
-      "CMCSA": 27.2
+      "MU": 932.86,
+      "NVDA": 217.55,
+      "MSFT": 513.53,
+      "AMD": 465.58,
+      "CEG": 276.75,
+      "INTU": 358.06,
+      "APP": 317.76,
+      "TSLA": 348.75,
+      "CMCSA": 27.06,
+      "PEP": 141.07
     }
   },
-  "generated": "2026-08-27",
+  "generated": "2026-08-29",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
