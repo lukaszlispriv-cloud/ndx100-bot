@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puls NDX100 — 31.08.2026</title>
+<style>
+  :root{
+    --tlo:#F6F7F4; --granat:#10243E; --ziel:#0E7C4A; --czerw:#C4372E;
+    --bursztyn:#B7791F; --karta:#FFFFFF; --ramka:#E3E5E0; --tekst:#1C2430;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--tlo); color:var(--tekst);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       font-size:16px; line-height:1.5; padding-bottom:2rem;}
+  .mono{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;}
+  header{background:var(--granat); color:#fff; padding:1.1rem 1rem 1.3rem;}
+  header .tytul{font-size:0.8rem; letter-spacing:0.12em; text-transform:uppercase; opacity:.75;}
+  header h1{font-size:1.35rem; margin-top:.15rem; font-weight:700;}
+  .pasek-idx{display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:center; margin-top:.8rem;}
+  .ndx-kurs{font-size:1.55rem; font-weight:700;}
+  .ndx-kurs small{font-size:.8rem; font-weight:400; opacity:.7; display:block;}
+  .zmiana-plus{color:#7FD6A4;} .zmiana-minus{color:#F2A9A2;}
+  .badge-rezim{display:inline-block; background:#123B26; border:2px solid var(--ziel);
+    color:#8FE3B4; border-radius:10px; padding:.45rem .8rem; font-size:.78rem; line-height:1.45;}
+  .badge-rezim b{font-size:1rem; color:#B9F2D2;}
+  .stempel-otoczka{display:flex; justify-content:center; margin:1.2rem 0 .4rem;}
+  .stempel{border:3px solid var(--ziel); color:var(--ziel); text-transform:uppercase;
+    font-weight:800; letter-spacing:.18em; padding:.5rem 1.1rem; font-size:1.05rem;
+    transform:rotate(-2.5deg); border-radius:6px; background:rgba(14,124,74,.06);}
+  .stempel small{display:block; font-size:.62rem; letter-spacing:.08em; font-weight:600; text-align:center;}
+  main{max-width:760px; margin:0 auto; padding:0 .8rem;}
+  section{margin-top:1.4rem;}
+  h2{font-size:1.02rem; text-transform:uppercase; letter-spacing:.08em; color:var(--granat);
+     border-bottom:2px solid var(--granat); padding-bottom:.3rem; margin-bottom:.7rem;}
+  .karta{background:var(--karta); border:1px solid var(--ramka); border-radius:10px;
+     padding:.8rem .9rem; margin-bottom:.6rem;}
+  .etyk{display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em;
+     padding:.14rem .45rem; border-radius:4px; color:#fff; margin-right:.4rem; vertical-align:1px;}
+  .e-wyniki{background:#28527A;} .e-makro{background:#6B4E9B;} .e-rezim{background:var(--ziel);}
+  .e-rekom{background:#946200;} .e-info{background:#5B6770;} .e-sec{background:#7A2E52;}
+  .karta p{font-size:.92rem;}
+  .zrodlo{display:block; font-size:.74rem; color:#66707C; margin-top:.3rem;}
+  .tab-otoczka{overflow-x:auto; background:var(--karta); border:1px solid var(--ramka); border-radius:10px;}
+  table{border-collapse:collapse; width:100%; min-width:560px; font-size:.88rem;}
+  th{background:#EDEFEA; text-align:left; padding:.5rem .6rem; font-size:.72rem;
+     text-transform:uppercase; letter-spacing:.05em; color:#3C4654;}
+  td{padding:.5rem .6rem; border-top:1px solid var(--ramka);}
+  td.num{text-align:right; font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace; font-size:.85rem; white-space:nowrap;}
+  .plus{color:var(--ziel);} .minus{color:var(--czerw);}
+  .kier-long{color:var(--ziel); font-weight:700;} .kier-short{color:var(--czerw); font-weight:700;}
+  .bd{color:#8A939E;}
+  .spread{background:var(--granat); color:#fff; border-radius:10px; padding:.75rem .9rem;
+     margin-top:.6rem; font-size:.92rem; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  .kal li{background:var(--karta); border:1px solid var(--ramka); border-radius:8px;
+     padding:.55rem .7rem; margin-bottom:.45rem; list-style:none; font-size:.9rem;}
+  .kal b{color:var(--granat);}
+  footer{max-width:760px; margin:2rem auto 0; padding:0 .8rem; font-size:.74rem; color:#66707C;}
+  footer p{margin-bottom:.4rem;}
+</style>
+</head>
+<body>
+<header>
+  <div class="tytul">Puls NDX100 · raport dzienny</div>
+  <h1>Poniedziałek, 31 sierpnia 2026</h1>
+  <div class="pasek-idx">
+    <div class="ndx-kurs mono">^NDX 29&nbsp;433,43 <span class="zmiana-minus">−0,70%</span>
+      <small>zamknięcie 28.08.2026 (ostatnia zakończona sesja; Yahoo chart API, zgodne z d0 w signals.json)</small>
+    </div>
+    <div class="badge-rezim">
+      <b>REŻIM&nbsp;P0</b> · bez ograniczeń<br>
+      NDX vs MA200: <span class="mono">+9,3%</span> (MA200 26&nbsp;925)<br>
+      Drawdown: <span class="mono">−4,0%</span> od szczytu 52-tyg. (30&nbsp;660,60)<br>
+      VIX: <span class="mono">14,43</span> (zamkn. 28.08; Yahoo = CBOE = FMP)
+    </div>
+  </div>
+</header>
+
+<div class="stempel-otoczka">
+  <div class="stempel">Aktualna<br><small>prognoza 2026-W2 w mocy · D+0 (D0 = 28.08.2026 — od aktywacji koszyków nie było jeszcze sesji)</small></div>
+</div>
+
+<main>
+  <section>
+    <h2>Najważniejsze zmiany (weekend 29–31.08)</h2>
+    <div class="karta">
+      <p><span class="etyk e-makro">MAKRO</span><b>Eskalacja USA–Iran w weekend.</b> W niedzielę 30.08 siły USA
+      zniszczyły dwie irańskie wyrzutnie rakiet na wyspie Larak, które wg CENTCOM przygotowywały się do
+      stawiania min morskich w cieśninie Ormuz — pierwsza akcja militarna od miesiąca w trwającej ponad pół
+      roku wojnie; Iran zapowiedział odwet. Ropa w niedzielę: WTI <span class="mono plus">+1,8%</span>
+      (84,94 USD), Brent <span class="mono plus">+1,9%</span> (89,79 USD). W poniedziałek rano futures na
+      indeksy USA ok. <span class="mono minus">−0,2%</span>, VIX intraday 15,31 (+0,88 od zamknięcia).
+      Ruch ryzyka umiarkowany — daleko od progów reżimowych; bez akcji na koszykach.
+      <span class="zrodlo">AP via PBS/NBC/CNBC, Bloomberg, Washington Post · 30.08.2026; CBOE delayed quotes i AOL/„5 things” · 31.08.2026 rano</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-makro">MAKRO</span><b>Piątek za nami:</b> ^NDX <span class="mono minus">−0,70%</span>
+      (29&nbsp;433,43), Nasdaq Composite −0,52%; przewodniczący Fed Kevin Warsh w Jackson Hole studził oczekiwania:
+      letnie odczyty PCE/CPI były lepsze od oczekiwań, ale „nie świadczą o istotnej poprawie trendów inflacji”.
+      W koszykach piątek był już dniem D0 (zamknięcia = kursy odniesienia): NVDA
+      <span class="mono minus">−4,57%</span> (realizacja zysków po wynikach), MSFT +1,68%, INTU +2,89%,
+      CMCSA +2,46% — te ruchy są wliczone w bazę D0, pozycje startują od zera.
+      <span class="zrodlo">CNBC (28.08.2026), Yahoo chart API i FMP profile (zamknięcia 28.08, odczyt 31.08 ~8:50 ET)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">SHORT/PAMIĘĆ</span><b>Blok pamięci (MU):</b> ceny kontraktowe DRAM/NAND wciąż
+      rosną — TrendForce podtrzymuje +13–18% kw/kw dla serwerowego DRAM w 3Q26 (publ. 09.07), a w aktualizacji
+      cen z 31.08 notuje dalszy wzrost kwotowań PC DRAM przy hamującej dynamice („pat” kupujący–sprzedający).
+      <b>Brak pierwszej obniżki cen kontraktowych</b> → brak twardego wyzwalacza CLOSE dla bloku pamięci.
+      Short interest FINRA: kolejna publikacja półmiesięczna — b.d. w tym biegu.
+      <span class="zrodlo">TrendForce (09.07.2026, aktualizacja cen 31.08.2026)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-rekom">REKOM.-ELITA</span>W ostatnich 72h <b>brak rekomendacji elity przeciw
+      którejkolwiek tezie koszykowej</b>. Kontekst pro-tezowy dla MU/NVDA: Timothy Arcuri (UBS, elita) —
+      ceny HBM4/HBM4E „jeszcze mocniejsze od naszych wcześniejszych oczekiwań”, ASP HBM ok. +79% r/r
+      (nota z 21.08); BMO zainicjowało MU z ceną docelową 1&nbsp;300 USD (21.08). Sygnałów SELL od
+      Rasgona/Curtisa ani wpisów z downside-watch Malika w ostatnich 24h nie odnotowano.
+      <span class="zrodlo">invezz.com (Arcuri, 21.08.2026), Yahoo Finance (BMO, 21.08.2026); przegląd depesz 29–31.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">TSLA</span><b>TSLA</b> (koszyk SHORT): doniesienia o incydencie FSD
+      (pojazd w trybie autonomicznym omal nie wjechał pod pociąg, 28.08) przy równoległej ekspansji robotaxi —
+      negatyw wizerunkowy poniżej rangi szoku, kierunkowo <b>zgodny z tezą SHORT</b>. Bez akcji.
+      <span class="zrodlo">NotATeslaApp / przegląd depesz · 28–30.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-rezim">REŻIM</span>P0 utrzymany — wszystkie prerejestrowane progi z zapasem:
+      NDX 29&nbsp;433 &gt; MA200 26&nbsp;925 (+9,3%); NDX &gt; MA50 29&nbsp;270; drawdown −4,0% &lt; 10%;
+      VIX 14,43 &lt; 28; sesja −0,70% &gt; −5%. Twarde niedźwiedzie sygnały systemowe: brak (ceny pamięci
+      rosną, brak doniesień o anulacjach zamówień GPU/optyki, brak nowych danych o FCF hyperscalerów
+      i dynamice chmur od raportów lipcowych). Eskalacja Iran–USA nie jest sygnałem z listy prerejestrowanej —
+      monitorowana przez VIX.
+      <span class="zrodlo">obliczenia własne wg prerejestrowanych progów; seria 1R ^NDX i ^VIX: Yahoo chart API (odczyt 31.08 ~8:50 ET), VIX potwierdzony CBOE i FMP</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Koszyk LONG <span style="font-weight:400; font-size:.8rem; text-transform:none;">(D0 = 28.08.2026 · kurs ostatni = 28.08.2026 — brak sesji od D0)</span></h2>
+    <div class="tab-otoczka">
+      <table>
+        <tr><th>Spółka</th><th>Kierunek</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+        <tr><td><b>MU</b></td><td class="kier-long">LONG</td><td class="num">932,86</td><td class="num">932,86</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>NVDA</b></td><td class="kier-long">LONG</td><td class="num">217,55</td><td class="num">217,55</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>MSFT</b></td><td class="kier-long">LONG</td><td class="num">513,53</td><td class="num">513,53</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>AMD</b></td><td class="kier-long">LONG</td><td class="num">465,58</td><td class="num">465,58</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>CEG</b></td><td class="kier-long">LONG</td><td class="num">276,75</td><td class="num">276,75</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Koszyk SHORT <span style="font-weight:400; font-size:.8rem; text-transform:none;">(zwrot pozycji = −zmiana kursu · relatywnie = ^NDX − spółka)</span></h2>
+    <div class="tab-otoczka">
+      <table>
+        <tr><th>Spółka</th><th>Kierunek</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+        <tr><td><b>INTU</b></td><td class="kier-short">SHORT</td><td class="num">358,06</td><td class="num">358,06</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>APP</b></td><td class="kier-short">SHORT</td><td class="num">317,76</td><td class="num">317,76</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>TSLA</b></td><td class="kier-short">SHORT</td><td class="num">348,75</td><td class="num">348,75</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>CMCSA</b></td><td class="kier-short">SHORT</td><td class="num">27,06</td><td class="num">27,06</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+        <tr><td><b>PEP</b></td><td class="kier-short">SHORT</td><td class="num">141,07</td><td class="num">141,07</td><td class="num">0,00%</td><td class="num">0,00 p.p.</td></tr>
+      </table>
+    </div>
+    <div class="spread">
+      <span><b>Spread L/S (D+0):</b> <span class="mono">0,00 p.p.</span></span>
+      <span style="font-size:.8rem; opacity:.8">start tygodnia 2026-W2 — od aktywacji koszyków (D0 = piątek 28.08) nie odbyła się żadna sesja; pierwszy pomiar po dzisiejszym zamknięciu</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pozycje taktyczne</h2>
+    <div class="karta">
+      <p>Brak otwartych pozycji taktycznych i brak nowych sygnałów. Weekend nie przyniósł w uniwersum
+      twardych świeżych wyzwalaczy (brak raportów kwartalnych, wezwań ani przełomowych kontraktów w ciągu
+      ostatnich 24h; poniedziałkowe ruchy pre-market spółek uniwersum — m.in. SPCX −0,9% po zapowiedzi
+      fabryki łopatek turbin — poniżej rangi wyzwalacza). Sygnałów SELL od Rasgona/Curtisa/Malika-watch
+      nie odnotowano.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Kalendarz dnia — poniedziałek 31.08</h2>
+    <ul class="kal">
+      <li><b>Wyniki:</b> w dostępnych kalendarzach brak potwierdzonych raportów spółek z uniwersum NDX100 na dziś.
+        W tygodniu: <b>PANW</b> (uniwersum) — wtorek 1.09 po sesji; <b>AVGO</b> (uniwersum) — środa 2.09 po sesji
+        (kluczowy test tez AI: cel przychodów AI). <span class="zrodlo">AOL/„5 things”, Seeking Alpha week-ahead · 31.08.2026</span></li>
+      <li><b>Makro:</b> dzień lekki; najważniejsze publikacje tygodnia: ISM przemysłowy (wt 1.09) oraz
+        <b>raport z rynku pracy NFP w piątek 4.09</b> (konsensus ok. +50 tys. po −23 tys. w lipcu).
+        <span class="zrodlo">AOL/barchart · 29–31.08.2026</span></li>
+      <li><b>AAPL</b> (uniwersum): wg depesz dziś ostatni dzień Tima Cooka jako CEO Apple (koniec 15-letniej kadencji) —
+        planowana sukcesja, bez wpływu na koszyki. <span class="zrodlo">AOL/„5 things” · 31.08.2026</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p><b>Źródła kursów:</b> konektor MCP (FMP) — profile spółek, odczyt 31.08.2026 ok. 8:45–8:55 ET, zamknięcia
+  z sesji 28.08.2026 (ostatnia zakończona; granica 16:10 NY); seria roczna ^NDX i ^VIX — Yahoo chart API
+  (query2.finance.yahoo.com). Walidacja D0 (28.08): wszystkie 10 spółek koszykowych zgodne z d0.prices
+  co do centa (0,00% odchylenia), ^NDX 29&nbsp;433,43 zgodny z d0.ndx. Kontrola krzyżowa dwóch źródeł:
+  MU 932,86 i NVDA 217,55 identyczne w FMP i Yahoo; VIX 14,43 identyczny w Yahoo, CBOE (prev_day_close)
+  i FMP.</p>
+  <p><b>Uwaga techniczna:</b> endpointy kursowe FMP (quote/chart/indexes) niedostępne w planie konektora —
+  kursy spółek pobrano z endpointu profilowego FMP, a serie indeksów z Yahoo (skrypt repo napotkał HTTP 429
+  przy domyślnej sygnaturze; dane uzyskano z uproszczonym User-Agentem, zakres pobrań ograniczony do
+  indeksów + kontroli krzyżowej). Short interest FINRA: b.d. w tym biegu.</p>
+  <p>Materiał analityczno-edukacyjny — nie stanowi rekomendacji inwestycyjnej w rozumieniu przepisów.
+  Raport wygenerowany automatycznie przez system AI „Puls NDX100” (bez udziału człowieka), 31.08.2026.</p>
+</footer>
+</body>
+</html>
