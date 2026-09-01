@@ -16,9 +16,16 @@
     "CMCSA",
     "PEP"
   ],
-  "exclude": [],
+  "exclude": [
+    {
+      "ticker": "TSLA",
+      "action": "REDUCE",
+      "reason": "miękki wyzwalacz 1.09: +5,5% od D0 przeciw tezie short (zamkn. 367,95 z 31.08 vs D0 348,75) — rajd przed eventem Cybercab 3.09 i po zgodzie Nevady na sieć robotaxi w hrabstwie Clark",
+      "date": "2026-09-01"
+    }
+  ],
   "tactical": [],
-  "last_daily": "2026-08-31",
+  "last_daily": "2026-09-01",
   "history": [
     {
       "week": "2026-W1",
