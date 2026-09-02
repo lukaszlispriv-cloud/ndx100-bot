@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puls NDX100 — 2.09.2026</title>
+<style>
+  :root{
+    --tlo:#F6F7F4; --granat:#10243E; --ziel:#0E7C4A; --czerw:#C4372E;
+    --bursztyn:#B7791F; --karta:#FFFFFF; --ramka:#E3E5E0; --tekst:#1C2430;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--tlo); color:var(--tekst);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       font-size:16px; line-height:1.5; padding-bottom:2rem;}
+  .mono{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;}
+  header{background:var(--granat); color:#fff; padding:1.1rem 1rem 1.3rem;}
+  header .tytul{font-size:0.8rem; letter-spacing:0.12em; text-transform:uppercase; opacity:.75;}
+  header h1{font-size:1.35rem; margin-top:.15rem; font-weight:700;}
+  .pasek-idx{display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:center; margin-top:.8rem;}
+  .ndx-kurs{font-size:1.55rem; font-weight:700;}
+  .ndx-kurs small{font-size:.8rem; font-weight:400; opacity:.7; display:block;}
+  .zmiana-plus{color:#7FD6A4;} .zmiana-minus{color:#F2A9A2;}
+  .badge-rezim{display:inline-block; background:#123B26; border:2px solid var(--ziel);
+    color:#8FE3B4; border-radius:10px; padding:.45rem .8rem; font-size:.78rem; line-height:1.45;}
+  .badge-rezim b{font-size:1rem; color:#B9F2D2;}
+  .stempel-otoczka{display:flex; justify-content:center; margin:1.2rem 0 .4rem;}
+  .stempel{border:3px solid var(--ziel); color:var(--ziel); text-transform:uppercase;
+    font-weight:800; letter-spacing:.18em; padding:.5rem 1.1rem; font-size:1.05rem;
+    transform:rotate(-2.5deg); border-radius:6px; background:rgba(14,124,74,.06);}
+  .stempel small{display:block; font-size:.62rem; letter-spacing:.08em; font-weight:600; text-align:center;}
+  main{max-width:760px; margin:0 auto; padding:0 .8rem;}
+  section{margin-top:1.4rem;}
+  h2{font-size:1.02rem; text-transform:uppercase; letter-spacing:.08em; color:var(--granat);
+     border-bottom:2px solid var(--granat); padding-bottom:.3rem; margin-bottom:.7rem;}
+  .karta{background:var(--karta); border:1px solid var(--ramka); border-radius:10px;
+     padding:.8rem .9rem; margin-bottom:.6rem;}
+  .etyk{display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em;
+     padding:.14rem .45rem; border-radius:4px; color:#fff; margin-right:.4rem; vertical-align:1px;}
+  .e-wyniki{background:#28527A;} .e-makro{background:#6B4E9B;} .e-rezim{background:var(--ziel);}
+  .e-rekom{background:#946200;} .e-info{background:#5B6770;} .e-sec{background:#7A2E52;}
+  .e-reakcja{background:var(--czerw);}
+  .karta p{font-size:.92rem;}
+  .zrodlo{display:block; font-size:.74rem; color:#66707C; margin-top:.3rem;}
+  .tab-otoczka{overflow-x:auto; background:var(--karta); border:1px solid var(--ramka); border-radius:10px;}
+  table{border-collapse:collapse; width:100%; min-width:560px; font-size:.88rem;}
+  th{background:#EDEFEA; text-align:left; padding:.5rem .6rem; font-size:.72rem;
+     text-transform:uppercase; letter-spacing:.05em; color:#3C4654;}
+  td{padding:.5rem .6rem; border-top:1px solid var(--ramka);}
+  td.num{text-align:right; font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace; font-size:.85rem; white-space:nowrap;}
+  .plus{color:var(--ziel);} .minus{color:var(--czerw);}
+  .kier-long{color:var(--ziel); font-weight:700;} .kier-short{color:var(--czerw); font-weight:700;}
+  .bd{color:#8A939E;}
+  .red-tag{display:inline-block; font-size:.64rem; font-weight:800; color:#fff; background:var(--bursztyn);
+     border-radius:4px; padding:.1rem .35rem; margin-left:.35rem; vertical-align:1px;}
+  .spread{background:var(--granat); color:#fff; border-radius:10px; padding:.75rem .9rem;
+     margin-top:.6rem; font-size:.92rem; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  .kal li{background:var(--karta); border:1px solid var(--ramka); border-radius:8px;
+     padding:.55rem .7rem; margin-bottom:.45rem; list-style:none; font-size:.9rem;}
+  .kal b{color:var(--granat);}
+  footer{max-width:760px; margin:2rem auto 0; padding:0 .8rem; font-size:.74rem; color:#66707C;}
+  footer p{margin-bottom:.4rem;}
+</style>
+</head>
+<body>
+<header>
+  <div class="tytul">Puls NDX100 · raport dzienny</div>
+  <h1>Środa, 2 września 2026</h1>
+  <div class="pasek-idx">
+    <div class="ndx-kurs mono">^NDX 29&nbsp;077,22 <span class="zmiana-minus">−1,29%</span>
+      <small>zamknięcie 1.09.2026 (ostatnia zakończona sesja; CBOE delayed quotes — rezerwa, odczyt 2.09 ~8:47 ET; kontrola: QQQ −1,27% wg FMP)</small>
+    </div>
+    <div class="badge-rezim">
+      <b>REŻIM&nbsp;P0</b> · bez ograniczeń<br>
+      NDX vs MA200: <span class="mono">+8,0%</span> (MA200 ≈26&nbsp;925) · NDX &lt; MA50 (≈29&nbsp;271, −0,7%)<br>
+      Drawdown: <span class="mono">−5,2%</span> od szczytu 52-tyg. (30&nbsp;660,60)<br>
+      VIX: <span class="mono">16,34</span> (zamkn. 1.09; CBOE = FMP)
+    </div>
+  </div>
+</header>
+
+<div class="stempel-otoczka">
+  <div class="stempel">Aktualna<br><small>prognoza 2026-W2 w mocy · D+2 (D0 = 28.08.2026) · 1 reakcja: REDUCE TSLA (od 1.09)</small></div>
+</div>
+
+<main>
+  <section>
+    <h2>Najważniejsze zmiany (24h)</h2>
+    <div class="karta">
+      <p><span class="etyk e-makro">MAKRO</span><b>Risk-off: rentowności najwyżej od listopada 2023, ropa +5%, Fed straszy podwyżką.</b>
+      Wtorek: S&amp;P 500 <span class="mono minus">−0,71%</span> (7&nbsp;631,47), Nasdaq Composite
+      <span class="mono minus">−1,03%</span> (26&nbsp;099,77), Dow <span class="mono minus">−0,79%</span> (52&nbsp;766,88),
+      ^NDX <span class="mono minus">−1,29%</span>. 10Y <span class="mono">4,79%</span> (w ciągu dnia 4,814% — max od listopada 2023, piąta
+      sesja wzrostu z rzędu), 30Y <span class="mono">5,29%</span>. WTI <span class="mono plus">+4,46 USD</span> do 90,22 USD, Brent ok. 95 USD
+      (najwyżej od końca lipca) po trafieniu dwóch tankowców w Ormuz i amerykańskich uderzeniach na wyrzutnie w Iranie; DXY powyżej 99,5.
+      Gubernator Fed Barr: Fed powinien „zdecydowanie podnieść stopy”, jeśli inflacja nie wyhamuje (PCE 3,7% r/r, bazowy 3,3%);
+      rynek wycenia podwyżkę 16.09 na ok. 66%. Dane: ISM przemysłowy <span class="mono">54,6</span> (prog. ok. 55,0; poprz. 55,6; nowe zamówienia 53,7, −3,0 pkt),
+      JOLTS lipiec <span class="mono">7,271 mln</span> wakatów (+89 tys.). Liderzy spadków: Alphabet −2,21%, NVDA −2,03% (intraday), CAT −1,74%; energia w górę (XOM +2,7%, CVX +2,1%).
+      <span class="zrodlo">Zacks/Yahoo Finance „Stock Market News for Sep 1, 2026”; CNBC (rentowności, 2.09.2026); Bloomberg/Yahoo (Barr, 1.09.2026); ISM (komunikat PRNewswire 1.09.2026); BLS JOLTS 1.09.2026; Odessa American (WTI, 1.09.2026); TradingEconomics (DXY, 1.09.2026)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-wyniki">WYNIKI</span><b>PANW (uniwersum, po sesji 1.09): beat-and-raise, ale kurs w dół → brak sygnału taktycznego.</b>
+      FQ4: przychody <span class="mono">3,41 mld USD</span> (+34% r/r; konsensus ~3,35 mld), EPS non-GAAP <span class="mono">1,02</span> (kons. 0,98),
+      NGS ARR 9,10 mld (+63%), RPO 21,2 mld (pierwszy raz &gt;20 mld). Prognoza FY27: przychody 14,10–14,20 mld (+23–24%), EPS 4,16–4,19 (kons. 4,11),
+      marża op. 29,5%, FCF adj. 38%. Reakcja: sesja <span class="mono minus">−5,25%</span> (362,08) i after-hours <span class="mono minus">−1,78%</span> (355,64) —
+      rynek karze marże/koszty i przejęcie Console. Warunek BUY (wynik powyżej konsensusu <b>z pozytywną reakcją</b>) niespełniony; brak też podstaw do SELL (beat).
+      Odczyt sektorowy z po-sesji 1.09: DELL +6,2% AH (zamówienia serwerów AI 60,9 mld kw., backlog 95 mld, prognoza roczna w górę) — pozytywny dla AVGO/NVDA/AMD;
+      MDB −13,2% AH mimo beatu — w software beaty są sprzedawane przy szoku stóp.
+      <span class="zrodlo">IR Palo Alto Networks (komunikat 1.09.2026), Seeking Alpha/Bloomberg (guidance FY27, 1.09.2026), Investing.com (transkrypt, kurs AH, 1–2.09.2026); Investing.com/24/7 Wall St (DELL), SiliconANGLE (MDB) · 1.09.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-reakcja">REAKCJA</span><b>TSLA (koszyk SHORT, REDUCE od 1.09): −3,22% do 356,09 — pozycja odrabia, redukcja zostaje.</b>
+      Po poniedziałkowym rajdzie (+5,51%) wtorkowy zjazd na mieszanych rejestracjach w Europie za sierpień (Francja +279%, Dania +104%, ale Norwegia −79%, Szwecja −41%;
+      Niemcy/UK w tym tygodniu) i przy nocie GLJ Research (Sell, cel 24,86 USD, „Cybercab to promocja produktu, którego jeszcze nie ma”). Pozycja short jest teraz
+      <span class="mono minus">−2,10%</span> od D0 (wczoraj −5,51%) — poniżej pasma miękkiego wyzwalacza, ale zgodnie z protokołem <b>REDUCE obowiązuje do soboty</b>
+      (Puls nie zdejmuje reakcji). After-hours 355,36 (−0,2%). Jutro 3.09 wydarzenie Cybercab w Austin (zaproszeni goście, transmisja publiczna) — binarny katalizator.
+      <span class="zrodlo">FMP (chart EOD 1.09.2026); Reuters/Investing.com (rejestracje EU, 1.09.2026); 24/7 Wall St „Tesla falls 3%…” 1.09.2026; Stocktwits/Yahoo (GLJ, 1.09.2026); Robinhood (AH); Electrek 24.08.2026 (format eventu)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-sec">SEC/PRAWNE</span><b>INTU (koszyk SHORT): −4,00% do 344,93 — najlepsza pozycja koszyka (+3,67% od D0).</b>
+      1.09 kancelarie ogłosiły pozew zbiorowy (securities class action; termin lead plaintiff 8.09) dotyczący ujawnień wokół AI i cen; Investor Day 17.09.
+      Kurs poniżej poziomu po wynikach FQ4 — teza short (dysrupcja AI w TurboTax/QuickBooks, słabszy guidance FY27) potwierdzana przez rynek. Bez nowych ruchów analityków.
+      <span class="zrodlo">FMP (profil/zamknięcie 1.09.2026); GlobeNewswire 1.09.2026 (pozew); IR Intuit (Investor Day)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">PAMIĘĆ</span><b>Blok pamięci (MU): −2,64% do 933,44 z sektorem; brak pierwszej obniżki cen kontraktowych.</b>
+      Wtorkowy spadek to beta sektora (stopy, ropa, niepewność ceł na półprzewodniki), nie newsy spółki. Ceny kontraktowe: TrendForce na 3Q26 DRAM
+      <span class="mono plus">+13–18%</span> kw/kw, NAND <span class="mono plus">+8–13%</span> — wyraźne wyhamowanie po +58–63% w 2Q; na 4Q26 PC DRAM
+      <span class="mono plus">+3–8%</span> i „konwergencja” podwyżek, ale bez spadku (przesunięcie podaży do serwer/HBM). Wcześniejszy sygnał ostrzegawczy elity: Atif Malik (Citi)
+      7.08 obniżył cel MU do 1&nbsp;150 z 1&nbsp;400 USD (Buy utrzymane; szczyt cen pamięci w 2Q27) — nie jest to downgrade ani nowy sygnał. <b>Twardy wyzwalacz bloku pamięci
+      (pierwsza obniżka DRAM/NAND) nie wystąpił.</b> MU od D0 <span class="mono plus">+0,06%</span>.
+      <span class="zrodlo">FMP (profil/zamknięcie 1.09.2026); Benzinga „What's going on with Micron” 1.09.2026; TrendForce 3.07 i 9.07.2026; Tom's Hardware (4Q26); Investing.com/Citi 7.08.2026</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">KOSZYK LONG</span><b>NVDA −1,51% (217,44), MSFT −1,24% (501,02), AMD −2,36% (459,61), CEG +2,02% (280,31).</b>
+      NVDA: WSJ o umowie Anthropic–Lambda (35 mld USD chmury; Lambda z udziałem Nvidii) i krytyka „finansowania kołowego”; inwestycja 3,5 mld w MediaTek (MediaTek +10% 1.09);
+      dywidenda 0,25 USD, ex 10.09. MSFT: presja stóp na capex (41 mld w FQ4), <span class="mono minus">−2,44%</span> od D0 — najsłabsza pozycja long, wciąż poniżej
+      pasma 4–8%. AMD: ARK sprzedał 156 tys. akcji (~74,5 mln USD); platforma AI z Cisco/HUMAIN w Arabii Saudyjskiej. CEG: najlepsza w koszyku
+      (<span class="mono plus">+1,29%</span> od D0), wsparta popytem na energię dla AI (Fervo +28% po PPA 396 MW z Google).
+      <span class="zrodlo">FMP (chart EOD / profil, 1.09.2026); Yahoo/Bloomberg (Anthropic–Lambda, 31.08–1.09.2026); CNBC (MediaTek, 1.09.2026); GuruFocus/Yahoo (MSFT); Invezz/Quiver (AMD, 1.09.2026); Motley Fool (Fervo, 1.09.2026)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-rekom">REKOM.-ELITA</span>W ostatnich 24h <b>brak rekomendacji i zmian celów od elity</b> (Arcuri, Malik, Rakers, Schafer, Sur, Mahaney; watchlista Rakesh, Roy, Lipacis)
+      dla spółek koszykowych; brak sygnałów SELL od Rasgona/Curtisa i wpisów downside-watch Malika. Poza koszykami: UBS 1.09 podniósł prognozy dla sprzętu półprzewodnikowego
+      na 2027 o 8% (plany capex hyperscalerów) — kontekst pro-AI; Scotiabank po wynikach PANW cel 430 z 320 USD.
+      <span class="zrodlo">przegląd depesz 1–2.09.2026 (Benzinga, Investing.com, TipRanks, MarketBeat); tickerdaily 1.09.2026 (UBS)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-info">SHORT</span>Short interest FINRA: brak nowej publikacji półmiesięcznej w ostatnich 24h (dane za koniec sierpnia oczekiwane ok. 9–10.09) —
+      <b>b.d. w tym biegu</b>. Ostatnie znane odczyty (rozliczenie 14.08): MU 2,66% floatu, NVDA 1,23%; APP ok. 3,7% akcji, TSLA ok. 3% (najbardziej shortowana z Mag-7). Bez wpływu na reakcje.
+      <span class="zrodlo">Yahoo/Barron's (14.08.2026); StockAnalysis (APP); S3/TheCryptoBasic (TSLA, 17.08.2026)</span></p>
+    </div>
+    <div class="karta">
+      <p><span class="etyk e-rezim">REŻIM</span>P0 utrzymany — progi z zapasem: NDX 29&nbsp;077 &gt; MA200 ≈26&nbsp;925 (+8,0%); drawdown −5,2% &lt; 10%; VIX 16,34 &lt; 28
+      (wzrost z 14,92, w ciągu dnia 16,80); sesja −1,29% &gt; −5%. NDX zszedł minimalnie <b>poniżej MA50</b> (≈29&nbsp;271) — to nie jest próg reżimowy (MA50 służy tylko histerezie
+      P2→handel). Twarde sygnały systemowe z prognoz niedźwiedzich: brak nowych — ceny kontraktowe DRAM/NAND nadal rosną (wolniej), brak udokumentowanych anulacji zamówień GPU/optyki
+      (Dell: backlog AI 95 mld), brak nowych danych o FCF hyperscalerów (znane dane za 2Q: Alphabet FCF −5,9 mld, Amazon TTM −7,6 mld; przesłanka „drugi z rzędu ujemny FCF
+      u ≥2 hyperscalerów” pozostaje nierozstrzygnięta do raportów za 3Q — odnotowane, bez eskalacji); dynamika chmur wg raportów za 2Q powyżej progu ostrzegawczego 20%.
+      Ryzyko systemowe do obserwacji: kombinacja Iran–ropa–rentowności 4,8% i możliwej podwyżki Fed 16.09.
+      <span class="zrodlo">obliczenia własne wg prerejestrowanych progów; ^NDX i ^VIX: CBOE delayed quotes (odczyt 2.09 ~8:47 ET), VIX potwierdzony w FMP (16,34); MA200/MA50/szczyt 52-tyg.: seria Yahoo chart API z odczytu 1.09 (dziś Yahoo HTTP 429 — poziomy MA nie zaktualizowane o sesję 1.09, przesunięcie MA200 &lt;0,1%); Investing.com (hyperscalerzy, VIII 2026); Yahoo (UBS capex)</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Koszyk LONG <span style="font-weight:400; font-size:.8rem; text-transform:none;">(D0 = 28.08.2026 · kurs ostatni = 1.09.2026)</span></h2>
+    <div class="tab-otoczka">
+      <table>
+        <tr><th>Spółka</th><th>Kierunek</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+        <tr><td><b>MU</b></td><td class="kier-long">LONG</td><td class="num">932,86</td><td class="num">933,44</td><td class="num plus">+0,06%</td><td class="num plus">+1,27 p.p.</td></tr>
+        <tr><td><b>NVDA</b></td><td class="kier-long">LONG</td><td class="num">217,55</td><td class="num">217,44</td><td class="num minus">−0,05%</td><td class="num plus">+1,16 p.p.</td></tr>
+        <tr><td><b>MSFT</b></td><td class="kier-long">LONG</td><td class="num">513,53</td><td class="num">501,02</td><td class="num minus">−2,44%</td><td class="num minus">−1,23 p.p.</td></tr>
+        <tr><td><b>AMD</b></td><td class="kier-long">LONG</td><td class="num">465,58</td><td class="num">459,61</td><td class="num minus">−1,28%</td><td class="num minus">−0,07 p.p.</td></tr>
+        <tr><td><b>CEG</b></td><td class="kier-long">LONG</td><td class="num">276,75</td><td class="num">280,31</td><td class="num plus">+1,29%</td><td class="num plus">+2,50 p.p.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Koszyk SHORT <span style="font-weight:400; font-size:.8rem; text-transform:none;">(zwrot pozycji = −zmiana kursu · relatywnie = ^NDX − spółka)</span></h2>
+    <div class="tab-otoczka">
+      <table>
+        <tr><th>Spółka</th><th>Kierunek</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+        <tr><td><b>INTU</b></td><td class="kier-short">SHORT</td><td class="num">358,06</td><td class="num">344,93</td><td class="num plus">+3,67%</td><td class="num plus">+2,46 p.p.</td></tr>
+        <tr><td><b>APP</b></td><td class="kier-short">SHORT</td><td class="num">317,76</td><td class="num">311,74</td><td class="num plus">+1,89%</td><td class="num plus">+0,68 p.p.</td></tr>
+        <tr><td><b>TSLA</b> <span class="red-tag">REDUCE 1.09</span></td><td class="kier-short">SHORT</td><td class="num">348,75</td><td class="num">356,09</td><td class="num minus">−2,10%</td><td class="num minus">−3,31 p.p.</td></tr>
+        <tr><td><b>CMCSA</b></td><td class="kier-short">SHORT</td><td class="num">27,06</td><td class="num">26,30</td><td class="num plus">+2,81%</td><td class="num plus">+1,60 p.p.</td></tr>
+        <tr><td><b>PEP</b></td><td class="kier-short">SHORT</td><td class="num">141,07</td><td class="num">139,79</td><td class="num plus">+0,91%</td><td class="num minus">−0,30 p.p.</td></tr>
+      </table>
+    </div>
+    <div class="spread">
+      <span><b>Spread L/S (D+2):</b> <span class="mono plus">+0,95 p.p.</span></span>
+      <span style="font-size:.8rem; opacity:.8">śr. long −0,48% · śr. short +1,43% (pozycyjnie); ^NDX −1,21% od D0 · bez TSLA short dawałby +2,32% · wczoraj +0,30 p.p.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pozycje taktyczne</h2>
+    <div class="karta">
+      <p>Brak otwartych pozycji taktycznych i brak nowych sygnałów (moduł aktywny — reżim P0). Jedyny kandydat z 24h, <b>PANW</b> (beat-and-raise po sesji 1.09),
+      nie spełnia warunku pozytywnej reakcji (−5,25% w sesji, −1,78% AH) — bez BUY. Brak szokowych missów, cięć guidance, wezwań ani przełomowych kontraktów w uniwersum
+      (MRVL −3% to kontynuacja po wynikach z 28.08; CRWD/SNPS bez nowych zdarzeń; GTLB/MDB/CRDO/DELL poza uniwersum). Następny twardy test: <b>AVGO dziś po sesji</b>.
+      <span class="zrodlo">IR Palo Alto Networks, Investing.com · 1–2.09.2026; Benzinga (MRVL, 1.09.2026); EarningsWhispers (kalendarz tygodnia)</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Kalendarz dnia — środa 2.09</h2>
+    <ul class="kal">
+      <li><b>Wyniki (uniwersum):</b> <b>AVGO — dziś po sesji</b> (FQ3 2026; konsensus: przychody ~29,43 mld USD, EPS non-GAAP ~3,24 / GAAP ~2,55; prognoza spółki:
+        przychody ~29,4 mld, AI semi 16,0 mld). Kluczowe: czy podniesie cel AI semi na FY27 „&gt;100 mld USD” (w czerwcu brak podniesienia = −12,6% mimo beatu); opcje wyceniają ruch ok. ±8%.
+        Poza uniwersum po sesji: SNOW, HPE, NTAP. Jutro 3.09: CIEN przed sesją; DOCU, LULU, ZS, PATH po sesji (poza uniwersum).
+        <span class="zrodlo">IR Broadcom (zapowiedź), CNBC 3.06.2026 (guidance), moomoo/intellectia (konsensus), Benzinga Pro/Invezz (implied move, 2.09.2026), EarningsWhispers</span></li>
+      <li><b>Makro:</b> ADP sierpień 8:15 ET (prog. +48 tys., poprz. +44 tys.); zamówienia fabryczne lipiec 10:00 ET; zapasy ropy EIA 10:30 ET; <b>Beżowa Księga Fed 14:00 ET</b>.
+        Piątek 4.09 <b>NFP</b>; posiedzenie FOMC 15–16.09 (rynek: ~66% na podwyżkę).
+        <span class="zrodlo">Investing.com „ADP jobs report, oil inventories and Fed Beige Book due Wednesday” 2.09.2026; kalendarz Fed (wrzesień 2026)</span></li>
+      <li><b>TSLA (koszyk SHORT, REDUCE):</b> jutro 3.09 wydarzenie <b>Cybercab</b> w Austin — główny katalizator ryzyka dla pozycji.
+        <span class="zrodlo">Reuters/Investing.com 1.09.2026</span></li>
+      <li><b>PEP (koszyk SHORT):</b> dzień bez dywidendy (ex-date) w piątek 4.09 — 1,48 USD na akcję (koszt dla pozycji short, ok. 1,06% kursu).
+        <span class="zrodlo">Investing.com (profil PEP), 2.09.2026</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p><b>Źródła kursów:</b> konektor FMP — chart EOD (NVDA, MSFT, AMD, PEP, TSLA, ^VIX) oraz profil spółki z polem zamknięcia (MU, CEG, INTU, APP, CMCSA; kalibracja: dla NVDA i TSLA
+  wartość profilu równa zamknięciu 1.09 z serii EOD, pola „poprzednie zamknięcie” zgodne co do centa z zamknięciami 31.08 z wczorajszego raportu). ^NDX: CBOE delayed quotes
+  (cdn.cboe.com, ostatnia transakcja 1.09 16:14:59 ET) — <b>rezerwa</b>, kontrola krzyżowa: QQQ −1,27% (FMP) vs ^NDX −1,29%; VIX 16,34 identyczny w CBOE i FMP. Odczyt 2.09.2026
+  ok. 8:30–8:50 ET, zamknięcia z sesji 1.09.2026 (ostatnia zakończona; granica 16:10 NY).</p>
+  <p><b>Walidacja D0 (28.08):</b> NVDA, MSFT, AMD, PEP, TSLA — zamknięcia 28.08 z serii FMP zgodne z d0.prices co do centa (0,00%). MU, CEG, INTU, APP, CMCSA — dziś bez świecy 28.08
+  (FMP nie udostępnia serii dla tych symboli w planie, Yahoo HTTP 429); walidacja pośrednia: zamknięcia 31.08 z profilu FMP zgodne co do centa z wczorajszym raportem, w którym D0 zwalidowano
+  w Yahoo z odchyleniem 0,00%. Rozjazdów brak.</p>
+  <p><b>Uwaga techniczna:</b> Yahoo chart/spark API zwracało HTTP 429 przez cały bieg (skrypt kursy.py bez danych, kontrola krzyżowa reżimu ze skryptu niedostępna); poziomy MA200/MA50/szczytu
+  52-tyg. pochodzą z serii ^NDX z odczytu 1.09 i nie obejmują sesji 1.09 (wpływ na MA200 &lt;0,1%; progi reżimu z dużym zapasem). Endpointy FMP quote/news/economics/indexes
+  niedostępne w planie. Short interest FINRA: b.d. (następna publikacja ok. 9–10.09). Kursy prasowe w opisach (np. INTU 351,94 o 10:09 ET) są intradayowe i nie były używane w tabelach.</p>
+  <p>Materiał analityczno-edukacyjny — nie stanowi rekomendacji inwestycyjnej w rozumieniu przepisów.
+  Raport wygenerowany automatycznie przez system AI „Puls NDX100” (bez udziału człowieka), 2.09.2026.</p>
+</footer>
+</body>
+</html>
