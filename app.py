@@ -23,7 +23,9 @@ PROTOKÓŁ DECYZJI DZIENNYCH (co puls może zrobić z pozycjami):
                                   wyzwalacze: ruch 4-8% przeciw tezie,
                                   rekomendacja przeciw tezie, short KNF
                                   +0,3 p.p.); raz zredukowana zostaje
-                                  zredukowana do soboty (bez podnoszenia);
+                                  zredukowana do soboty (bez podnoszenia),
+                                  a po sobotniej rotacji — gdy wpis exclude
+                                  znika — wielkość wraca do pełnej wagi;
   * koszyków puls nie zmienia i kierunków nie odwraca — rotacje robi
     wyłącznie raport sobotni (falsyfikowalność deklaracji tygodniowych
     zostaje nienaruszona; wykluczenia są logowane w commitach);
@@ -99,6 +101,15 @@ TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "true").lower() == "true
 TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.05"))
 TACTICAL_MAX       = int(os.environ.get("TACTICAL_MAX", "2"))
 REDUCE_FACTOR      = float(os.environ.get("REDUCE_FACTOR", "0.5"))
+# Pasmo tolerancji wyrównywania wielkości pozycji już otwartych. Poza pasmem
+# pozycja jest docinana/dokładana do celu; w paśmie zostawiamy ją w spokoju,
+# bo każde wyrównanie kosztuje drugi spread, a przy grubym kroku wielkości
+# (0,1 akcji przy kursie 1000 USD) części odchyłek i tak nie da się usunąć.
+REBALANCE_TOL      = float(os.environ.get("REBALANCE_TOL", "0.35"))
+
+# Nazwa w powiadomieniach — bliźniacze boty (WIG20 / NDX100) piszą na ten sam
+# czat, więc etykieta musi mówić, KTÓRY bot zadziałał.
+BOT_NAME           = os.environ.get("BOT_NAME", "NDX100 BOT")
 
 # --- Tryb shortów (konta LONG_ONLY): "" = klasyczne SELL na akcjach;
 #     epic indeksu (np. z /search?q=wig20) = syntetyczny short przez indeks;
@@ -717,7 +728,7 @@ def sync():
     if equity < START_EQUITY * KILL_LEVEL:
         for p in positions:
             do_close(p, "KILL SWITCH")
-        notify(f"⛔ WIG20 BOT KILL SWITCH: kapitał {equity:.2f} {ccy}. "
+        notify(f"⛔ {BOT_NAME} KILL SWITCH: kapitał {equity:.2f} {ccy}. "
                f"Wszystko zamknięte, handel wstrzymany.")
         rep["akcje"].append("KILL SWITCH aktywny — handel wstrzymany.")
         return rep
@@ -741,43 +752,60 @@ def sync():
         elif want["direction"] != p["direction"]:
             do_close(p, f"zmiana kierunku na {want['direction']}")
 
-    # REDUKCJE: dotnij pozycje oznaczone action=REDUCE do połowy wielkości
-    # (technicznie: zamknij i otwórz ponownie mniejszą — koszt to drugi spread)
+    # WYRÓWNANIE WIELKOŚCI pozycji, które zostają w koszyku (w OBIE strony:
+    # docięcie po action=REDUCE i dołożenie z powrotem do pełnej wagi).
+    # Wcześniej dotykaliśmy tylko redukcji, więc raz zmniejszona pozycja
+    # zostawała na połowie wagi także w kolejnych oknach (puls czyści exclude,
+    # ale wielkości nikt nie przeliczał), a pozycje niesione tygodniami
+    # rozjeżdżały się z celem wraz z kursem — koszyk L/S przestawał być
+    # zbalansowany i bot łapał niezamierzoną ekspozycję kierunkową.
+    # Ruszamy dopiero poza pasmem REBALANCE_TOL i tylko wtedy, gdy krok
+    # wielkości pozwala faktycznie podejść bliżej celu (inaczej byłby to
+    # cotygodniowy churn: zamknij i otwórz to samo, płacąc spread).
+    stracone = set()
     for p in positions:
         want = book.get(p["epic"])
-        if (not want or not want.get("reduced")
-                or want["direction"] != p["direction"]):
+        # poza koszykiem albo zmiana kierunku = zamknięta w pętli wyżej
+        if not want or want["direction"] != p["direction"]:
             continue
         try:
             m = cap.market(p["epic"])
         except requests.HTTPError:
             continue
-        if not m["mid"]:
-            continue
+        if not m["mid"] or m["status"] != "TRADEABLE":
+            continue          # rynek zamknięty — spróbujemy w kolejnym biegu
         fx = cap.fx_rate(ccy, m["currency"])
         cur_acc = p["size"] * m["mid"] / fx
-        cel_acc = equity * ALLOC_PCT * REDUCE_FACTOR
-        if cur_acc <= cel_acc * 1.35:
-            continue  # już zredukowana — nic nie rób
+        cel_acc = equity * (TACTICAL_ALLOC_PCT if want.get("tactical")
+                            else ALLOC_PCT * (REDUCE_FACTOR
+                                              if want.get("reduced") else 1.0))
+        if abs(cur_acc - cel_acc) <= cel_acc * REBALANCE_TOL:
+            continue          # w paśmie — zostawiamy
+        size, _, _ = calc_size(cap, cel_acc, p["epic"], ccy)
+        if size is None or size == p["size"]:
+            continue          # grubość kroku nie pozwala podejść bliżej
         if DRY_RUN:
-            rep["akcje"].append(f"[DRY] REDUKUJ {want['ticker']} "
-                                f"z ~{cur_acc:.0f} do ~{cel_acc:.0f} {ccy}")
+            rep["akcje"].append(f"[DRY] WYRÓWNAJ {want['ticker']} "
+                                f"z size {p['size']} (~{cur_acc:.0f} {ccy}) "
+                                f"do size {size} (~{cel_acc:.0f} {ccy})")
             continue
         ok, msg = cap.close(p["dealId"])
         if not ok:
-            rep["błędy"].append(f"redukcja {want['ticker']}: {msg}")
+            rep["błędy"].append(f"wyrównanie {want['ticker']}: {msg}")
             continue
-        size, m2, info = calc_size(cap, cel_acc, p["epic"], ccy)
-        if size and m2["status"] == "TRADEABLE":
-            ok2, ref, msg2 = cap.open(p["epic"], want["direction"], size)
-            rep["akcje"].append(f"ZREDUKOWANO {want['ticker']} do size {size}"
-                                if ok2
-                                else f"BŁĄD redukcji {want['ticker']}: {msg2}")
-            if not ok2:
-                rep["błędy"].append(msg2)
+        ok2, ref, msg2 = cap.open(p["epic"], want["direction"], size)
+        rep["akcje"].append(f"WYRÓWNANO {want['ticker']}: size {p['size']} "
+                            f"-> {size}" if ok2
+                            else f"BŁĄD wyrównania {want['ticker']}: {msg2}")
+        if not ok2:
+            # pozycja została zamknięta, a nie udało się otworzyć jej na nowo —
+            # niech domknie ją blok otwarć niżej, zamiast czekać na kolejny bieg
+            rep["błędy"].append(msg2)
+            stracone.add(p["epic"])
         time.sleep(0.4)
 
-    held = {p["epic"]: p["direction"] for p in positions}
+    held = {p["epic"]: p["direction"] for p in positions
+            if p["epic"] not in stracone}
     rep["wielkosc_docelowa"] = {
         "waluta": ccy,
         "koszyk": round(equity * ALLOC_PCT, 2),
@@ -812,10 +840,14 @@ def sync():
             rep["błędy"].append(msg)
         time.sleep(0.4)
 
-    zam = len([a for a in rep["akcje"] if "ZAMK" in a or "OTWAR" in a
-               or a.startswith("[DRY]")])
-    notify(f"🤖 WIG20 BOT /run v{sig['version']} | kapitał {equity:.2f} {ccy} | "
+    zam = len([a for a in rep["akcje"]
+               if a.startswith(("ZAMKNIĘTO", "OTWARTO", "WYRÓWNANO", "[DRY]"))])
+    # Błędy MUSZĄ być w powiadomieniu: nieudane zamknięcie (np. przy zamkniętym
+    # rynku) nie trafia do licznika akcji i bez tego pola bieg wyglądałby na
+    # spokojny "akcje: 0", choć portfel rozjechał się z sygnałami.
+    notify(f"🤖 {BOT_NAME} /run v{sig['version']} | kapitał {equity:.2f} {ccy} | "
            f"akcje: {zam} | pominięte: {len(rep['pominiete'])} | "
+           f"błędy: {len(rep['błędy'])} | "
            f"{'DRY-RUN' if DRY_RUN else 'DEMO'}")
     if HEDGE_MODE == "index":
         long_cel = sum(equity * (TACTICAL_ALLOC_PCT if w.get("tactical")
@@ -888,7 +920,7 @@ def generate_ep():
         return jsonify(generate(mode, do_commit))
     except Exception as e:
         log.exception("Błąd generatora")
-        notify(f"❌ WIG20 BOT /generate {mode}: {e}. "
+        notify(f"❌ {BOT_NAME} /generate {mode}: {e}. "
                f"Stare sygnały pozostają w mocy — decyzja ręczna.")
         return jsonify(error=str(e)), 500
 
@@ -901,7 +933,7 @@ def run_ep():
         return jsonify(sync())
     except Exception as e:
         log.exception("Błąd biegu")
-        notify(f"❌ WIG20 BOT /run: {e}")
+        notify(f"❌ {BOT_NAME} /run: {e}")
         return jsonify(error=str(e)), 500
 
 
@@ -965,7 +997,7 @@ def close_all_ep():
             else:
                 ok, msg = cap.close(p["dealId"])
                 out.append(f"zamknięto {p['epic']}" if ok else f"błąd: {msg}")
-    notify("WIG20 BOT: ręczne CLOSE_ALL wykonane.")
+    notify(f"{BOT_NAME}: ręczne CLOSE_ALL wykonane.")
     return jsonify(wynik=out)
 
 
