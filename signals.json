@@ -16,9 +16,15 @@
     "APP",
     "CMCSA"
   ],
-  "exclude": [],
+  "exclude": [
+    {
+      "ticker": "NVDA",
+      "action": "REDUCE",
+      "reason": "-5,21% od D0 przeciw tezie dlugiej (230,36 -> 218,36; zamkn. 10.09.2026, CBOE) - miekki wyzwalacz 4-8%; wsparte swiezym negatywem: sledztwo DOJ ws. konstrukcji umowy licencyjnej z Groq (Bloomberg/Axios 10.09.2026). Filar tezy (popyt na akceleratory AI) nienaruszony, wiec REDUCE, nie CLOSE."
+    }
+  ],
   "tactical": [],
-  "last_daily": "2026-09-10",
+  "last_daily": "2026-09-11",
   "history": [
     {
       "week": "2026-W1",
