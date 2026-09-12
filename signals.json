@@ -1,28 +1,22 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W3",
+  "version": "2026-W4",
   "status": "AKTUALNA",
   "long": [
     "MU",
-    "NVDA",
     "AMD",
     "AVGO",
-    "STX"
+    "MRVL",
+    "LITE"
   ],
   "short": [
-    "TSLA",
     "INTU",
     "SBUX",
+    "CMCSA",
     "APP",
-    "CMCSA"
+    "ADSK"
   ],
-  "exclude": [
-    {
-      "ticker": "NVDA",
-      "action": "REDUCE",
-      "reason": "-5,21% od D0 przeciw tezie dlugiej (230,36 -> 218,36; zamkn. 10.09.2026, CBOE) - miekki wyzwalacz 4-8%; wsparte swiezym negatywem: sledztwo DOJ ws. konstrukcji umowy licencyjnej z Groq (Bloomberg/Axios 10.09.2026). Filar tezy (popyt na akceleratory AI) nienaruszony, wiec REDUCE, nie CLOSE."
-    }
-  ],
+  "exclude": [],
   "tactical": [],
   "last_daily": "2026-09-11",
   "history": [
@@ -45,25 +39,35 @@
       "managed_pp": 5.74,
       "reaction_pp": -0.45,
       "rezim": "P0"
+    },
+    {
+      "week": "2026-W3",
+      "spread_pp": 1.44,
+      "hit_top": "2/5",
+      "hit_bottom": "3/5",
+      "tactical_pp": null,
+      "managed_pp": 1.53,
+      "reaction_pp": 0.09,
+      "rezim": "P0"
     }
   ],
   "d0": {
-    "date": "2026-09-04",
-    "ndx": 29544.15,
+    "date": "2026-09-11",
+    "ndx": 29368.44,
     "prices": {
-      "MU": 1016.59,
-      "NVDA": 230.36,
-      "AMD": 477.57,
-      "AVGO": 357.9,
-      "STX": 849.28,
-      "TSLA": 354.08,
-      "INTU": 332.7,
-      "SBUX": 104.47,
-      "APP": 320.56,
-      "CMCSA": 26.49
+      "MU": 975.26,
+      "AMD": 516.13,
+      "AVGO": 361.99,
+      "MRVL": 236.1,
+      "LITE": 927.03,
+      "INTU": 321.57,
+      "SBUX": 98.74,
+      "CMCSA": 25.2,
+      "APP": 323.96,
+      "ADSK": 212.4
     }
   },
-  "generated": "2026-09-05",
+  "generated": "2026-09-12",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
