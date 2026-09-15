@@ -16,9 +16,22 @@
     "APP",
     "ADSK"
   ],
-  "exclude": [],
+  "exclude": [
+    {
+      "ticker": "LITE",
+      "action": "CLOSE",
+      "reason": "twardy wyzwalacz: -9,92% od D0 przeciw tezie dlugiej (927,03 -> 835,03; zamkn. 14.09.2026, CBOE delayed quotes) - ruch >8% od D0. Sesja 14.09 sama dala -9,9%: optyka centrow danych najmocniej przeceniona w lancuchu AI po apelu liderow Anthropic/OpenAI/xAI o spowolnienie rozwoju AI (12.09). Nie odnotowano udokumentowanych anulacji zamowien na optyke - podstawa wpisu jest wylacznie skala ruchu.",
+      "date": "2026-09-15"
+    },
+    {
+      "ticker": "ADSK",
+      "action": "REDUCE",
+      "reason": "miekki wyzwalacz: +7,78% od D0 przeciw tezie krotkiej (212,40 -> 228,93; zamkn. 14.09.2026, CBOE delayed quotes) - pasmo 4-8%, najsilniejszy miekki wyzwalacz dnia. Przyczyna: rotacja kapitalu z hardware'u AI do software'u po apelu o spowolnienie rozwoju AI. Do progu CLOSE (8%) pozostaje 0,22 p.p.",
+      "date": "2026-09-15"
+    }
+  ],
   "tactical": [],
-  "last_daily": "2026-09-14",
+  "last_daily": "2026-09-15",
   "history": [
     {
       "week": "2026-W1",
