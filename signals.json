@@ -28,10 +28,22 @@
       "action": "REDUCE",
       "reason": "miekki wyzwalacz: +7,78% od D0 przeciw tezie krotkiej (212,40 -> 228,93; zamkn. 14.09.2026, CBOE delayed quotes) - pasmo 4-8%, najsilniejszy miekki wyzwalacz dnia. Przyczyna: rotacja kapitalu z hardware'u AI do software'u po apelu o spowolnienie rozwoju AI. Do progu CLOSE (8%) pozostaje 0,22 p.p.",
       "date": "2026-09-15"
+    },
+    {
+      "ticker": "AVGO",
+      "action": "REDUCE",
+      "reason": "miekki wyzwalacz: -6,28% od D0 przeciw tezie dlugiej (361,99 -> 339,27; zamkn. 15.09.2026, CBOE delayed quotes) - pasmo 4-8%, najdotkliwszy ruch dnia wsrod pozycji spoza listy. AVGO jako jedyna pozycja LONG nie odbila we wtorek (-1,58% d/d): oprocz presji sektorowej ciazy prognoza przychodow na fiskalny 4Q 34,8 mld USD wobec konsensusu 35,03 mld i kompresja marzy na custom XPU (raport z 2.09, przed D0 - w kursie D0). Wpis oparty wylacznie na skali ruchu od D0.",
+      "date": "2026-09-16"
+    },
+    {
+      "ticker": "MRVL",
+      "action": "REDUCE",
+      "reason": "miekki wyzwalacz: -6,10% od D0 przeciw tezie dlugiej (236,10 -> 221,70; zamkn. 15.09.2026, CBOE delayed quotes) - pasmo 4-8%. Wtorkowe odbicie (+1,32% d/d, wsparte nota BofA: Buy, cel 365 USD) nie wystarczylo, by zejsc ponizej progu 4%. MRVL stal wczoraj pierwszy w kolejce miekkich wyzwalaczy.",
+      "date": "2026-09-16"
     }
   ],
   "tactical": [],
-  "last_daily": "2026-09-15",
+  "last_daily": "2026-09-16",
   "history": [
     {
       "week": "2026-W1",
