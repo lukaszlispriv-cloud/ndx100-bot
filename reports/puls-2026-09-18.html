@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puls NDX100 — 18.09.2026</title>
+<style>
+  :root{
+    --tlo:#F6F7F4; --granat:#10243E; --zielen:#0E7C4A; --czerwien:#C4372E;
+    --bursztyn:#B8860B; --tekst:#1B2430; --szary:#5A6472; --linia:#DDE1DA;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--tlo);color:var(--tekst);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       font-size:16px;line-height:1.55}
+  .wrap{max-width:860px;margin:0 auto;padding:0 0 40px}
+  header{background:var(--granat);color:#fff;padding:18px 16px 20px}
+  header h1{margin:0 0 2px;font-size:20px;letter-spacing:.4px}
+  header .data{font-size:13px;opacity:.78;margin-bottom:14px}
+  .indeks{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .ndx{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .ndx small{display:block;font-size:11px;font-weight:400;opacity:.75;letter-spacing:.3px}
+  .badge{border-radius:10px;padding:8px 12px;font-size:12px;line-height:1.4;
+         background:rgba(255,255,255,.08);border:1.5px solid #1E9E63;flex:1 1 260px}
+  .badge.p0{border-color:#1E9E63}
+  .badge b{font-size:14px;letter-spacing:1px;display:block;color:#5FD39B}
+  .badge span{opacity:.85;font-family:ui-monospace,Menlo,monospace}
+  .pieczatka-box{padding:16px;text-align:center}
+  .pieczatka{display:inline-block;border:3px solid var(--zielen);color:var(--zielen);
+             text-transform:uppercase;font-weight:800;letter-spacing:2px;font-size:17px;
+             padding:8px 20px;transform:rotate(-2.5deg);border-radius:4px;background:#fff}
+  .pieczatka em{display:block;font-style:normal;font-size:10px;letter-spacing:1px;opacity:.8;font-weight:600}
+  section{background:#fff;border:1px solid var(--linia);border-radius:12px;margin:14px 16px;padding:14px 14px 4px}
+  h2{font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--szary);
+     margin:0 0 10px;border-bottom:1px solid var(--linia);padding-bottom:8px}
+  h3{font-size:14px;margin:16px 0 6px}
+  p{margin:0 0 12px}
+  .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;
+       padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:2px;color:#fff;white-space:nowrap}
+  .t-wyniki{background:#2C5F8A}.t-sec{background:#6B4E9E}.t-short{background:#8A6A2C}
+  .t-rekom{background:#0E7C4A}.t-makro{background:#8A3B2C}.t-rezim{background:#3F4A57}
+  .t-zrodlo{background:#5A6472}
+  .zm{margin-bottom:14px;font-size:15px}
+  .tabela-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+  th{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--szary);
+     text-align:right;padding:6px 6px;border-bottom:1px solid var(--linia)}
+  th:first-child,th:nth-child(2){text-align:left}
+  td{padding:7px 6px;border-bottom:1px solid var(--linia);text-align:right;
+     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  td:first-child{text-align:left;font-family:inherit;font-weight:700}
+  td.kier{text-align:left;font-family:inherit;font-size:11px;letter-spacing:1px;color:var(--szary)}
+  .up{color:var(--zielen);font-weight:700}
+  .down{color:var(--czerwien);font-weight:700}
+  .zero{color:var(--szary);font-weight:700}
+  tr.flaga td{background:#FFF4F2}
+  .spread{background:var(--granat);color:#fff;border-radius:12px;margin:14px 16px;padding:14px}
+  .spread .v{font-size:30px;font-weight:800;font-family:ui-monospace,Menlo,monospace;color:#5FD39B}
+  .spread .l{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:.75}
+  .pasek{height:10px;border-radius:5px;background:rgba(255,255,255,.14);margin:10px 0 8px;overflow:hidden;position:relative}
+  .pasek i{display:block;height:100%;background:#1E9E63}
+  .spread p{font-size:13px;opacity:.9;margin:6px 0 0}
+  ul{margin:0 0 12px;padding-left:20px}li{margin-bottom:7px}
+  .zrodlo{font-size:12px;color:var(--szary);line-height:1.5}
+  .zrodlo b{color:var(--tekst)}
+  .uwaga{background:#FFF8E6;border-left:3px solid var(--bursztyn);padding:10px 12px;
+         border-radius:0 8px 8px 0;font-size:13.5px;margin:0 0 12px}
+  .alarm{background:#FDF0EE;border-left:3px solid var(--czerwien);padding:10px 12px;
+         border-radius:0 8px 8px 0;font-size:13.5px;margin:0 0 12px}
+  .ok{background:#EEF6F1;border-left:3px solid var(--zielen);padding:10px 12px;
+      border-radius:0 8px 8px 0;font-size:13.5px;margin:0 0 12px}
+  footer{margin:20px 16px 0;font-size:11.5px;color:var(--szary);text-align:center;line-height:1.6}
+  code{background:#EEF0EA;padding:1px 5px;border-radius:4px;font-size:12px;word-break:break-all}
+  @media(max-width:420px){.ndx{font-size:22px}.pieczatka{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Puls NDX100 · raport dzienny</h1>
+  <div class="data">piątek 18.09.2026 · dane z zamknięcia ostatniej zakończonej sesji: <b>czwartek 17.09.2026</b> (sesja 18.09 trwa — raport powstał przed jej zamknięciem, granica 16:10 czasu Nowego Jorku)</div>
+  <div class="indeks">
+    <div class="ndx">29&nbsp;446,98 <span style="color:#5FD39B;font-size:14px">+1,73%</span>
+      <small>^NDX · zamkn. 17.09.2026 · +0,27% wobec D0 (11.09)</small>
+    </div>
+    <div class="badge p0">
+      <b>REŻIM P0</b>
+      <span>^NDX vs MA200: +8,23% (27&nbsp;209) · vs MA50: +0,92% (29&nbsp;178)<br>
+      drawdown od szczytu 52 tyg.: −3,96% (30&nbsp;660,60 z 2.06) · VIX: 15,44</span>
+    </div>
+  </div>
+</header>
+
+<div class="pieczatka-box">
+  <div class="pieczatka">Prognoza aktualna<em>tydzień 2026-W4 · dzień D+4 · 5 reakcji (0 nowych)</em></div>
+</div>
+
+<section>
+  <h2>Najważniejsze zmiany (24 h)</h2>
+
+  <p class="zm"><b>Jednym zdaniem:</b> po jednodniowym szoku po podwyżce Fed rynek odbił z impetem — <b>^NDX +1,73% do 29&nbsp;446,98</b>, najlepsza sesja indeksu od początku sierpnia — i to odbicie <b>odwróciło znak spreadu koszyków</b>: z <b>−2,33 p.p.</b> na <b>+2,35 p.p.</b> Pomogły obie strony książki: półprzewodniki z koszyka LONG rosły o 2–6%, a trzy spółki z koszyka SHORT spadały wbrew rosnącemu rynkowi (Comcast −3,46% po ostrzeżeniu CFO, Intuit −1,57% po Investor Day z prowadzeniem poniżej konsensusu). Reżim <b>P0</b>, status <b>AKTUALNA</b>, <b>zero nowych reakcji</b> i zero nowych taktycznych.</p>
+
+  <div class="zm"><span class="tag t-makro">MAKRO</span>
+  <b>Odreagowanie po podwyżce Fed: ^NDX i S&amp;P 500 zaliczyły najlepszą sesję od początku sierpnia.</b>
+  Nasdaq Composite zyskał <b>1,6%</b> (niecałe 24 h po pierwszej od lipca 2023 r. podwyżce stóp do 3,75–4,00%), S&amp;P 500 <b>+1,05%</b>, Russell 2000 <b>+0,99%</b>. Szerokość rynku mocna: <b>1&nbsp;301</b> spółek rosnących wobec <b>631</b> spadających. Wsparciem były tańsza ropa i cofające się rentowności. Prowadziły technologia i ochrona zdrowia.
+  <div class="zrodlo">(TheStreet „Stock Market Today (Sept. 17, 2026): Nasdaq, S&amp;P 500 surge on post-Fed rate hike buying", 17.09.2026; Benzinga „Nasdaq 100 Rallies as Oil Slides, Yields Retreat", 17.09.2026; Investrade „Market Review: September 17, 2026"; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-wyniki">WYNIKI</span>
+  <b>Intuit (SHORT) — Investor Day 17.09: prowadzenie na FY2027 wyraźnie poniżej konsensusu, kurs −1,57% w dniu, w którym indeks rósł o 1,73%.</b>
+  Spółka wskazała EPS na FY27 w przedziale <b>22,88–23,12 USD</b> wobec konsensusu <b>24,18 USD</b> oraz EPS na 1Q w przedziale <b>2,44–2,48 USD</b> wobec konsensusu <b>2,72 USD</b>; wzrost przychodów ma spowolnić do <b>+9–10%</b> z +14% w bieżącym roku. To dokładnie ten scenariusz, na którym opiera się pozycja krótka — wpis do listy reakcji nie jest potrzebny, bo ruch jest <b>zgodny</b> z tezą.
+  <div class="zrodlo">(Barchart/Yahoo Finance „Dear Intuit Stock Fans, Mark Your Calendars for September 17", 17.09.2026; Intuit Investor Day 17.09.2026; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-sec">SEC</span>
+  <b>Comcast (SHORT) — ostrzeżenie CFO o stratach abonentów szerokopasmowych; kurs −3,46% do 22,91 USD, w trakcie sesji spadek sięgał ok. 7%.</b>
+  Dyrektor finansowy zapowiedział, że odpływ abonentów broadbandu <b>nie poprawi się</b> w bieżącym kwartale wobec analogicznego okresu rok wcześniej, wskazując na agresywną konkurencję światłowodową. <b>UBS obciął cenę docelową z 32 do 26–27 USD</b>, wskazując przyspieszające straty w broadbandzie, słabsze przychody parków rozrywki i spodziewane spadki przychodów oraz EBITDA w 3Q. Od końca sierpnia kurs zszedł z okolic 26–27 USD, czyli ok. −14% w kilka tygodni. Dla koszyka SHORT to <b>najmocniejsza pozycja</b>: +9,09% zwrotu od D0.
+  <div class="zrodlo">(StocksToTrade „CMCSA Stock Slides As Broadband Warning Triggers Analyst Target Cuts", 17.09.2026; GuruFocus „Comcast Corp (CMCSA) Stock Down 3.5%", 17.09.2026; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-wyniki">WYNIKI</span>
+  <b>Żadna inna spółka koszykowa nie raportowała w oknie 24 h</b> — ani przed sesją 17.09, ani po niej, ani przed otwarciem 18.09. Najbliższy twardy katalizator po stronie LONG: <b>Micron, fiskalny 4Q26 — środa 30.09.2026</b>. Na sesji 17.09 Micron zyskał <b>+5,50% do 977,50 USD</b> (otwarcie nowego zakładu montażu i testów w Gudźaracie; dodatkowo prezes Intela ostrzegł, że ograniczenia podaży pamięci mogą się w przyszłym roku pogłębić — co sprzyja producentom DRAM).
+  <div class="zrodlo">(TradingKey „Market Movers: MU 2026-09-17"; ad-hoc-news „Micron Technology stock heads into the open after a 5.5% jump", 17.09.2026; Micron IR — wyniki 4Q26 zaplanowane na 30.09.2026; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-rekom">REKOM.-ELITA</span>
+  <b>Brak rekomendacji zweryfikowanej elity analitycznej wobec spółek koszykowych w oknie 24 h.</b>
+  Nie odnotowano ruchu Arcuriego (UBS), Malika (Citi), Rakersa (Wells Fargo), Schafera (Oppenheimer), Sura (J.P. Morgan) ani Mahaneya (Evercore ISI) wobec MU/AMD/AVGO/MRVL/LITE/INTU/SBUX/CMCSA/APP/ADSK. Po stronie sygnałów spadkowych <b>również cisza</b>: brak nowych not Rasgona (Bernstein), Curtisa (Jefferies) i brak nowego 30-dniowego downside catalyst watch Malika. Cięcie ceny docelowej Comcastu przez UBS pochodzi od zespołu media/kablówka, nie od Arcuriego, i jest <b>zgodne</b> z tezą krótką. Poza elitą: Rosenblatt (Sajal Dogra) podniósł cel dla AVGO z 500 do 600 USD przy rekomendacji Buy, a BofA (Vivek Arya) podtrzymał pozytywne spojrzenie na MRVL — oba sygnały działają <b>na korzyść</b> tezy długiej, więc nie są wyzwalaczami. Profili na TipRanks nie sprawdzano na żywo, bo żaden sygnał elity nie wszedł dziś do procesu decyzyjnego.
+  <div class="zrodlo">(przegląd doniesień 17–18.09.2026: 24/7 Wall St. „Despite Hype, Broadcom Keeps Edging Sideways and Down", 17.09.2026; FXLeaders „Marvell Stock Forecast", 17.09.2026; StocksToTrade, 17.09.2026; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-short">SHORT</span>
+  <b>Brak nowej publikacji FINRA w oknie 24 h.</b>
+  Kolejny raport o krótkiej sprzedaży (pozycje na dzień rozliczenia <b>15.09.2026</b>) ukaże się <b>24.09.2026</b>. Do tego czasu short interest i days-to-cover pozostają bez zmian wobec poprzedniego pulsu — brak przesłanki do wpisu z tego tytułu. Wartości bieżące: <b>b.d.</b>
+  <div class="zrodlo">(FINRA.org — kalendarz raportowania short interest; Equibles „Short Interest Reporting Dates 2026"; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-rezim">REŻIM</span>
+  <b>Blok pamięci/WFE: ceny kontraktowe DRAM i NAND nadal rosną — twardy wyzwalacz bloku nie został uruchomiony.</b>
+  Obowiązująca projekcja TrendForce na 3Q26 to <b>DRAM +13–18% kw/kw</b> i <b>NAND +10–15% kw/kw</b>; to spowolnienie wobec eksplozji z 1Q26 (DRAM +93–98%) i 2Q26 (DRAM +58–63%, NAND +70–75%), ale nadal <b>wzrost, nie obniżka</b>. Prognozy TrendForce na 4Q26 nie zostały jeszcze opublikowane. Warunek „pierwsza obniżka cen kontraktowych DRAM/NAND" — <b>niespełniony</b>.
+  <div class="zrodlo">(TrendForce „AI Server Demand Continues to Support Memory Prices in 3Q26", 3.07.2026; TrendForce, 31.03.2026 i 2.02.2026; odczyt 18.09.2026)</div></div>
+
+  <div class="zm"><span class="tag t-rezim">REŻIM</span>
+  <b>Przegląd twardych sygnałów systemowych z prognoz niedźwiedzich — żaden nie uzasadnia eskalacji, jeden pozostaje na liście ostrzegawczej.</b>
+  <ul>
+    <li><b>Drugi z rzędu ujemny FCF u ≥2 hyperscalerów — niespełniony.</b> Alphabet miał <b>pierwszy</b> ujemny wolny przepływ pieniężny w 2Q26 (dług długoterminowy podwoił się do ok. 98 mld USD w I półroczu), Oracle raportuje ujemny FCF rzędu −24 mld USD. To jednak nie jest jeszcze <b>druga z rzędu</b> ujemna kwartalna odczyt u dwóch podmiotów — potwierdzenie przyjdzie dopiero z raportami za 3Q26 (Alphabet — koniec października). <b>Pozycja na liście ostrzegawczej.</b></li>
+    <li><b>Wzrost przychodów chmur &lt;15% r/r przy capeksie &gt;700 mld — niespełniony, i to z dużym zapasem.</b> Capex pięciu największych hyperscalerów szacowany jest na ok. <b>805 mld USD</b> w 2026 r. (Morgan Stanley), a dynamika chmur w 2Q26 wyniosła: Google Cloud <b>+82% r/r</b>, Azure <b>+43%</b>, AWS <b>+37%</b>. Próg ostrzegawczy (&lt;20%) również <b>nieprzekroczony</b>.</li>
+    <li><b>Udokumentowane anulacje zamówień GPU/optyki — brak.</b> Spadek spółek optycznych 17.09 (Lumentum, Credo, Applied Optoelectronics, POET) miał charakter <b>sektorowej przeceny wycen</b>, bez komunikatu o anulacji zamówień.</li>
+    <li><b>Pierwsza obniżka cen kontraktowych DRAM/NAND — brak</b> (patrz wyżej).</li>
+  </ul>
+  Poziom reżimu ze wskaźników rynkowych: <b>P0</b>. Eskalacja: <b>nie</b>.
+  <div class="zrodlo">(Motley Fool „6 Hyperscalers… Only 1 Is Forecast to Have Positive Free Cash Flow", 6.09.2026; Epoch AI „Hyperscaler Capex vs Cash Flow"; FactSet Insight „Hyperscalers Tap External Financing as AI Capex Outruns Cash Flow"; KuCoin/FourWeekMBA — dynamika chmur 2Q26; Bitget News — przecena spółek optycznych 17.09.2026; odczyt 18.09.2026)</div></div>
+</section>
+
+<section>
+  <h2>Reżim rynkowy — wyliczenie</h2>
+  <div class="ok"><b>REŻIM P0 — handel bez ograniczeń.</b> Żaden z progów P1 ani P2 nie został naruszony; moduł taktyczny pozostaje <b>czynny</b>, reżimowe wpisy REDUCE nie są wystawiane.</div>
+  <div class="tabela-scroll">
+  <table>
+    <tr><th>Warunek</th><th>Próg</th><th>Wartość 17.09.2026</th><th>Status</th></tr>
+    <tr><td>^NDX vs MA200</td><td class="kier">P1: poniżej</td><td>+8,23% (29&nbsp;446,98 vs 27&nbsp;208,77)</td><td class="up">OK</td></tr>
+    <tr><td>Drawdown 52 tyg.</td><td class="kier">P1: &gt;10% · P2: &gt;20%</td><td>−3,96% (szczyt 30&nbsp;660,60 z 2.06.2026)</td><td class="up">OK</td></tr>
+    <tr><td>VIX</td><td class="kier">P1: &gt;28 · P2: &gt;40</td><td>15,44 (poprzednio 17,71)</td><td class="up">OK</td></tr>
+    <tr><td>Sesja dzienna ^NDX</td><td class="kier">P2: ≤−5%</td><td>+1,73%</td><td class="up">OK</td></tr>
+    <tr><td>Eskalacja z sygnałów systemowych</td><td class="kier">+1 poziom</td><td>brak przesłanek (4 warunki niespełnione)</td><td class="up">OK</td></tr>
+  </table>
+  </div>
+  <p class="zrodlo">Pomocniczo: <b>^NDX vs MA50</b> = +0,92% (29&nbsp;177,64) — indeks wrócił nad średnią 50-sesyjną po trzech sesjach pod nią. MA200, MA50, szczyt 52-tygodniowy i drawdown policzono z rocznej serii dziennych zamknięć ^NDX (252 sesje, Yahoo chart API, odczyt 18.09.2026).</p>
+</section>
+
+<section>
+  <h2>Koszyk LONG · zwroty od D0 (11.09.2026)</h2>
+  <div class="tabela-scroll">
+  <table>
+    <tr><th>Spółka</th><th>Kier.</th><th>Kurs D0 (11.09)</th><th>Kurs ostatni (17.09)</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+    <tr class="flaga"><td>MU</td><td class="kier">LONG</td><td>975,26</td><td>977,50</td><td class="up">+0,23%</td><td class="down">−0,04 p.p.</td></tr>
+    <tr><td>AMD</td><td class="kier">LONG</td><td>516,13</td><td>545,09</td><td class="up">+5,61%</td><td class="up">+5,34 p.p.</td></tr>
+    <tr class="flaga"><td>AVGO</td><td class="kier">LONG</td><td>361,99</td><td>347,30</td><td class="down">−4,06%</td><td class="down">−4,33 p.p.</td></tr>
+    <tr class="flaga"><td>MRVL</td><td class="kier">LONG</td><td>236,10</td><td>240,76</td><td class="up">+1,97%</td><td class="up">+1,71 p.p.</td></tr>
+    <tr class="flaga"><td>LITE</td><td class="kier">LONG</td><td>927,03</td><td>893,61</td><td class="down">−3,61%</td><td class="down">−3,87 p.p.</td></tr>
+  </table>
+  </div>
+  <p class="zrodlo">Wiersze podświetlone na różowo mają czynny wpis w liście <code>exclude</code>: <b>LITE — CLOSE</b> (15.09), <b>AVGO — REDUCE</b> (16.09), <b>MRVL — REDUCE</b> (16.09), <b>MU — REDUCE</b> (17.09). Kolejność wierszy jest stała i pochodzi z <code>signals.json</code> — tabela nie jest sortowana.</p>
+</section>
+
+<section>
+  <h2>Koszyk SHORT · zwroty od D0 (11.09.2026)</h2>
+  <div class="tabela-scroll">
+  <table>
+    <tr><th>Spółka</th><th>Kier.</th><th>Kurs D0 (11.09)</th><th>Kurs ostatni (17.09)</th><th>Zwrot pozycji</th><th>Relatywnie vs ^NDX</th></tr>
+    <tr><td>INTU</td><td class="kier">SHORT</td><td>321,57</td><td>313,13</td><td class="up">+2,62%</td><td class="up">+2,89 p.p.</td></tr>
+    <tr><td>SBUX</td><td class="kier">SHORT</td><td>98,74</td><td>96,67</td><td class="up">+2,10%</td><td class="up">+2,36 p.p.</td></tr>
+    <tr><td>CMCSA</td><td class="kier">SHORT</td><td>25,20</td><td>22,91</td><td class="up">+9,09%</td><td class="up">+9,35 p.p.</td></tr>
+    <tr><td>APP</td><td class="kier">SHORT</td><td>323,96</td><td>321,60</td><td class="up">+0,73%</td><td class="up">+1,00 p.p.</td></tr>
+    <tr class="flaga"><td>ADSK</td><td class="kier">SHORT</td><td>212,40</td><td>218,64</td><td class="down">−2,94%</td><td class="down">−2,67 p.p.</td></tr>
+  </table>
+  </div>
+  <p class="zrodlo">Zwrot pozycji krótkiej liczony jako odwrotność zmiany kursu. Relatywnie vs ^NDX dla pozycji krótkiej to zwrot pozycji pomniejszony o zwrot odwróconego indeksu (−0,27%). Podświetlony wiersz: <b>ADSK — REDUCE</b> (15.09). Kolejność wierszy jest stała i pochodzi z <code>signals.json</code>.</p>
+</section>
+
+<div class="spread">
+  <div class="l">Spread koszyków · dzień D+4</div>
+  <div class="v">+2,35 p.p.</div>
+  <div class="pasek"><i style="width:23.5%"></i></div>
+  <p>Średni zwrot cenowy koszyka LONG <b>+0,03%</b> minus średni zwrot cenowy koszyka SHORT <b>−2,32%</b>. Dzień wcześniej spread wynosił <b>−2,33 p.p.</b> — poprawa o <b>4,68 p.p.</b> w jedną sesję i pierwszy dodatni odczyt w tym tygodniu. Pasek wyskalowany do ±10 p.p.</p>
+</div>
+
+<section>
+  <h2>Werdykt i reakcje</h2>
+  <div class="ok"><b>Status: AKTUALNA.</b> Nie wystąpiło zdarzenie unieważniające całą prognozę, reżim nie sięgnął P2.</div>
+  <p class="zm"><b>Nowe wpisy do listy <code>exclude</code>: ZERO.</b> Przegląd wszystkich pozycji bez czynnego wpisu — AMD, INTU, SBUX, CMCSA, APP — pokazuje, że <b>każda z nich porusza się zgodnie z tezą</b>: AMD +5,61% po stronie długiej, a wszystkie cztery pozycje krótkie na plusie (od +0,73% do +9,09%). Żaden ruch przeciw tezie nie sięga pasma 4–8%, żaden nie przekracza 8%, nie ma downgrade'u elity przeciw tezie ani skokowej zmiany short interest. Lista <code>exclude</code> pozostaje w składzie pięcioosobowym, niezmieniona.</p>
+  <p class="zm"><b>Awanse REDUCE → CLOSE: brak.</b> Cztery czynne wpisy REDUCE mierzone dziś wypadają lepiej niż w dniu wystawienia: <b>MU</b> wyszedł na plus (+0,23% wobec −4,99% w chwili wpisu), <b>MRVL</b> także (+1,97% wobec −6,10%), <b>AVGO</b> zawęził stratę do −4,06% (z −6,28%) i pozostaje w paśmie miękkim, a <b>ADSK</b> spadł do −2,94% przeciw tezie (z +7,78% ruchu przeciw tezie w chwili wpisu), czyli poniżej progu 4%. Zgodnie z protokołem wpisy pozostają w mocy <b>do soboty</b> — redukcja nigdy nie cofa się sama. <b>LITE</b> zachowuje CLOSE mimo poprawy do −3,61%: wpis CLOSE jest nieodwracalny.</p>
+  <div class="uwaga"><b>Moduł taktyczny: zero nowych pozycji, zero otwartych.</b> Skan spółek uniwersum spoza koszyków pod kątem twardych świeżych wyzwalaczy 24 h nie wykazał żadnego kwalifikującego się zdarzenia: brak raportu wyraźnie powyżej konsensusu z pozytywną reakcją, brak przełomowego kontraktu i brak wezwania wśród składników NDX-100. Najgłośniejszy kontrakt dnia — umowa Generac z Amazonem na generatory zapasowe dla centrów danych o wartości ok. <b>2,4 mld USD</b> w latach 2027–2028, po której kurs Generac skoczył o <b>21,35%</b> — dotyczy spółki <b>spoza</b> uniwersum NDX-100, więc nie może być podstawą wpisu taktycznego. Sygnału SELL nie rozpatrywano: brak szokowego missu oraz brak wymaganego wsparcia ze strony Rasgona, Curtisa lub downside-watch Malika.
+  <div class="zrodlo">(Motley Fool „Stock Market Midday, Sept. 17: Stocks Rebound From Post Fed Sell-off, Generac soars 20%", 17.09.2026; Investrade „Market Review: September 17, 2026"; odczyt 18.09.2026)</div></div>
+</section>
+
+<section>
+  <h2>Kalendarz na dziś — piątek 18.09.2026</h2>
+  <ul>
+    <li><b>Wyniki spółek z uniwersum NDX-100: brak zidentyfikowanych raportów</b> — ani przed sesją, ani po sesji. W kalendarzach na 18.09 nie wskazano żadnego składnika indeksu; wartość: <b>b.d.</b> w zakresie pełnej listy emitentów spoza uniwersum. Najbliższy raport z uniwersum: <b>Micron (MU), fiskalny 4Q26 — środa 30.09.2026</b>.</li>
+    <li><b>Poczwórne wygaśnięcie kontraktów (quadruple witching)</b> — wygasają jednocześnie kontrakty terminowe na indeksy, opcje na indeksy, opcje na akcje i kontrakty na pojedyncze akcje. Kulminacja w ostatniej godzinie sesji (15:00–16:00 czasu Nowego Jorku); wolumeny potrafią sięgnąć dwu-trzykrotności średniej, a zmienność śróddzienna rośnie. <b>To główne ryzyko techniczne dla dzisiejszych zamknięć</b>, które jutrzejszy odczyt kursów weźmie za punkt odniesienia.</li>
+    <li><b>Kwartalny rebalans NASDAQ-100 — wykonanie na dzisiejszym zamknięciu</b>, nowe wagi obowiązują od otwarcia poniedziałku 21.09. Największa zmiana: waga <b>SpaceX (SPCX)</b> rośnie z ok. <b>1,28% do ok. 2,82%</b> po wygaśnięciu blokad sprzedaży z 6 i 20 sierpnia (ponad 1,2 mld akcji weszło do free float). Przy ok. 1,7 bln USD aktywów śledzących indeks oznacza to przymusowe zakupy rzędu <b>15,5–22 mld USD</b>. Żadna ze spółek koszykowych nie jest wskazywana jako podmiot istotnej zmiany wagi, ale mechaniczne przepływy mogą zniekształcić dzisiejsze zamknięcia w całym indeksie.</li>
+    <li><b>Dane makro:</b> nie zidentyfikowano publikacji pierwszej rangi na 18.09 (wartość: <b>b.d.</b>). Tło pozostaje po środowej podwyżce Fed o 25 pb do <b>3,75–4,00%</b> — 16 z 18 członków FOMC dopuszcza jeszcze jedną podwyżkę w tym roku, 4 z nich dwie.</li>
+  </ul>
+  <div class="zrodlo">(Cannon Trading / Wikipedia „Triple witching hour" — terminarz 18.09.2026; Bloomberg „SpaceX to Get Weighting Boost in Nasdaq 100 After Rebalance", 12.09.2026; KuCoin „Why SpaceX Could See $15.5 Billion in Forced Buying From the Nasdaq-100 Rebalance"; Invezz „Nasdaq futures jump 137 points", 18.09.2026; CNBC „Fed rate decision September 2026", 16.09.2026; Micron IR; odczyt 18.09.2026)</div>
+</section>
+
+<section>
+  <h2>Źródła kursów i walidacja</h2>
+  <div class="uwaga"><b>Konektor MCP nie był dostępny w tym biegu.</b> Konektor <b>FMP</b> odrzucił wszystkie wywołania kursowe komunikatem o wymaganym wyższym planie abonamentowym (endpointy <code>quote</code>, <code>chart</code> i <code>indexes</code> — ACCESS DENIED, plan niższego szczebla). Konektor <b>Twelve Data</b> nie jest w tej sesji podpięty. Zgodnie z procedurą zszedłem na źródło nr 2.</div>
+  <p class="zm"><b>Źródło podstawowe (nr 2 procedury): Yahoo chart API</b> — dzienne zamknięcia dla ^NDX (seria roczna, 252 sesje), ^VIX oraz wszystkich dziesięciu spółek koszykowych. Skrypt <code>scripts/kursy.py</code> z repozytorium nie ukończył biegu: Yahoo odpowiadał kodem <b>HTTP 429 (Too Many Requests)</b> i skrypt utknął w pętli backoffu, więc te same dane pobrano bezpośrednio z tego samego endpointu (<code>v8/finance/chart</code>) po ustąpieniu limitu.</p>
+  <p class="zm"><b>Źródło kontrolne (rezerwa nr 3): CBOE delayed quotes</b> (<code>cdn.cboe.com/api/global/delayed_quotes/quotes/…</code>) — pole <code>prev_day_close</code>, czyli zamknięcie ostatniej zakończonej sesji. <b>Porównano wszystkie dwanaście szeregów, nie tylko wymagane dwa tickery</b>: ^NDX, ^VIX oraz wszystkie dziesięć spółek. Wynik: <b>zgodność co do grosza dla wszystkich dziesięciu spółek i dla VIX</b> (15,44 w obu źródłach); dla ^NDX CBOE podaje <b>29&nbsp;447,0</b> wobec <b>29&nbsp;446,98</b> z Yahoo — różnica <b>0,0001%</b>, czyli zaokrąglenie.</p>
+  <div class="alarm"><b>Rozbieżność z depeszą prasową — odnotowana, rozstrzygnięta na korzyść danych kursowych.</b> Część doniesień z 17.09 podaje zamknięcie ^NDX na poziomie <b>29&nbsp;412,73</b> (+1,62%). Dwa niezależne źródła kursowe wskazują zgodnie <b>29&nbsp;446,98 / 29&nbsp;447,0</b> (+1,73%) i do wyliczeń przyjęto tę wartość. Różnica wynosi 0,12% i nie wpływa na żaden werdykt: przy obu wartościach reżim pozostaje P0, a spread zmienia się o mniej niż 0,2 p.p.</div>
+  <p class="zm"><b>Walidacja D0 — przeszła bez zastrzeżeń.</b> Zamknięcia z dnia D0 (11.09.2026) pobrane z Yahoo porównano z <code>d0.prices</code> w <code>signals.json</code>. Największa różnica bezwzględna na dziesięciu tickerach: <b>0,000%</b> (tolerancja: 0,5%). Zgadza się również poziom indeksu: <b>29&nbsp;368,44</b> w obu miejscach. Warunek zapisu do <code>signals.json</code> jest spełniony.</p>
+  <div class="tabela-scroll">
+  <table>
+    <tr><th>Ticker</th><th>d0.prices</th><th>Yahoo 11.09</th><th>Różnica</th></tr>
+    <tr><td>MU</td><td>975,26</td><td>975,26</td><td class="zero">0,000%</td></tr>
+    <tr><td>AMD</td><td>516,13</td><td>516,13</td><td class="zero">0,000%</td></tr>
+    <tr><td>AVGO</td><td>361,99</td><td>361,99</td><td class="zero">0,000%</td></tr>
+    <tr><td>MRVL</td><td>236,10</td><td>236,10</td><td class="zero">0,000%</td></tr>
+    <tr><td>LITE</td><td>927,03</td><td>927,03</td><td class="zero">0,000%</td></tr>
+    <tr><td>INTU</td><td>321,57</td><td>321,57</td><td class="zero">0,000%</td></tr>
+    <tr><td>SBUX</td><td>98,74</td><td>98,74</td><td class="zero">0,000%</td></tr>
+    <tr><td>CMCSA</td><td>25,20</td><td>25,20</td><td class="zero">0,000%</td></tr>
+    <tr><td>APP</td><td>323,96</td><td>323,96</td><td class="zero">0,000%</td></tr>
+    <tr><td>ADSK</td><td>212,40</td><td>212,40</td><td class="zero">0,000%</td></tr>
+    <tr><td>^NDX</td><td>29&nbsp;368,44</td><td>29&nbsp;368,44</td><td class="zero">0,000%</td></tr>
+  </table>
+  </div>
+  <p class="zrodlo"><b>Granica czasowa.</b> Wszystkie kursy w tabelach to zamknięcia sesji <b>czwartek 17.09.2026</b>. Raport powstał w piątek 18.09.2026 ok. godz. 12:00 czasu Nowego Jorku, czyli <b>przed</b> granicą 16:10 — sesja 18.09 trwa i jej notowania świadomie pominięto. Poprzedni dzień sesyjny (16.09) był normalnym dniem handlowym, nie było przerwy świątecznej.</p>
+</section>
+
+<footer>
+  Materiał analityczno-edukacyjny, <b>nie stanowi rekomendacji inwestycyjnej</b> w rozumieniu przepisów o doradztwie inwestycyjnym ani oferty nabycia lub zbycia instrumentów finansowych.<br>
+  Raport przygotowany automatycznie przez agenta AI „Puls NDX100" · bez udziału człowieka · 18.09.2026<br>
+  Dane: Yahoo chart API, CBOE delayed quotes, FINRA, TrendForce, CNBC, Bloomberg, TheStreet, Benzinga · każda liczba opatrzona źródłem i datą odczytu.
+</footer>
+
+</div>
+</body>
+</html>
