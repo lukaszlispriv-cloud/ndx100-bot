@@ -110,11 +110,26 @@ ACCOUNT_ID       = os.environ.get("CAPITAL_ACCOUNT_ID", "")
 
 RUN_TOKEN        = os.environ.get("RUN_TOKEN", "zmien-ten-token")
 DRY_RUN          = os.environ.get("DRY_RUN", "true").lower() == "true"
-ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.13"))
+# PODWOJENIE WIELKOŚCI POZYCJI (decyzja właściciela rachunku, 18.09.2026).
+# Stan przed: kapitał 1041,61 USD, ekspozycja brutto ~888 USD, depozyt
+# zabezpieczający 177,45 USD, dostępne do handlu 864,15 USD — ponad 80%
+# kapitału nie pracowało. Po zmianie cel to 10 pozycji x 26% = ~2708 USD
+# ekspozycji brutto, depozyt ~542 USD przy stopie 20%, poziom depozytu
+# spada z 587% do ok. 192%. Dochodzenie do celu rozkłada MAX_EXPOSURE_STEP
+# na kilka biegów, a LIMIT DEPOZYTOWY niżej pilnuje, żeby broker nie
+# odrzucił zleceń z braku wolnego depozytu.
+ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.26"))
 # Wielkość awaryjna: używana, gdy KONTROLA KAPITAŁU nie przechodzi (na
 # rachunku są pozycje spoza książki albo equity nie zgadza się z sumą upl).
 # Nie skalujemy pozycji na portfelu, którego nie potrafimy odtworzyć.
 ALLOC_PCT_SAFE   = float(os.environ.get("ALLOC_PCT_SAFE", "0.10"))
+# LIMIT DEPOZYTOWY: jaka część kapitału może być najwyżej zamrożona
+# w depozycie zabezpieczającym. 0,60 zostawia 40% kapitału jako bufor
+# przed wezwaniem do uzupełnienia depozytu. Stopę depozytu bot wylicza
+# na żywo (depozyt / bieżąca ekspozycja brutto), a gdy nie da się jej
+# wyliczyć, przyjmuje MARGIN_RATE_FALLBACK.
+MARGIN_BUDGET        = float(os.environ.get("MARGIN_BUDGET", "0.60"))
+MARGIN_RATE_FALLBACK = float(os.environ.get("MARGIN_RATE_FALLBACK", "0.20"))
 MAX_OVERSHOOT    = float(os.environ.get("MAX_OVERSHOOT", "1.6"))
 START_EQUITY     = float(os.environ.get("START_EQUITY", "1000"))
 KILL_LEVEL       = float(os.environ.get("KILL_LEVEL", "0.75"))
@@ -149,7 +164,7 @@ WEB_MAX_WEEKLY    = int(os.environ.get("WEB_MAX_WEEKLY", "30"))
 
 # --- Moduł taktyczny: dokładki w środku tygodnia (rozliczane OSOBNO)
 TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "true").lower() == "true"
-TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.05"))
+TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.10"))
 TACTICAL_MAX       = int(os.environ.get("TACTICAL_MAX", "2"))
 REDUCE_FACTOR      = float(os.environ.get("REDUCE_FACTOR", "0.5"))
 # --- Bramka wyzwalaczy cenowych --------------------------------------------
@@ -185,6 +200,14 @@ REBALANCE_TOL      = float(os.environ.get("REBALANCE_TOL", "0.35"))
 # z 18.09.2026: 709 -> 1440 USD w jednym biegu). Z ogranicznikiem ta sama
 # zmiana rozkłada się na kilka biegów i jest odwracalna.
 MAX_EXPOSURE_STEP  = float(os.environ.get("MAX_EXPOSURE_STEP", "0.25"))
+# Dolna granica pasma tolerancji. Pasmo jest teraz LICZONE Z GRANULACJI
+# instrumentu, a nie stałe: przy kroku 0,1 akcji i kursie 989 USD (MU)
+# najmniejsza możliwa zmiana pozycji to ~99 USD, więc wąskie pasmo
+# oznaczałoby churn; przy CMCSA po 22,75 USD ten sam krok to grosze i
+# szerokie pasmo tylko trzyma pozycję daleko od celu. Stałe 0,35
+# powodowało, że po podwojeniu ALLOC_PCT pozycje zatrzymywały się ok. 29%
+# poniżej celu i deklarowana wielkość rozjeżdżała się z faktyczną.
+REBALANCE_TOL_MIN  = float(os.environ.get("REBALANCE_TOL_MIN", "0.12"))
 
 # Nazwa w powiadomieniach — bliźniacze boty (WIG20 / NDX100) piszą na ten sam
 # czat, więc etykieta musi mówić, KTÓRY bot zadziałał.
@@ -625,10 +648,20 @@ class Capital:
         (18.09 o 62,80 USD, czyli 6%), próg kill switcha też zawyżony,
         a raportowany zysk okresu +10,4% zamiast rzeczywistych +4,1%.
 
-        Teraz kapitałem jest samo ``balance``. Gdy API poda ``deposit``,
-        sprawdzamy tożsamość ``balance == deposit + profitLoss``; gdy się
-        nie zgadza, zapisujemy ostrzeżenie i zostajemy przy ``balance``,
-        bo to jedyne pole, które broker nazywa kapitałem.
+        Teraz kapitałem jest samo ``balance``.
+
+        UWAGA CO DO POLA ``deposit``: to NIE jest gotówka, tylko DEPOZYT
+        ZABEZPIECZAJĄCY (margin). Panel Capital.com z 18.09.2026 pokazuje
+        równocześnie: wartość konta 1041,61, depozyt CFD 177,45, wydajność
+        58,10, dostępne do handlu 864,15. Zachodzi ``equity - deposit =
+        dostępne`` (1041,61 - 177,45 = 864,16), a NIE ``equity = deposit +
+        profitLoss`` (177,45 + 58,10 = 235,55). Wcześniejsza wersja tej
+        metody sprawdzała tę drugą, nieprawdziwą tożsamość i zapalałaby
+        kontrolę kapitału na każdym biegu, dusząc wielkość pozycji do
+        ALLOC_PCT_SAFE. Kontrola została usunięta; ``deposit`` służy teraz
+        do oszacowania stopy depozytu na potrzeby limitu depozytowego.
+
+        Gotówkę liczymy z definicji: ``balance - profitLoss``.
         """
         accs = self.accounts()
         pick = None
@@ -642,17 +675,14 @@ class Capital:
         b = pick.get("balance", {})
         kapital = float(b.get("balance", 0) or 0)
         wycena = float(b.get("profitLoss", 0) or 0)
-        gotowka = b.get("deposit")
-        gotowka = float(gotowka) if gotowka not in (None, "") else None
-        uwaga = None
-        if gotowka is not None and abs(kapital - (gotowka + wycena)) > 0.05:
-            uwaga = (f"API łamie tożsamość balance = deposit + profitLoss "
-                     f"({kapital:.2f} vs {gotowka:.2f} + {wycena:.2f}) — "
-                     f"kapitałem pozostaje balance")
+        depozyt = b.get("deposit")
+        try:
+            depozyt = float(depozyt) if depozyt not in (None, "") else None
+        except (TypeError, ValueError):
+            depozyt = None
         return {"equity": kapital, "saldo": kapital,
-                "gotowka": gotowka if gotowka is not None
-                           else kapital - wycena,
-                "wycena": wycena, "uwaga_kapital": uwaga,
+                "gotowka": kapital - wycena,
+                "wycena": wycena, "depozyt": depozyt,
                 "ccy": pick.get("currency", "?"),
                 "accountId": pick.get("accountId"),
                 "dostepne": float(b.get("available", 0) or 0)}
@@ -889,8 +919,7 @@ def kontrola_kapitalu(snap, positions, managed, rep):
     braki = [p["epic"] for p in znane if p.get("upl") is None]
     roznica = snap["wycena"] - suma_upl
     prog = max(abs(snap["equity"]) * EQUITY_TOL, 1.0)
-    ok = (abs(roznica) <= prog and not obce and not braki
-          and not snap.get("uwaga_kapital"))
+    ok = abs(roznica) <= prog and not obce and not braki
     wynik = {
         "kapital": round(snap["equity"], 2),
         "gotowka": round(snap.get("gotowka") or 0.0, 2),
@@ -913,8 +942,6 @@ def kontrola_kapitalu(snap, positions, managed, rep):
             powody.append(f"wycena z API {snap['wycena']:.2f} vs suma upl "
                           f"{suma_upl:.2f} (różnica {roznica:+.2f} przy "
                           f"tolerancji {prog:.2f})")
-        if snap.get("uwaga_kapital"):
-            powody.append(snap["uwaga_kapital"])
         wynik["powod"] = "; ".join(powody)
         rep["błędy"].append("KONTROLA KAPITAŁU: " + wynik["powod"]
                             + " — wielkość pozycji ograniczona do "
@@ -1120,8 +1147,10 @@ def sync():
     snap = cap.account_snapshot()
     equity, ccy, acc = snap["equity"], snap["ccy"], snap["accountId"]
     rep["konto"] = {"accountId": acc, "kapital": equity, "waluta": ccy,
-                    "gotowka": snap.get("gotowka"),
-                    "wycena_pozycji": snap["wycena"]}
+                    "gotowka": round(snap.get("gotowka") or 0.0, 2),
+                    "wycena_pozycji": snap["wycena"],
+                    "depozyt_zabezpieczajacy": snap.get("depozyt"),
+                    "dostepne_do_handlu": snap.get("dostepne")}
     managed = {e for e in sig["epics"].values()
                if e and not e.upper().startswith("UZUP")}
     if HEDGE_MODE == "index" and HEDGE_EPIC:
@@ -1235,27 +1264,77 @@ def sync():
     # Ruszamy dopiero poza pasmem REBALANCE_TOL i tylko wtedy, gdy krok
     # wielkości pozwala faktycznie podejść bliżej celu (inaczej byłby to
     # cotygodniowy churn: zamknij i otwórz to samo, płacąc spread).
-    # OGRANICZNIK TEMPA WZROSTU EKSPOZYCJI — liczony raz, przed zmianami.
-    if MAX_EXPOSURE_STEP > 0:
-        teraz_brutto = 0.0
-        for p in positions:
-            if p["epic"] not in book:
-                continue
-            try:
-                m = cap.market(p["epic"])
-            except requests.RequestException:
-                continue
-            if m["mid"]:
-                teraz_brutto += abs(p["size"] * m["mid"]
-                                    / cap.fx_rate(ccy, m["currency"]))
-        cel_brutto = sum(
-            equity * (TACTICAL_ALLOC_PCT if w.get("tactical")
-                      else alloc * (REDUCE_FACTOR if w.get("reduced") else 1.0))
-            for w in book.values())
+    # Bieżąca ekspozycja brutto — podstawa obu limitów niżej. Zbieramy
+    # osobno epici, które JUŻ mamy i które zostają w książce: ogranicznik
+    # tempa dotyczy wyłącznie ich.
+    teraz_brutto, niesione = 0.0, set()
+    for p in positions:
+        want = book.get(p["epic"])
+        if not want or want["direction"] != p["direction"]:
+            continue
+        try:
+            m = cap.market(p["epic"])
+        except requests.RequestException:
+            continue
+        if m["mid"]:
+            teraz_brutto += abs(p["size"] * m["mid"]
+                                / cap.fx_rate(ccy, m["currency"]))
+            niesione.add(p["epic"])
+
+    def cel_brutto_dla(a, tylko=None):
+        return sum(equity * (TACTICAL_ALLOC_PCT if w.get("tactical")
+                             else a * (REDUCE_FACTOR if w.get("reduced")
+                                       else 1.0))
+                   for e, w in book.items() if tylko is None or e in tylko)
+
+    # LIMIT DEPOZYTOWY — ekspozycja, której depozyt zabezpieczający zmieści
+    # się w MARGIN_BUDGET kapitału. Bez tego broker zacząłby odrzucać
+    # zlecenia, a bot raportowałby serię błędów otwarcia zamiast powiedzieć,
+    # że po prostu zabrakło wolnego depozytu.
+    stopa = MARGIN_RATE_FALLBACK
+    zrodlo_stopy = f"założona {MARGIN_RATE_FALLBACK:.0%}"
+    if snap.get("depozyt") and teraz_brutto > 0:
+        wyliczona = snap["depozyt"] / teraz_brutto
+        if 0.01 <= wyliczona <= 1.0:
+            stopa, zrodlo_stopy = wyliczona, "wyliczona z rachunku"
+    max_brutto = equity * MARGIN_BUDGET / stopa if stopa > 0 else float("inf")
+    cel = cel_brutto_dla(alloc)
+    rep["limit_depozytowy"] = {
+        "stopa_depozytu": round(stopa, 4), "zrodlo": zrodlo_stopy,
+        "depozyt_teraz": snap.get("depozyt"),
+        "ekspozycja_teraz": round(teraz_brutto, 2),
+        "ekspozycja_cel": round(cel, 2),
+        "ekspozycja_max": round(max_brutto, 2),
+        "depozyt_po_celu": round(cel * stopa, 2),
+        "budzet_depozytu": round(equity * MARGIN_BUDGET, 2)}
+    if cel > max_brutto > 0:
+        alloc = alloc * (max_brutto / cel)
+        rep["limit_depozytowy"]["alloc_po_ograniczeniu"] = round(alloc, 4)
+        rep["pominiete"].append(
+            f"limit depozytowy: cel {cel:.0f} {ccy} wymagałby depozytu "
+            f"{cel * stopa:.0f} {ccy} przy budżecie "
+            f"{equity * MARGIN_BUDGET:.0f} {ccy} — ALLOC_PCT ograniczony "
+            f"do {alloc:.4f}")
+
+    # Cel DOCELOWY (po limicie depozytowym, przed ogranicznikiem tempa).
+    # Rozróżnienie jest konieczne: pasmo REBALANCE_TOL testujemy wobec celu
+    # docelowego, a wykonanie wobec celu przyciętego na ten bieg. Inaczej
+    # ogranicznik tempa przycinałby cel do wnętrza pasma tolerancji i
+    # pozycja nigdy by nie urosła — bot w nieskończoność raportowałby
+    # "akcje: 0", stojąc 20% poniżej celu.
+    alloc_docelowy = alloc
+
+    # OGRANICZNIK TEMPA WZROSTU EKSPOZYCJI — liczony WYŁĄCZNIE na pozycjach
+    # już niesionych. Gdyby brał pod uwagę także te, których jeszcze nie ma,
+    # sobotnia rotacja koszyków byłaby zduszona: przy trzech przeniesionych
+    # nazwach i siedmiu nowych limit "+25% od bieżącej ekspozycji" kazałby
+    # otworzyć cały nowy koszyk za ułamek docelowej wielkości. Nowe pozycje
+    # otwieramy od razu w docelowym rozmiarze — pilnuje ich limit depozytowy.
+    if MAX_EXPOSURE_STEP > 0 and niesione:
+        cel_brutto = cel_brutto_dla(alloc, tylko=niesione)
         limit = teraz_brutto * (1 + MAX_EXPOSURE_STEP)
         if teraz_brutto > 0 and cel_brutto > limit:
-            skala = limit / cel_brutto
-            alloc = alloc * skala
+            alloc = alloc * (limit / cel_brutto)
             rep["ogranicznik_tempa"] = {
                 "ekspozycja_teraz": round(teraz_brutto, 2),
                 "ekspozycja_cel": round(cel_brutto, 2),
@@ -1266,6 +1345,7 @@ def sync():
                 f"limit {limit:.0f} {ccy} (+{MAX_EXPOSURE_STEP * 100:.0f}% "
                 f"od {teraz_brutto:.0f}) — w tym biegu ALLOC_PCT "
                 f"ograniczony do {alloc:.4f}")
+    rep["alloc_pct"] = round(alloc, 4)
 
     stracone = set()
     for p in positions:
@@ -1278,11 +1358,30 @@ def sync():
             continue          # rynek zamknięty albo błąd — już opisane
         fx = cap.fx_rate(ccy, m["currency"])
         cur_acc = p["size"] * m["mid"] / fx
-        cel_acc = equity * (TACTICAL_ALLOC_PCT if want.get("tactical")
-                            else alloc * (REDUCE_FACTOR
-                                          if want.get("reduced") else 1.0))
-        if abs(cur_acc - cel_acc) <= cel_acc * REBALANCE_TOL:
-            continue          # w paśmie — zostawiamy
+        # Pasmo tolerancji z granulacji: najlepszy osiągalny błąd to pół
+        # kroku wielkości, więc pasmo musi być od niego szersze.
+        krok_acc = m["min"] * m["mid"] / fx
+        mnoznik = REDUCE_FACTOR if want.get("reduced") else 1.0
+        taktyczna = want.get("tactical")
+        cel_acc = equity * (TACTICAL_ALLOC_PCT if taktyczna
+                            else alloc * mnoznik)
+        cel_docelowy = equity * (TACTICAL_ALLOC_PCT if taktyczna
+                                 else alloc_docelowy * mnoznik)
+        pasmo = REBALANCE_TOL
+        if cel_docelowy > 0:
+            pasmo = min(REBALANCE_TOL,
+                        max(REBALANCE_TOL_MIN, 0.75 * krok_acc / cel_docelowy))
+        # W paśmie wobec celu DOCELOWEGO = nie ma czego poprawiać.
+        if abs(cur_acc - cel_docelowy) <= cel_docelowy * pasmo:
+            continue
+        # Poza pasmem, ale ogranicznik tempa nie daje ruszyć się sensownie
+        # w tym biegu — czekamy, zamiast płacić spread za kosmetykę.
+        if abs(cur_acc - cel_acc) <= cel_acc * 0.05:
+            rep["pominiete"].append(
+                f"{want['ticker']}: dochodzenie do celu {cel_docelowy:.0f} "
+                f"{ccy} rozłożone na kolejne biegi (teraz {cur_acc:.0f} "
+                f"{ccy}, limit na ten bieg {cel_acc:.0f} {ccy})")
+            continue
         size, _, info = calc_size(cap, cel_acc, p["epic"], ccy)
         # Cichy brak wykonania redukcji: przy MU (kurs ~980 USD) cel po
         # redukcji to ~55 USD, a minimalna transakcja 0,1 akcji = ~98 USD,
@@ -1333,9 +1432,12 @@ def sync():
     for epic, want in book.items():
         if held.get(epic) == want["direction"]:
             continue
+        # Nowo otwierane pozycje idą od razu w rozmiarze docelowym
+        # (po limicie depozytowym, bez ogranicznika tempa — patrz wyżej).
         target = equity * (TACTICAL_ALLOC_PCT if want.get("tactical")
-                           else alloc * (REDUCE_FACTOR
-                                         if want.get("reduced") else 1.0))
+                           else alloc_docelowy * (REDUCE_FACTOR
+                                                  if want.get("reduced")
+                                                  else 1.0))
         try:
             size, m, info = calc_size(cap, target, epic, ccy)
         except requests.HTTPError as e:
@@ -1412,6 +1514,7 @@ def sync():
     if zlagodzone:
         ostrzezenia.append(f"↓ bramka x{len(zlagodzone)}")
     notify(f"🤖 {BOT_NAME} /run v{sig['version']} | kapitał {equity:.2f} {ccy} | "
+           f"poz. {rep['alloc_pct'] * 100:.1f}% | "
            f"akcje: {zam} | pominięte: {len(rep['pominiete'])} | "
            f"błędy: {len(rep['błędy'])} | "
            f"{'DRY-RUN' if DRY_RUN else 'DEMO'}"
@@ -1534,7 +1637,8 @@ def status_ep():
                        konto={"accountId": acc, "kapital": eq, "waluta": ccy,
                               "gotowka": snap.get("gotowka"),
                               "wycena_pozycji": snap["wycena"],
-                              "uwaga": snap.get("uwaga_kapital")},
+                              "depozyt_zabezpieczajacy": snap.get("depozyt"),
+                              "dostepne_do_handlu": snap.get("dostepne")},
                        kontrola_kapitalu=kontrola_kapitalu(
                            snap, cap.positions(), managed,
                            {"błędy": [], "pominiete": []}),
@@ -1550,7 +1654,11 @@ def status_ep():
                                    "stop_loss_pct": STOP_LOSS_PCT,
                                    "kill_trailing": KILL_TRAILING,
                                    "kill_level": KILL_LEVEL,
-                                   "max_exposure_step": MAX_EXPOSURE_STEP},
+                                   "max_exposure_step": MAX_EXPOSURE_STEP,
+                                   "tactical_alloc_pct": TACTICAL_ALLOC_PCT,
+                                   "margin_budget": MARGIN_BUDGET,
+                                   "rebalance_tol": REBALANCE_TOL,
+                                   "rebalance_tol_min": REBALANCE_TOL_MIN},
                        pozycje=[p for p in cap.positions()
                                 if p["epic"] in managed],
                        dry_run=DRY_RUN)

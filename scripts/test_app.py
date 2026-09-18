@@ -357,29 +357,37 @@ sprawdz("kapitalem jest samo pole balance",
         abs(s1["equity"] - 1041.32) < 1e-9, s1["equity"])
 sprawdz("wycena nie jest doliczana drugi raz",
         abs(s1["equity"] - (1041.32 + 55.18)) > 1e-9)
-sprawdz("gotowka brana z pola deposit",
-        abs(s1["gotowka"] - 986.14) < 1e-9)
-sprawdz("tozsamosc balance = deposit + profitLoss nie budzi zastrzezen",
-        s1["uwaga_kapital"] is None)
+sprawdz("gotowka liczona z definicji: balance - profitLoss",
+        abs(s1["gotowka"] - 986.14) < 1e-9, s1["gotowka"])
 
-# Gdy API nie poda deposit, gotowke wyliczamy odejmujac wycene.
-s2 = konto(balance=1041.32, profit_loss=55.18)
-sprawdz("bez pola deposit gotowka liczona jako balance - profitLoss",
-        abs(s2["gotowka"] - 986.14) < 1e-9, s2["gotowka"])
-sprawdz("brak deposit nie generuje falszywego ostrzezenia",
-        s2["uwaga_kapital"] is None)
-
-# Gdy tozsamosc nie zachodzi, zostajemy przy balance i zapisujemy ostrzezenie.
-s3 = konto(balance=1200.0, profit_loss=55.18, deposit=986.14)
-sprawdz("zlamana tozsamosc daje ostrzezenie", s3["uwaga_kapital"] is not None)
-sprawdz("mimo ostrzezenia kapitalem zostaje balance",
-        abs(s3["equity"] - 1200.0) < 1e-9)
+# Panel Capital.com 18.09.2026: equity 1041,61, depozyt 177,45 (margin!),
+# wydajnosc 58,10, dostepne 864,15. Pole "deposit" to DEPOZYT
+# ZABEZPIECZAJACY, nie gotowka — nie wolno na nim opierac zadnej kontroli.
+s_real = konto(balance=1041.61, profit_loss=58.10, deposit=177.45)
+sprawdz("prawdziwy rachunek: kapital = 1041,61",
+        abs(s_real["equity"] - 1041.61) < 1e-9)
+sprawdz("depozyt zabezpieczajacy przechowany osobno",
+        abs(s_real["depozyt"] - 177.45) < 1e-9)
+poz_real = [{"epic": "MU", "direction": "BUY", "size": 0.1, "upl": 20.0},
+            {"epic": "AMD", "direction": "BUY", "size": 0.2, "upl": 38.10}]
 rep_t = pusty_rep()
-k3 = app.kontrola_kapitalu(s3, [], set(), rep_t)
-sprawdz("ostrzezenie o kapitale zapala kontrole", not k3["zgodne"])
+k_real = app.kontrola_kapitalu(s_real, poz_real, {"MU", "AMD"}, rep_t)
+sprawdz("depozyt rozny od gotowki NIE zapala falszywie kontroli",
+        k_real["zgodne"], k_real)
+# Kontrola nadal ma dzialac tam, gdzie powinna: wycena bez pokrycia w upl.
+rep_t = pusty_rep()
+k_pusty = app.kontrola_kapitalu(s_real, [], set(), rep_t)
+sprawdz("wycena 58,10 bez ani jednej pozycji zapala kontrole",
+        not k_pusty["zgodne"])
+
+# Gdy API nie poda deposit, nic sie nie psuje.
+s2 = konto(balance=1041.32, profit_loss=55.18)
+sprawdz("brak pola deposit nie wywala migawki", s2["depozyt"] is None)
+sprawdz("gotowka nadal liczona poprawnie",
+        abs(s2["gotowka"] - 986.14) < 1e-9)
 
 # Rachunek bez otwartych pozycji.
-s4 = konto(balance=1000.0, profit_loss=0.0, deposit=1000.0)
+s4 = konto(balance=1000.0, profit_loss=0.0, deposit=0.0)
 sprawdz("pusty portfel: kapital = gotowka", abs(s4["equity"] - 1000.0) < 1e-9)
 
 # equity() musi zwracac to samo co account_snapshot()["equity"].
@@ -392,6 +400,48 @@ eq, ccy_, acc_ = cap.equity()
 sprawdz("equity() zgodne z account_snapshot()", abs(eq - 1041.32) < 1e-9, eq)
 sprawdz("equity() zwraca walute i numer rachunku",
         ccy_ == "USD" and acc_ == "X")
+
+
+# ---------------------------------------------- limit depozytowy ------------
+print("\nLIMIT DEPOZYTOWY")
+
+
+def limit_depozytowy(equity, stopa, alloc, n=10, budzet=None):
+    """Powtarza arytmetyke limitu z sync() na golych liczbach."""
+    budzet = app.MARGIN_BUDGET if budzet is None else budzet
+    max_brutto = equity * budzet / stopa
+    cel = equity * alloc * n
+    return (alloc * (max_brutto / cel)) if cel > max_brutto > 0 else alloc
+
+
+# Stan z 18.09.2026: kapital 1041,61, stopa depozytu 20%, cel 26% x 10.
+sprawdz("cel 26% x 10 miesci sie w budzecie depozytu",
+        abs(limit_depozytowy(1041.61, 0.20, 0.26) - 0.26) < 1e-12,
+        limit_depozytowy(1041.61, 0.20, 0.26))
+depozyt_po = 1041.61 * 0.26 * 10 * 0.20
+sprawdz("depozyt po podwojeniu to ok. 542 USD", abs(depozyt_po - 541.6) < 1.0,
+        round(depozyt_po, 2))
+sprawdz("zostaje ponad 45% kapitalu wolnego",
+        (1041.61 - depozyt_po) / 1041.61 > 0.45)
+
+# Za duzy cel musi zostac przyciety.
+a = limit_depozytowy(1041.61, 0.20, 0.50)
+sprawdz("cel 50% x 10 jest przycinany przez budzet depozytu", a < 0.50, a)
+sprawdz("po przycieciu depozyt rowna sie budzetowi",
+        abs(1041.61 * a * 10 * 0.20 - 1041.61 * app.MARGIN_BUDGET) < 1e-6)
+
+# Wyzsza stopa depozytu (mniejsza dzwignia) tnie mocniej.
+sprawdz("stopa 50% ogranicza cel bardziej niz stopa 20%",
+        limit_depozytowy(1041.61, 0.50, 0.26)
+        < limit_depozytowy(1041.61, 0.20, 0.26))
+
+# Wartosci domyslne po podwojeniu.
+sprawdz("ALLOC_PCT podwojony do 0.26", abs(app.ALLOC_PCT - 0.26) < 1e-12,
+        app.ALLOC_PCT)
+sprawdz("TACTICAL_ALLOC_PCT podwojony do 0.10",
+        abs(app.TACTICAL_ALLOC_PCT - 0.10) < 1e-12, app.TACTICAL_ALLOC_PCT)
+sprawdz("ALLOC_PCT_SAFE zostaje zachowawczy",
+        app.ALLOC_PCT_SAFE < app.ALLOC_PCT)
 
 
 print(f"\n{'=' * 52}")

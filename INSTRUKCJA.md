@@ -54,26 +54,57 @@ Nowe (wszystkie mają sensowne domyślne — ustaw tylko to, co chcesz zmienić)
 | `EQUITY_TOL` | `0.02` | Tolerancja kontroli kapitału (ułamek equity). |
 | `ALLOC_PCT_SAFE` | `0.10` | Wielkość pozycji, gdy kontrola kapitału nie przechodzi. |
 | `WRITE_FILLS` | `true` | Zapis cen wejścia do `signals.json`. |
-| `MAX_EXPOSURE_STEP` | `0.25` | O ile najwyżej może urosnąć łączna ekspozycja brutto w JEDNYM biegu. `0` wyłącza. |
+| `MAX_EXPOSURE_STEP` | `0.25` | O ile najwyżej mogą urosnąć w JEDNYM biegu pozycje już niesione. `0` wyłącza. |
+| `MARGIN_BUDGET` | `0.60` | Jaka część kapitału może być najwyżej zamrożona w depozycie zabezpieczającym. |
+| `MARGIN_RATE_FALLBACK` | `0.20` | Stopa depozytu przyjmowana, gdy nie da się jej wyliczyć z rachunku. |
+| `REBALANCE_TOL_MIN` | `0.12` | Dolna granica pasma tolerancji wielkości pozycji. |
 | `KURSY_LIMIT_CZASU` | `600` | Budżet czasu dla `scripts/kursy.py` (sekundy). |
 | `KURSY_UA` | — | Własny User-Agent dla Yahoo, próbowany jako pierwszy. |
 
-Zmieniona domyślna: **`ALLOC_PCT` z `0.10` na `0.13`**.
+Zmienione domyślne: **`ALLOC_PCT` z `0.10` na `0.26`** oraz
+**`TACTICAL_ALLOC_PCT` z `0.05` na `0.10`** — podwojenie wielkości pozycji
+na życzenie właściciela rachunku (18.09.2026). Co to znaczy w liczbach,
+przy kapitale 1041,61 USD i stopie depozytu 20%:
+
+| | Przed | Po |
+|---|---|---|
+| Wielkość jednej pozycji koszykowej | ~99 USD | ~271 USD |
+| Ekspozycja brutto (9 pozycji) | 888 USD | ~2 350 USD |
+| Depozyt zabezpieczający | 177 USD | ~470 USD |
+| Dostępne do handlu | 864 USD | ~570 USD |
+| Poziom depozytu | 587% | ~222% |
+| Dźwignia brutto wobec kapitału | 0,85× | ~2,26× |
+
+Dojście do nowego poziomu zajmuje **pięć biegów** — tyle wynika
+z `MAX_EXPOSURE_STEP`. Ekspozycja rośnie kolejno: 888, 1060, 1301, 1638,
+1976, 2351 USD.
+
+Największe obsunięcie wyniku zanotowane w okresie 27.08–18.09 to −4,9%
+kapitału przy wielkości pozycji ok. 10%. Przy 26% ta sama seria zdarzeń
+dałaby ok. −12,7%, a kill switch stoi na −25% od kroczącego szczytu.
 
 Podniesienie wielkości pozycji jest obwarowane dwoma bezpiecznikami, które
 działają automatycznie:
 
 1. **Kontrola kapitału** — dopóki equity z API nie daje się odtworzyć
    z pozycji, które bot zna, obowiązuje `ALLOC_PCT_SAFE` (0,10).
-2. **Ogranicznik tempa** — ekspozycja brutto nie urośnie w jednym biegu
-   o więcej niż `MAX_EXPOSURE_STEP`. Symulacja na stanie z 18.09.2026:
-   bez ogranicznika książka skoczyłaby z 709 do 1292 USD w jednym biegu,
-   z ogranicznikiem rośnie do 886 USD i dochodzi do celu przez kilka
-   biegów.
+2. **Limit depozytowy** — bot wylicza stopę depozytu na żywo (depozyt
+   zabezpieczający podzielony przez bieżącą ekspozycję) i nie pozwala,
+   by depozyt przekroczył `MARGIN_BUDGET` kapitału. Bez tego broker
+   zacząłby odrzucać zlecenia, a bieg raportowałby serię błędów otwarcia
+   zamiast powiedzieć wprost, że zabrakło wolnego depozytu.
+3. **Ogranicznik tempa** — pozycje już niesione nie urosną w jednym biegu
+   o więcej niż `MAX_EXPOSURE_STEP`. Nowo otwierane idą od razu w pełnym
+   rozmiarze, inaczej sobotnia rotacja koszyków byłaby zduszona.
 
 > Jeżeli masz `ALLOC_PCT` ustawione jawnie w panelu Rendera, zmiana
 > domyślnej w kodzie **nic nie da** — trzeba poprawić zmienną w panelu.
-> Chcesz zostać przy dotychczasowej wielkości? Ustaw `ALLOC_PCT=0.10`.
+> Efektywną wielkość widać teraz w każdej linii `NOTIFY:` jako `poz. X%`.
+>
+> Chcesz dokładnie dwukrotność DZISIEJSZYCH pozycji (~196 USD zamiast
+> ~271 USD)? Ustaw `ALLOC_PCT=0.19`. Różnica bierze się stąd, że książka
+> nie zdążyła dojść do poprzedniego celu 13% — dzisiejsze ~99 USD na
+> pozycję to nie jest to samo co ustawione 13%.
 
 ---
 
