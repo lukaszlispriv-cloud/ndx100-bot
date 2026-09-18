@@ -19,6 +19,7 @@ dziennej.
 | Kapitał z API nigdy nie weryfikowany | rozjazd 2,5× z historią transakcji, niezauważony | Kontrola kapitału + automatyczne zejście na `ALLOC_PCT_SAFE` |
 | Moduł taktyczny bez czego wybierać | 10% kapitału bezczynne przez cały okres | Pozycja taktyczna może mieć własny `epic` |
 | `scripts/kursy.py` wisiał przy HTTP 429 | brak kursów, ręczne obchodzenie źródła | Lista User-Agentów + budżet czasu |
+| Nieużywana integracja z Telegramem | sugerowała, że alert dociera gdzieś poza log | Usunięta w v1.8.1 |
 
 ### Przyczyna „limitu Yahoo" — to nie był limit
 
@@ -186,7 +187,7 @@ podmienić ręcznie. Poniżej fragmenty, które się zmieniają.
 ## 6. Testy
 
 ```bash
-python3 scripts/test_app.py     # 46 testów logiki decyzyjnej, bez sieci
+python3 scripts/test_app.py     # 52 testy logiki decyzyjnej, bez sieci
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 
@@ -195,7 +196,33 @@ stopy, klasyfikację stanu rynku, budowę książki, ogranicznik tempa i
 kontrolę spójności `signals.json`. Uruchom go po każdej zmianie w
 `app.py`.
 
-## 7. Czego poprawki NIE zmieniają
+## 7. Gdzie szukać powiadomień
+
+Integracja z Telegramem została usunięta — nie była używana. Podsumowanie
+każdego biegu trafia w dwa miejsca:
+
+1. **Log usługi w Renderze** (zakładka Logs) — szukaj linii zaczynających
+   się od `NOTIFY:`. Wyglądają tak:
+
+   ```
+   NOTIFY: 🤖 NDX100 BOT /run v2026-W4 | kapitał 1104.12 USD | akcje: 3 |
+   pominięte: 5 | błędy: 0 | DEMO | ↓ bramka x4
+   ```
+
+2. **Odpowiedź endpointu `/run`** — pełny JSON z listami `akcje`,
+   `pominiete`, `błędy`, `reakcje`, `kontrola_kapitalu`, `stopy`
+   i `ogranicznik_tempa`. To samo widać w `/status` bez wykonywania
+   transakcji.
+
+Znaczenie dopisków na końcu linii `NOTIFY:`:
+
+| Dopisek | Znaczenie |
+|---|---|
+| `↓ bramka xN` | Bot odrzucił N reakcji pulsu, bo licząc od ceny wejścia nie przekraczają progów. |
+| `⚠ KONTROLA KAPITAŁU` | Kapitał z API nie zgadza się z pozycjami bota — wielkość pozycji zeszła na `ALLOC_PCT_SAFE`. |
+| `⛔ STOP xN` | N pozycji zamkniętych twardym stopem od ceny wejścia. |
+
+## 8. Czego poprawki NIE zmieniają
 
 - Metody budowania koszyków i rankingu tygodniowego.
 - Kierunków pozycji — bramka tylko łagodzi reakcje, nigdy nie odwraca tezy.

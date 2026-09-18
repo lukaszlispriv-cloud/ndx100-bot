@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-BASKET BOT v1.8.0 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
+BASKET BOT v1.8.1 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
 =======================================================================
 Nowość vs v1.0: bot sam generuje rekomendacje i raporty (API Anthropic
 z wyszukiwaniem internetowym), sam commit'uje signals.json + raport HTML
-do GitHuba i sam powiadamia na Telegramie. Człowiek nic nie podmienia.
+do GitHuba i sam zapisuje podsumowanie biegu w logu. Człowiek nic nie
+podmienia.
 
 OBIEG DOBOWY (sterowany z cron-job.org):
   pn–pt 8:10  -> /generate?mode=daily   (puls: status + ew. wykluczenia,
-                                         raport HTML, Telegram ~8:30)
+                                         raport HTML ~8:30)
   pn–pt 9:15  -> /run                   (synchronizacja pozycji na demo)
   pn–pt 13:05 -> /run                   (bieg doganiający, opcjonalny)
   sobota 8:30 -> /generate?mode=weekly  (rozliczenie tygodnia + nowe koszyki)
@@ -62,6 +63,9 @@ wykonał):
     decyduje: zostawić pełną pozycję czy zamknąć całość).
   * POZYCJA TAKTYCZNA MOŻE MIEĆ WŁASNY EPIC spoza uniwersum koszyków.
   * CACHE MIGAWEK RYNKU na czas jednego biegu.
+
+NOWE W v1.8.1: usunięta nieużywana integracja z Telegramem — powiadomienia
+idą wyłącznie do logu usługi (linie "NOTIFY:") i do odpowiedzi endpointu.
 
 BEZPIECZNIKI: DRY_RUN (handel), commit=false (generator), walidacja JSON
 z modelu (błędny wynik => zostaje stary plik + alert, bot nie gra na
@@ -188,9 +192,6 @@ HEDGE_TOL   = float(os.environ.get("HEDGE_TOL", "0.30"))
 HEDGE_MODE  = ("classic" if not HEDGE_EPIC
                else ("off" if HEDGE_EPIC.upper() == "OFF" else "index"))
 
-TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TG_CHAT  = os.environ.get("TELEGRAM_CHAT_ID", "")
-
 BASE_URL = ("https://demo-api-capital.backend-capital.com" if CAPITAL_DEMO
             else "https://api-capital.backend-capital.com")
 
@@ -205,14 +206,14 @@ app = Flask(__name__)
 
 
 def notify(text: str):
+    """Jedyny kanał powiadomień to log usługi (Render -> Logs).
+
+    Integracja z Telegramem została usunięta w v1.8.1 — nie była używana,
+    a jej obecność sugerowała, że alert dociera gdzieś poza log. Dociera
+    do logu i tylko do logu: szukaj linii zaczynających się od "NOTIFY:".
+    Pełną treść ostatniego biegu zwraca też endpoint /run w polu JSON.
+    """
     log.info("NOTIFY: %s", text)
-    if TG_TOKEN and TG_CHAT:
-        try:
-            requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                          json={"chat_id": TG_CHAT, "text": text,
-                                "disable_web_page_preview": True}, timeout=10)
-        except Exception as e:
-            log.warning("Telegram nie zadziałał: %s", e)
 
 
 # ----------------------------------------------------------------------------
