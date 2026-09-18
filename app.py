@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-BASKET BOT v1.8.1 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
+BASKET BOT v1.9.0 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
 =======================================================================
 Nowość vs v1.0: bot sam generuje rekomendacje i raporty (API Anthropic
 z wyszukiwaniem internetowym), sam commit'uje signals.json + raport HTML
@@ -66,6 +66,13 @@ wykonał):
 
 NOWE W v1.8.1: usunięta nieużywana integracja z Telegramem — powiadomienia
 idą wyłącznie do logu usługi (linie "NOTIFY:") i do odpowiedzi endpointu.
+
+NOWE W v1.9.0 — NAPRAWA PODWÓJNEGO LICZENIA KAPITAŁU: bot liczył kapitał
+jako balance + profitLoss, a Capital.com podaje w polu balance JUŻ kapitał
+z wyceną pozycji. Wycena była doliczana drugi raz, przez co 18.09.2026
+kapitał był zawyżony o 62,80 USD (6%), a zysk okresu wyglądał na +10,4%
+zamiast rzeczywistych +4,1%. Szczegóły i dowód liczbowy w docstringu
+Capital.account_snapshot.
 
 BEZPIECZNIKI: DRY_RUN (handel), commit=false (generator), walidacja JSON
 z modelu (błędny wynik => zostaje stary plik + alert, bot nie gra na
@@ -594,13 +601,34 @@ class Capital:
         return self._get("/api/v1/accounts").get("accounts", [])
 
     def account_snapshot(self):
-        """Pełna migawka rachunku: kapitał, saldo i wycena pozycji OSOBNO.
+        """Migawka rachunku z rozbiciem na gotówkę i wycenę pozycji.
 
-        Rozbicie na balance i profitLoss jest potrzebne do KONTROLI KAPITAŁU:
-        profitLoss z API musi się zgadzać z sumą upl pozycji, które bot zna.
-        Gdy się nie zgadza, na rachunku dzieje się coś poza książką bota
-        (ręczne pozycje, wpłata, inny instrument) i nie wolno skalować
-        wielkości pozycji.
+        UWAGA, TU BYŁ BŁĄD DO v1.8.1: bot liczył kapitał jako
+        ``balance + profitLoss``, a Capital.com podaje w polu ``balance``
+        JUŻ kapitał z wyceną otwartych pozycji (``balance = deposit +
+        profitLoss``). Wycena była więc doliczana DRUGI RAZ.
+
+        Dowód liczbowy z 18.09.2026 — sześć niezależnych odczytów z logu
+        usługi zestawionych z odtworzoną książką pozycji:
+
+            dzień       log bota   1000 + zreal + 2 x niezreal   różnica
+            2026-09-11   1032,84                       1032,03     +0,81
+            2026-09-14    997,02                        994,22     +2,80
+            2026-09-15   1007,13                       1017,53    -10,40
+            2026-09-16   1039,58                       1045,78     -6,20
+            2026-09-17   1086,66                       1089,36     -2,70
+            2026-09-18   1104,12                       1103,64     +0,48
+
+        Średnie odchylenie 3,90 USD bierze się stąd, że log jest zapisywany
+        w środku sesji, a odtworzona książka wyceniana po zamknięciu.
+        Skutki błędu: wielkości pozycji liczone od zawyżonego kapitału
+        (18.09 o 62,80 USD, czyli 6%), próg kill switcha też zawyżony,
+        a raportowany zysk okresu +10,4% zamiast rzeczywistych +4,1%.
+
+        Teraz kapitałem jest samo ``balance``. Gdy API poda ``deposit``,
+        sprawdzamy tożsamość ``balance == deposit + profitLoss``; gdy się
+        nie zgadza, zapisujemy ostrzeżenie i zostajemy przy ``balance``,
+        bo to jedyne pole, które broker nazywa kapitałem.
         """
         accs = self.accounts()
         pick = None
@@ -612,9 +640,19 @@ class Capital:
                 pick = a
         pick = pick or accs[0]
         b = pick.get("balance", {})
-        saldo = float(b.get("balance", 0) or 0)
+        kapital = float(b.get("balance", 0) or 0)
         wycena = float(b.get("profitLoss", 0) or 0)
-        return {"equity": saldo + wycena, "saldo": saldo, "wycena": wycena,
+        gotowka = b.get("deposit")
+        gotowka = float(gotowka) if gotowka not in (None, "") else None
+        uwaga = None
+        if gotowka is not None and abs(kapital - (gotowka + wycena)) > 0.05:
+            uwaga = (f"API łamie tożsamość balance = deposit + profitLoss "
+                     f"({kapital:.2f} vs {gotowka:.2f} + {wycena:.2f}) — "
+                     f"kapitałem pozostaje balance")
+        return {"equity": kapital, "saldo": kapital,
+                "gotowka": gotowka if gotowka is not None
+                           else kapital - wycena,
+                "wycena": wycena, "uwaga_kapital": uwaga,
                 "ccy": pick.get("currency", "?"),
                 "accountId": pick.get("accountId"),
                 "dostepne": float(b.get("available", 0) or 0)}
@@ -851,10 +889,11 @@ def kontrola_kapitalu(snap, positions, managed, rep):
     braki = [p["epic"] for p in znane if p.get("upl") is None]
     roznica = snap["wycena"] - suma_upl
     prog = max(abs(snap["equity"]) * EQUITY_TOL, 1.0)
-    ok = abs(roznica) <= prog and not obce and not braki
+    ok = (abs(roznica) <= prog and not obce and not braki
+          and not snap.get("uwaga_kapital"))
     wynik = {
         "kapital": round(snap["equity"], 2),
-        "saldo": round(snap["saldo"], 2),
+        "gotowka": round(snap.get("gotowka") or 0.0, 2),
         "wycena_z_api": round(snap["wycena"], 2),
         "suma_upl_pozycji_bota": round(suma_upl, 2),
         "roznica": round(roznica, 2),
@@ -874,6 +913,8 @@ def kontrola_kapitalu(snap, positions, managed, rep):
             powody.append(f"wycena z API {snap['wycena']:.2f} vs suma upl "
                           f"{suma_upl:.2f} (różnica {roznica:+.2f} przy "
                           f"tolerancji {prog:.2f})")
+        if snap.get("uwaga_kapital"):
+            powody.append(snap["uwaga_kapital"])
         wynik["powod"] = "; ".join(powody)
         rep["błędy"].append("KONTROLA KAPITAŁU: " + wynik["powod"]
                             + " — wielkość pozycji ograniczona do "
@@ -1079,7 +1120,8 @@ def sync():
     snap = cap.account_snapshot()
     equity, ccy, acc = snap["equity"], snap["ccy"], snap["accountId"]
     rep["konto"] = {"accountId": acc, "kapital": equity, "waluta": ccy,
-                    "saldo": snap["saldo"], "wycena_pozycji": snap["wycena"]}
+                    "gotowka": snap.get("gotowka"),
+                    "wycena_pozycji": snap["wycena"]}
     managed = {e for e in sig["epics"].values()
                if e and not e.upper().startswith("UZUP")}
     if HEDGE_MODE == "index" and HEDGE_EPIC:
@@ -1490,8 +1532,9 @@ def status_ep():
                                  "exclude", "tactical")},
                        historia=sig.get("history", []),
                        konto={"accountId": acc, "kapital": eq, "waluta": ccy,
-                              "saldo": snap["saldo"],
-                              "wycena_pozycji": snap["wycena"]},
+                              "gotowka": snap.get("gotowka"),
+                              "wycena_pozycji": snap["wycena"],
+                              "uwaga": snap.get("uwaga_kapital")},
                        kontrola_kapitalu=kontrola_kapitalu(
                            snap, cap.positions(), managed,
                            {"błędy": [], "pominiete": []}),

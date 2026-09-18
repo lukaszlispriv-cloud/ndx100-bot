@@ -20,6 +20,7 @@ dziennej.
 | Moduł taktyczny bez czego wybierać | 10% kapitału bezczynne przez cały okres | Pozycja taktyczna może mieć własny `epic` |
 | `scripts/kursy.py` wisiał przy HTTP 429 | brak kursów, ręczne obchodzenie źródła | Lista User-Agentów + budżet czasu |
 | Nieużywana integracja z Telegramem | sugerowała, że alert dociera gdzieś poza log | Usunięta w v1.8.1 |
+| **Podwójne liczenie wyceny pozycji w kapitale** | kapitał zawyżony o 6%, pozycje i próg kill switcha liczone od złej podstawy | Kapitałem jest samo `balance` (v1.9.0) |
 
 ### Przyczyna „limitu Yahoo" — to nie był limit
 
@@ -103,24 +104,47 @@ czyli wpis jest weryfikowany. Wpisy reżimowe (`reason` zaczyna się od
 
 ---
 
-## 4. Co zrobić ręcznie, zanim podniesiesz wielkość pozycji
+## 4. Rozjazd kapitału — rozstrzygnięty
 
-Rozliczenie wykazało rozjazd: kapitał w logu rósł ok. 2,5× szybciej, niż
-wynikało z historii transakcji (17.09: log +47,1 USD wobec +21,8 USD
-z odtworzonych pozycji). Kolejność działań:
+Rozliczenie wykazało, że kapitał w logu rósł ok. 2,5× szybciej, niż
+wynikało z historii transakcji. **Przyczyna została ustalona 18.09.2026
+i naprawiona w v1.9.0: to był błąd w kodzie, nie w rachunku.**
 
-1. Otwórz `/status` — jest tam nowa sekcja `kontrola_kapitalu`.
-2. Jeśli `zgodne: false`, przeczytaj `powod`:
-   - **`pozycje spoza książki bota`** — na rachunku są pozycje, których bot
-     nie otwierał. To najprostsze wyjaśnienie rozjazdu. Zamknij je ręcznie
-     albo dopisz ich instrumenty do mapy `epics`.
-   - **`wycena z API vs suma upl`** — API liczy coś, czego bot nie widzi.
-     Sprawdź historię operacji gotówkowych na Capital.com (wpłata lub
-     korekta na rachunku demo eksportu transakcji **nie** zawiera).
-3. Dopóki `zgodne: false`, bot sam trzyma `ALLOC_PCT_SAFE` — nie musisz
-   nic wyłączać, ale nie zobaczysz też efektu podniesienia wielkości.
-4. Gdy `zgodne: true`, ekspozycja dojdzie do nowego celu w kilku biegach,
-   pilnowana przez `MAX_EXPOSURE_STEP`.
+Bot liczył kapitał jako `balance + profitLoss`, a Capital.com podaje
+w polu `balance` **już kapitał z wyceną otwartych pozycji**
+(`balance = deposit + profitLoss`). Wycena była doliczana drugi raz.
+
+Wykluczone po drodze, w tej kolejności:
+
+1. **Wpłata na rachunek** — właściciel sprawdził historię operacji
+   gotówkowych, między 15 a 18 września nic nie wpłynęło.
+2. **Niekompletny eksport transakcji** — broker dopisuje wiersz `SWAP` dla
+   każdej otwartej pozycji codziennie o 21:00 UTC; porównanie dzień po dniu
+   dało zgodność **22 na 22 dni**, co do czwartego miejsca po przecinku.
+3. Zostało podwójne liczenie, potwierdzone dopasowaniem wzoru
+   `1000 + zrealizowany + 2 × niezrealizowany` do sześciu odczytów z logu
+   ze średnim odchyleniem **3,90 USD**.
+
+**Co to zmienia w liczbach.** Rzeczywisty kapitał na 18.09 to ok. **1 041
+USD**, nie 1 104 USD. Zysk okresu to **+4,1%**, nie +10,4%. Wynik liczony
+z historii transakcji (**+33,47 USD**) był prawidłowy przez cały czas —
+pochodzi z eksportu, a nie z API rachunku.
+
+**Co zrobiono w kodzie.** Kapitałem jest teraz samo `balance`. Gdy API poda
+pole `deposit`, bot sprawdza tożsamość `balance = deposit + profitLoss`;
+złamanie tej tożsamości zapala kontrolę kapitału i obniża wielkość pozycji
+do `ALLOC_PCT_SAFE`. Pole `equity_peak` w `signals.json` zostało
+wyzerowane, bo zapisana wartość 1104,36 pochodziła z zawyżonego kapitału —
+bot zasieje je ponownie przy najbliższym biegu.
+
+**Czego pilnować dalej.** W `/status` sekcja `kontrola_kapitalu` powinna
+pokazywać `zgodne: true`. Jeśli pokaże `false`, przeczytaj `powod`:
+
+- **`pozycje spoza książki bota`** — na rachunku są pozycje, których bot nie
+  otwierał. Zamknij je albo dopisz ich instrumenty do mapy `epics`.
+- **`API łamie tożsamość balance = deposit + profitLoss`** — broker zmienił
+  semantykę pól; napisz, sprawdzimy ponownie.
+- Dopóki `zgodne: false`, bot sam trzyma `ALLOC_PCT_SAFE`.
 
 ---
 

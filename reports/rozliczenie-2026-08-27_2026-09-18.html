@@ -90,7 +90,8 @@
 
 <section>
   <h2>2. Ostrzeżenie: log i transakcje się nie zgadzają</h2>
-  <div class="alarm"><b>Kapitał raportowany przez bota rośnie ok. 2,5× szybciej niż wynika z historii transakcji. Tej różnicy nie da się wyjaśnić danymi, które są w obu plikach — przed skalowaniem czegokolwiek trzeba ją wyjaśnić.</b></div>
+  <div class="ok"><b>ROZSTRZYGNIĘTE 18.09.2026 — to był błąd w kodzie, nie w rachunku.</b> Bot liczył kapitał jako <code>balance + profitLoss</code>, a Capital.com podaje w polu <code>balance</code> <b>już kapitał z wyceną otwartych pozycji</b>. Wycena była doliczana drugi raz. Poprawione w wersji 1.9.0: kapitałem jest samo <code>balance</code>. Poniższa analiza pokazuje, jak do tego doszliśmy — zostawiam ją, bo dokumentuje metodę eliminacji.</div>
+  <div class="alarm"><b>Skutki błędu.</b> Kapitał był zawyżony o wartość niezrealizowanego zysku: 18.09 o <b>62,80 USD</b>, czyli 6%. Wielkości pozycji liczono od zawyżonej podstawy, próg kill switcha również. Rzeczywisty kapitał na 18.09 to <b>ok. 1 041 USD</b>, a nie 1 104 USD — zysk okresu wynosi <b>+4,1%</b>, nie +10,4%. Wynik z poziomu transakcji (<b>+33,47 USD</b>) był przez cały czas prawidłowy, bo pochodzi z historii transakcji, a nie z API rachunku.</div>
   <div class="tabela-scroll">
   <table>
     <tr><th>Data</th><th>Kapitał z logu</th><th>Wynik z transakcji</th><th>Implikowana baza</th></tr>
@@ -103,13 +104,27 @@
   </table>
   </div>
   <p>Gdyby oba źródła opisywały ten sam portfel, kolumna „implikowana baza" byłaby stała. Zamiast tego rośnie o <b>ok. 54 USD w pięć sesji</b>, i to najmocniej w dni dużych wzrostów (16.09 i 17.09). Sesja 17.09 jest tu diagnostyczna: z pozycji zrekonstruowanych z eksportu wynika zysk <b>+21,8 USD</b>, a log pokazuje <b>+47,1 USD</b>.</p>
-  <p>Rekonstrukcja pozycji nie budzi wątpliwości — broker dopisuje wiersz <code>SWAP</code> dla każdej otwartej pozycji codziennie o 21:00 UTC, a na 17.09 jest ich dokładnie dziewięć i zgadzają się co do wielkości z moim wyliczeniem. Numer rachunku w eksporcie i w logu jest ten sam. Zostają trzy możliwości, w kolejności prawdopodobieństwa:</p>
+  <p>Rekonstrukcja pozycji nie budzi wątpliwości — broker dopisuje wiersz <code>SWAP</code> dla każdej otwartej pozycji codziennie o 21:00 UTC. <b>Porównanie dzień po dniu wypadło idealnie: w 22 z 22 dni liczba pozycji i każda wielkość zgadzają się co do czwartego miejsca po przecinku</b>, więc eksport jest kompletny, a rekonstrukcja poprawna. Numer rachunku w eksporcie i w logu jest ten sam. Właściciel rachunku potwierdził też, że <b>między 15 a 18 września nie było żadnej wpłaty</b>. To eliminuje dwie z trzech hipotez i zostawia trzecią:</p>
   <ul>
-    <li><b>Wpłata lub korekta na rachunku demo</b> między 15.09 a 18.09 — najprościej sprawdzić w historii operacji gotówkowych na Capital.com (eksport transakcji jej nie zawiera).</li>
-    <li><b>Eksport jest niekompletny</b> — plik nazywa się <code>…19.08.2026</code>, a pierwszy wiersz jest z 27.08; możliwe, że filtr obciął część instrumentów albo wcześniejszą historię.</li>
-    <li><b>Pole <code>profitLoss</code> z API Capital.com zawiera coś więcej</b> niż wycenę otwartych pozycji zarządzanych przez bota. Bot liczy kapitał jako <code>balance + profitLoss</code> (app.py:506–518) i nie weryfikuje, czy lista pozycji pokrywa się z książką.</li>
+    <li><s>Wpłata lub korekta na rachunku demo</s> — <b>wykluczone</b>, właściciel sprawdził historię operacji gotówkowych.</li>
+    <li><s>Eksport jest niekompletny</s> — <b>wykluczone</b>, zgodność z wierszami <code>SWAP</code> brokera wynosi 22/22 dni.</li>
+    <li><b>Bot źle liczy kapitał</b> — <b>POTWIERDZONE</b>. Nie chodziło o zawartość <code>profitLoss</code>, tylko o to, że <code>balance</code> już ją zawiera.</li>
   </ul>
-  <p class="uwaga">Dopóki to nie jest wyjaśnione, <b>nie zwiększaj wielkości pozycji</b>. Wszystkie liczby niżej opieram na historii transakcji, bo tylko ona pozwala przypisać wynik do konkretnych decyzji.</p>
+  <h3>Dowód liczbowy</h3>
+  <p>Jeżeli <code>balance</code> zawiera wycenę, to wzór bota daje <i>kapitał prawdziwy + niezrealizowany</i>, czyli <code>1000 + zrealizowany + 2 × niezrealizowany</code>. Zestawienie tego wzoru z sześcioma niezależnymi odczytami z logu:</p>
+  <div class="tabela-scroll">
+  <table>
+    <tr><th>Dzień</th><th>Kapitał z logu</th><th>1000 + zreal. + 2×niezreal.</th><th>Różnica</th><th>Kapitał prawdziwy</th><th>Zawyżenie</th></tr>
+    <tr><td>11.09</td><td>1 032,84</td><td>1 032,03</td><td class="zero">+0,81</td><td>1 013,82</td><td class="down">+19,02</td></tr>
+    <tr><td>14.09</td><td>997,02</td><td>994,22</td><td class="zero">+2,80</td><td>987,56</td><td class="down">+9,46</td></tr>
+    <tr><td>15.09</td><td>1 007,13</td><td>1 017,53</td><td class="zero">−10,40</td><td>998,91</td><td class="down">+8,22</td></tr>
+    <tr><td>16.09</td><td>1 039,58</td><td>1 045,78</td><td class="zero">−6,20</td><td>1 012,42</td><td class="down">+27,16</td></tr>
+    <tr><td>17.09</td><td>1 086,66</td><td>1 089,36</td><td class="zero">−2,70</td><td>1 034,18</td><td class="down">+52,48</td></tr>
+    <tr><td>18.09</td><td>1 104,12</td><td>1 103,64</td><td class="zero">+0,48</td><td>1 041,32</td><td class="down">+62,80</td></tr>
+  </table>
+  </div>
+  <p>Średnie odchylenie wzoru od odczytu to <b>3,90 USD</b>, a w dwóch dniach schodzi poniżej jednego dolara. Reszta bierze się z tego, że log powstaje w środku sesji (13:05 czasu Nowego Jorku), a odtworzona książka wyceniana jest po zamknięciu. Żadna inna hipoteza nie tłumaczy jednocześnie sześciu punktów.</p>
+  <p class="uwaga">Wszystkie liczby w pozostałych rozdziałach opieram na historii transakcji, a nie na kapitale z API — dlatego <b>nie wymagają korekty</b>. Zmienia się tylko punkt odniesienia w procentach: wynik <b>+33,47 USD</b> to <b>+3,3%</b> kapitału początkowego i <b>+4,1%</b> wobec dzisiejszego stanu rachunku.</p>
 </section>
 
 <section>

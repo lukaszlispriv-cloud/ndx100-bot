@@ -165,7 +165,7 @@ app.REACT_GATE = True
 # ------------------------------------------------------- kontrola kapitału ---
 print("\nKONTROLA KAPITAŁU")
 
-snap = {"equity": 1104.12, "saldo": 1048.94, "wycena": 55.18, "ccy": "USD"}
+snap = {"equity": 1041.32, "gotowka": 986.14, "wycena": 55.18, "ccy": "USD"}
 poz = [{"epic": "MU", "direction": "BUY", "size": 0.1, "upl": 6.41},
        {"epic": "AMD", "direction": "BUY", "size": 0.2, "upl": 14.65},
        {"epic": "CMCSA", "direction": "SELL", "size": 4, "upl": 34.12}]
@@ -184,7 +184,7 @@ sprawdz("powód trafia do błędów biegu",
 
 # Rozjazd samej wyceny (bez obcych pozycji).
 rep = pusty_rep()
-k = app.kontrola_kapitalu({"equity": 1104.12, "saldo": 1000.0,
+k = app.kontrola_kapitalu({"equity": 1104.12, "gotowka": 1000.0,
                            "wycena": 104.12, "ccy": "USD"},
                           poz, {"MU", "AMD", "CMCSA"}, rep)
 sprawdz("wycena z API niezgodna z sumą upl zapala kontrolę", not k["zgodne"])
@@ -333,6 +333,65 @@ sprawdz("MAX_EXPOSURE_STEP=0 wyłącza ogranicznik",
         abs(symuluj_alloc(709, 1440, krok=0) - 0.13) < 1e-12)
 sprawdz("zmniejszanie książki nie jest ograniczane",
         abs(symuluj_alloc(1440, 709) - 0.13) < 1e-12)
+
+
+# ------------------------------------------------ liczenie kapitalu ---------
+print("\nLICZENIE KAPITALU (balance vs balance + profitLoss)")
+
+
+def konto(balance, profit_loss, deposit=None, ccy="USD"):
+    b = {"balance": balance, "profitLoss": profit_loss, "available": 900.0}
+    if deposit is not None:
+        b["deposit"] = deposit
+    cap = app.Capital.__new__(app.Capital)
+    cap._rynki = {}
+    cap.accounts = lambda: [{"accountId": "X", "currency": ccy,
+                             "preferred": True, "balance": b}]
+    return cap.account_snapshot()
+
+
+# Stan rachunku z 18.09.2026: gotowka 986,14 + wycena 55,18 = kapital 1041,32.
+# Stary kod zwracal 1041,32 + 55,18 = 1096,50, czyli liczyl wycene dwa razy.
+s1 = konto(balance=1041.32, profit_loss=55.18, deposit=986.14)
+sprawdz("kapitalem jest samo pole balance",
+        abs(s1["equity"] - 1041.32) < 1e-9, s1["equity"])
+sprawdz("wycena nie jest doliczana drugi raz",
+        abs(s1["equity"] - (1041.32 + 55.18)) > 1e-9)
+sprawdz("gotowka brana z pola deposit",
+        abs(s1["gotowka"] - 986.14) < 1e-9)
+sprawdz("tozsamosc balance = deposit + profitLoss nie budzi zastrzezen",
+        s1["uwaga_kapital"] is None)
+
+# Gdy API nie poda deposit, gotowke wyliczamy odejmujac wycene.
+s2 = konto(balance=1041.32, profit_loss=55.18)
+sprawdz("bez pola deposit gotowka liczona jako balance - profitLoss",
+        abs(s2["gotowka"] - 986.14) < 1e-9, s2["gotowka"])
+sprawdz("brak deposit nie generuje falszywego ostrzezenia",
+        s2["uwaga_kapital"] is None)
+
+# Gdy tozsamosc nie zachodzi, zostajemy przy balance i zapisujemy ostrzezenie.
+s3 = konto(balance=1200.0, profit_loss=55.18, deposit=986.14)
+sprawdz("zlamana tozsamosc daje ostrzezenie", s3["uwaga_kapital"] is not None)
+sprawdz("mimo ostrzezenia kapitalem zostaje balance",
+        abs(s3["equity"] - 1200.0) < 1e-9)
+rep_t = pusty_rep()
+k3 = app.kontrola_kapitalu(s3, [], set(), rep_t)
+sprawdz("ostrzezenie o kapitale zapala kontrole", not k3["zgodne"])
+
+# Rachunek bez otwartych pozycji.
+s4 = konto(balance=1000.0, profit_loss=0.0, deposit=1000.0)
+sprawdz("pusty portfel: kapital = gotowka", abs(s4["equity"] - 1000.0) < 1e-9)
+
+# equity() musi zwracac to samo co account_snapshot()["equity"].
+cap = app.Capital.__new__(app.Capital)
+cap._rynki = {}
+cap.accounts = lambda: [{"accountId": "X", "currency": "USD", "preferred": True,
+                         "balance": {"balance": 1041.32, "profitLoss": 55.18,
+                                     "deposit": 986.14, "available": 900.0}}]
+eq, ccy_, acc_ = cap.equity()
+sprawdz("equity() zgodne z account_snapshot()", abs(eq - 1041.32) < 1e-9, eq)
+sprawdz("equity() zwraca walute i numer rachunku",
+        ccy_ == "USD" and acc_ == "X")
 
 
 print(f"\n{'=' * 52}")
