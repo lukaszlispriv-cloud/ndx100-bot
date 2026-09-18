@@ -202,5 +202,62 @@
     "ALNY": "ALNY",
     "CPRT": "CPRT",
     "KHC": "KHC"
-  }
+  },
+  "fills": {
+    "SBUX": {
+      "cena": 104.08,
+      "kierunek": "SELL",
+      "wielkosc": 1.0,
+      "data": "2026-09-08"
+    },
+    "AMD": {
+      "cena": 471.84,
+      "kierunek": "BUY",
+      "wielkosc": 0.2,
+      "data": "2026-08-27"
+    },
+    "AVGO": {
+      "cena": 354.34,
+      "kierunek": "BUY",
+      "wielkosc": 0.3,
+      "data": "2026-09-18"
+    },
+    "MRVL": {
+      "cena": 236.85,
+      "kierunek": "BUY",
+      "wielkosc": 0.4,
+      "data": "2026-09-18"
+    },
+    "ADSK": {
+      "cena": 216.63,
+      "kierunek": "SELL",
+      "wielkosc": 0.5,
+      "data": "2026-09-18"
+    },
+    "CMCSA": {
+      "cena": 26.57,
+      "kierunek": "SELL",
+      "wielkosc": 4.0,
+      "data": "2026-08-27"
+    },
+    "INTU": {
+      "cena": 347.09,
+      "kierunek": "SELL",
+      "wielkosc": 0.29,
+      "data": "2026-08-27"
+    },
+    "APP": {
+      "cena": 311.58,
+      "kierunek": "SELL",
+      "wielkosc": 0.3,
+      "data": "2026-08-27"
+    },
+    "MU": {
+      "cena": 913.35,
+      "kierunek": "BUY",
+      "wielkosc": 0.1,
+      "data": "2026-08-27"
+    }
+  },
+  "equity_peak": 1104.36
 }
