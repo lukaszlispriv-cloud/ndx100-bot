@@ -237,6 +237,22 @@ podmienić ręcznie. Poniżej fragmenty, które się zmieniają.
 > Pól **`fills` i `equity_peak` nie ruszaj** — pisze je bot i nadpisanie
 > ich zepsuje bramkę wyzwalaczy oraz kill switch.
 
+### 5.6. Rutyna TYGODNIOWA (sobota) — jedno zdanie do dopisania
+
+Rutyna sobotnia przebudowuje `signals.json` mocniej niż dzienna (nowa
+`version`, nowe koszyki, nowe `d0`, wpis do `history`). Dopisz jej w kroku
+zapisu to samo zabezpieczenie:
+
+> Pól **`fills` i `equity_peak` nie ruszaj** — pisze je bot. `fills` po
+> rotacji koszyków i tak przestaje pasować do nowych nazw; bot odtworzy je
+> sam przy pierwszym poniedziałkowym biegu, ale kasowanie ich ręcznie nic
+> nie daje, a skasowanie `equity_peak` cofa kill switch do `START_EQUITY`.
+
+Gdyby rutyna mimo to wyczyściła te pola, **nic się nie psuje**: bramka
+wyzwalaczy przepuszcza wtedy wpisy pulsu bez zmian (czyli zachowanie
+sprzed poprawek), a `equity_peak` zasiewa się ponownie od bieżącego
+kapitału przy najbliższym biegu.
+
 ---
 
 ## 6. Testy
