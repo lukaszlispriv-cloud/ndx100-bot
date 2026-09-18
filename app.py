@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-BASKET BOT v1.7.2 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
+BASKET BOT v1.8.0 — PEŁNY AUTOMAT (uniwersum z mapy epics: WIG20 / Nasdaq-100 / dowolne) (hedge indeksowy dla kont LONG_ONLY) (DEMO/LIVE z bezpiecznikiem) (eksperyment naukowy, konto DEMO)
 =======================================================================
 Nowość vs v1.0: bot sam generuje rekomendacje i raporty (API Anthropic
 z wyszukiwaniem internetowym), sam commit'uje signals.json + raport HTML
@@ -34,6 +34,34 @@ PROTOKÓŁ DECYZJI DZIENNYCH (co puls może zrobić z pozycjami):
     spółek SPOZA koszyków (np. wynik mocno powyżej konsensusu, przełomowy
     kontrakt, wezwanie) — rozliczane OSOBNO od koszyków i kasowane przy
     sobotniej rotacji; zwykle lista jest pusta.
+
+NOWE W v1.8.0 (po rozliczeniu okresu 27.08-18.09.2026, gdzie cztery
+reakcje cenowe kosztowały 17,43 USD, a REDUCE dla MU po cichu się nie
+wykonał):
+  * BRAMKA WYZWALACZY CENOWYCH — wpis exclude o podstawie cenowej jest
+    sprawdzany wobec FAKTYCZNEJ ceny wejścia u brokera, nie wobec kursu
+    odniesienia D0 z raportu. Bramka wyłącznie łagodzi (CLOSE -> REDUCE
+    -> brak) i nigdy nie dokłada reakcji. Wpisy reżimowe i te o podstawie
+    "news"/"rekom"/"short" przechodzą bez sprawdzania. REACT_GATE=false
+    przywraca stare zachowanie.
+  * CENY WEJŚCIA w signals.json (pole "fills") — bot po każdym biegu
+    zapisuje, po ile naprawdę wszedł; to źródło prawdy dla bramki i dla
+    raportu dziennego.
+  * KONTROLA KAPITAŁU — equity z API (balance + profitLoss) jest
+    porównywane z sumą upl pozycji, które bot zna. Rozjazd albo pozycja
+    spoza książki oznacza alert i zejście z ALLOC_PCT na ALLOC_PCT_SAFE.
+  * TWARDY STOP od ceny wejścia (STOP_LOSS_PCT) — siatka niezależna od
+    logiki tygodniowej; wcześniej STX spadł o 13% w cztery sesje i żaden
+    wyzwalacz nie zadziałał, bo progi mierzono od D0.
+  * KILL SWITCH od KROCZĄCEGO SZCZYTU kapitału (KILL_TRAILING), a nie od
+    stałej START_EQUITY, która rozluźniała próg z każdym zarobkiem.
+  * RYNEK ZAMKNIĘTY TO NIE BŁĄD — weekend i przerwa w notowaniach idą do
+    "pominiete"; w "błędach" zostają tylko awarie wymagające reakcji.
+  * CICHE POMINIĘCIA ZNIKAJĄ — gdy minimalna wielkość transakcji nie
+    pozwala zejść do celu po redukcji, bieg to raportuje (REDUCE_FALLBACK
+    decyduje: zostawić pełną pozycję czy zamknąć całość).
+  * POZYCJA TAKTYCZNA MOŻE MIEĆ WŁASNY EPIC spoza uniwersum koszyków.
+  * CACHE MIGAWEK RYNKU na czas jednego biegu.
 
 BEZPIECZNIKI: DRY_RUN (handel), commit=false (generator), walidacja JSON
 z modelu (błędny wynik => zostaje stary plik + alert, bot nie gra na
@@ -71,10 +99,22 @@ ACCOUNT_ID       = os.environ.get("CAPITAL_ACCOUNT_ID", "")
 
 RUN_TOKEN        = os.environ.get("RUN_TOKEN", "zmien-ten-token")
 DRY_RUN          = os.environ.get("DRY_RUN", "true").lower() == "true"
-ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.10"))
+ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.13"))
+# Wielkość awaryjna: używana, gdy KONTROLA KAPITAŁU nie przechodzi (na
+# rachunku są pozycje spoza książki albo equity nie zgadza się z sumą upl).
+# Nie skalujemy pozycji na portfelu, którego nie potrafimy odtworzyć.
+ALLOC_PCT_SAFE   = float(os.environ.get("ALLOC_PCT_SAFE", "0.10"))
 MAX_OVERSHOOT    = float(os.environ.get("MAX_OVERSHOOT", "1.6"))
 START_EQUITY     = float(os.environ.get("START_EQUITY", "1000"))
 KILL_LEVEL       = float(os.environ.get("KILL_LEVEL", "0.75"))
+# Kill switch liczony od KROCZĄCEGO SZCZYTU kapitału (zapisywanego w
+# signals.json), a nie od stałej START_EQUITY. Przy stałej próg rozluźniał
+# się z każdym zarobionym dolarem: po wzroście kapitału do 1100 USD próg
+# 0,75 x 1000 = 750 oznaczał dopuszczalne obsunięcie -32%, nie -25%.
+KILL_TRAILING    = os.environ.get("KILL_TRAILING", "true").lower() == "true"
+# Tolerancja KONTROLI KAPITAŁU: dopuszczalna różnica między profitLoss
+# z rachunku a sumą upl pozycji zarządzanych, jako ułamek kapitału.
+EQUITY_TOL       = float(os.environ.get("EQUITY_TOL", "0.02"))
 FX_EPIC          = os.environ.get("FX_EPIC", "USDPLN")
 FX_FALLBACK      = float(os.environ.get("FX_FALLBACK", "3.68"))
 
@@ -101,11 +141,39 @@ TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "true").lower() == "true
 TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.05"))
 TACTICAL_MAX       = int(os.environ.get("TACTICAL_MAX", "2"))
 REDUCE_FACTOR      = float(os.environ.get("REDUCE_FACTOR", "0.5"))
+# --- Bramka wyzwalaczy cenowych --------------------------------------------
+# Puls liczy ruch "od D0", czyli od kursu odniesienia z raportu tygodniowego.
+# Portfel bywa składany 1-3 sesje po D0, więc cena wejścia potrafi się od D0
+# różnić o kilka procent (15.09.2026: LITE wszedł po 842,25 przy D0 927,03 —
+# wpis CLOSE za "ruch -9,92% od D0" zamknął pozycję, która wobec własnego
+# wypełnienia była NA PLUSIE). Bramka weryfikuje każdy wyzwalacz CENOWY
+# wobec faktycznej ceny otwarcia pozycji u brokera i przepuszcza go tylko
+# wtedy, gdy próg jest przekroczony także tam.
+REACT_GATE       = os.environ.get("REACT_GATE", "true").lower() == "true"
+REACT_REDUCE_PCT = float(os.environ.get("REACT_REDUCE_PCT", "0.04"))
+REACT_CLOSE_PCT  = float(os.environ.get("REACT_CLOSE_PCT", "0.08"))
+# Co zrobić, gdy minimalna wielkość transakcji przekracza cel po redukcji
+# (np. MU: cel 55 USD, minimum 0,1 akcji = 98 USD): "keep" zostawia pełną
+# pozycję i zgłasza to w "pominiete", "close" zamyka ją w całości.
+REDUCE_FALLBACK  = os.environ.get("REDUCE_FALLBACK", "keep").lower()
+# Twardy stop bezpieczeństwa liczony od ceny wejścia, niezależny od logiki
+# tygodniowej (STX: -13% w cztery sesje bez żadnej reakcji, bo próg 4-8%
+# mierzono od D0, a pozycja weszła już po D0). 0 = wyłączony.
+STOP_LOSS_PCT    = float(os.environ.get("STOP_LOSS_PCT", "0.10"))
+# Zapis faktycznych cen wejścia do signals.json (pole "fills") — źródło
+# prawdy dla bramki wyzwalaczy i dla raportu dziennego.
+WRITE_FILLS      = os.environ.get("WRITE_FILLS", "true").lower() == "true"
 # Pasmo tolerancji wyrównywania wielkości pozycji już otwartych. Poza pasmem
 # pozycja jest docinana/dokładana do celu; w paśmie zostawiamy ją w spokoju,
 # bo każde wyrównanie kosztuje drugi spread, a przy grubym kroku wielkości
 # (0,1 akcji przy kursie 1000 USD) części odchyłek i tak nie da się usunąć.
 REBALANCE_TOL      = float(os.environ.get("REBALANCE_TOL", "0.35"))
+# OGRANICZNIK TEMPA: o ile najwyżej może urosnąć łączna ekspozycja brutto
+# w jednym biegu. Bez niego podniesienie ALLOC_PCT albo zdjęcie kilku
+# redukcji naraz potrafi podwoić książkę w ciągu jednej minuty (symulacja
+# z 18.09.2026: 709 -> 1440 USD w jednym biegu). Z ogranicznikiem ta sama
+# zmiana rozkłada się na kilka biegów i jest odwracalna.
+MAX_EXPOSURE_STEP  = float(os.environ.get("MAX_EXPOSURE_STEP", "0.25"))
 
 # Nazwa w powiadomieniach — bliźniacze boty (WIG20 / NDX100) piszą na ten sam
 # czat, więc etykieta musi mówić, KTÓRY bot zadziałał.
@@ -215,9 +283,24 @@ def _sanity(sig):
     for e in sig.get("exclude", []):
         if e.get("action", "CLOSE") not in ("CLOSE", "REDUCE"):
             problemy.append(f"złe action w exclude: {e}")
+        podstawa = e.get("basis")
+        if podstawa is not None and str(podstawa).lower() not in (
+                "cena", "price", "news", "rekom", "short", "rezim", "reżim"):
+            problemy.append(f"nieznane basis w exclude: {e}")
     for t in sig.get("tactical", []):
-        if t.get("ticker") not in sig["epics"] or t.get("direction") not in ("BUY", "SELL"):
-            problemy.append(f"zła pozycja taktyczna: {t}")
+        # Pozycja taktyczna może mieć własny epic spoza mapy koszykowej —
+        # wtedy ticker nie musi należeć do uniwersum indeksu.
+        wlasny = bool((t.get("epic") or "").strip())
+        if not wlasny and t.get("ticker") not in sig["epics"]:
+            problemy.append(f"taktyczna spoza uniwersum bez epic: {t}")
+        if t.get("direction") not in ("BUY", "SELL"):
+            problemy.append(f"zły kierunek pozycji taktycznej: {t}")
+    for t, f in (sig.get("fills") or {}).items():
+        try:
+            if float((f or {}).get("cena")) <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            problemy.append(f"zła cena wejścia w fills: {t}={f}")
     if problemy:
         raise ValueError("signals.json nie przechodzi kontroli spójności — "
                          "handel wstrzymany: " + "; ".join(problemy))
@@ -328,7 +411,7 @@ def validate_daily(j, sig):
     # Scalanie: wczorajsze reakcje są trwałe do soboty; REDUCE może awansować
     # do CLOSE, nigdy odwrotnie; maks. 2 NOWE spółki dziennie.
     merged = {e["ticker"]: dict(e) for e in sig.get("exclude", [])}
-    nowe = 0
+    nowe = 0  # "basis" (cena/news/rekom/short/rezim) przenosi się razem z wpisem
     for e in ex:
         t, a = e["ticker"], e.get("action", "CLOSE")
         if t in merged:
@@ -456,6 +539,12 @@ def generate(mode, do_commit=True):
 class Capital:
     def __init__(self):
         self.switch_error = None
+        # Cache migawek rynku na czas jednego biegu: market() jest teraz
+        # odpytywany z trzech miejsc (bramka reakcji, stopy, wyrównywanie
+        # wielkości), a bez cache jeden bieg robiłby ~30 zapytań zamiast ~10
+        # i mógłby podejmować decyzje na dwóch różnych cenach tej samej
+        # spółki w odstępie sekund.
+        self._rynki = {}
         self.s = requests.Session()
         self.s.headers.update({"X-CAP-API-KEY": CAPITAL_API_KEY,
                                "Content-Type": "application/json"})
@@ -503,7 +592,15 @@ class Capital:
     def accounts(self):
         return self._get("/api/v1/accounts").get("accounts", [])
 
-    def equity(self):
+    def account_snapshot(self):
+        """Pełna migawka rachunku: kapitał, saldo i wycena pozycji OSOBNO.
+
+        Rozbicie na balance i profitLoss jest potrzebne do KONTROLI KAPITAŁU:
+        profitLoss z API musi się zgadzać z sumą upl pozycji, które bot zna.
+        Gdy się nie zgadza, na rachunku dzieje się coś poza książką bota
+        (ręczne pozycje, wpłata, inny instrument) i nie wolno skalować
+        wielkości pozycji.
+        """
         accs = self.accounts()
         pick = None
         for a in accs:
@@ -514,33 +611,67 @@ class Capital:
                 pick = a
         pick = pick or accs[0]
         b = pick.get("balance", {})
-        return (float(b.get("balance", 0) + b.get("profitLoss", 0)),
-                pick.get("currency", "?"), pick.get("accountId"))
+        saldo = float(b.get("balance", 0) or 0)
+        wycena = float(b.get("profitLoss", 0) or 0)
+        return {"equity": saldo + wycena, "saldo": saldo, "wycena": wycena,
+                "ccy": pick.get("currency", "?"),
+                "accountId": pick.get("accountId"),
+                "dostepne": float(b.get("available", 0) or 0)}
+
+    def equity(self):
+        s = self.account_snapshot()
+        return s["equity"], s["ccy"], s["accountId"]
 
     def positions(self):
         out = []
         for p in self._get("/api/v1/positions").get("positions", []):
             pos, mkt = p.get("position", {}), p.get("market", {})
+            # "level" to cena otwarcia pozycji u brokera — jedyne źródło
+            # prawdy o tym, po ile bot naprawdę wszedł. Capital.com bywa
+            # niekonsekwentny w nazwie pola, więc bierzemy pierwsze sensowne.
+            poziom = None
+            for k in ("level", "openLevel", "price"):
+                v = pos.get(k)
+                if v not in (None, ""):
+                    try:
+                        poziom = float(v)
+                        break
+                    except (TypeError, ValueError):
+                        pass
+            upl = pos.get("upl")
+            try:
+                upl = float(upl) if upl not in (None, "") else None
+            except (TypeError, ValueError):
+                upl = None
             out.append({"dealId": pos.get("dealId"), "epic": mkt.get("epic"),
                         "name": mkt.get("instrumentName"),
                         "direction": pos.get("direction"),
                         "size": float(pos.get("size", 0)),
-                        "upl": pos.get("upl")})
+                        "wejscie": poziom,
+                        "otwarta": (pos.get("createdDateUTC")
+                                    or pos.get("createdDate")),
+                        "waluta": (pos.get("currency")
+                                   or mkt.get("currency") or ""),
+                        "upl": upl})
         return out
 
-    def market(self, epic):
+    def market(self, epic, odswiez=False):
+        if not odswiez and epic in self._rynki:
+            return self._rynki[epic]
         d = self._get(f"/api/v1/markets/{epic}")
         snap = d.get("snapshot", {})
         rules = d.get("dealingRules", {})
         instr = d.get("instrument", {})
         bid, offer = snap.get("bid"), snap.get("offer")
         mid = (bid + offer) / 2 if bid and offer else (bid or offer)
-        return {"epic": epic, "name": instr.get("name", epic),
-                "currency": instr.get("currency")
-                            or (instr.get("currencies") or [{}])[0].get("code")
-                            or "PLN",
-                "status": snap.get("marketStatus"), "mid": mid,
-                "min": float(rules.get("minDealSize", {}).get("value", 1) or 1)}
+        out = {"epic": epic, "name": instr.get("name", epic),
+               "currency": instr.get("currency")
+                           or (instr.get("currencies") or [{}])[0].get("code")
+                           or "PLN",
+               "status": snap.get("marketStatus"), "mid": mid,
+               "min": float(rules.get("minDealSize", {}).get("value", 1) or 1)}
+        self._rynki[epic] = out
+        return out
 
     def search(self, term):
         d = self._get("/api/v1/markets", params={"searchTerm": term})
@@ -568,7 +699,13 @@ class Capital:
                 continue
             st = str(c.get("dealStatus") or c.get("status") or "").upper()
             if st in ("ACCEPTED", "OPEN", "OPENED"):
-                return True, ref, "potwierdzono"
+                lvl = c.get("level") or c.get("openLevel")
+                try:
+                    lvl = float(lvl) if lvl not in (None, "") else None
+                except (TypeError, ValueError):
+                    lvl = None
+                return True, ref, ("potwierdzono"
+                                   + (f" @ {lvl}" if lvl is not None else ""))
             if st in ("REJECTED", "DECLINED", "DELETED"):
                 powod = (c.get("rejectReason") or c.get("reason")
                          or json.dumps(c, ensure_ascii=False)[:150])
@@ -579,6 +716,15 @@ class Capital:
     def close(self, deal_id):
         r = self.s.delete(f"{BASE_URL}/api/v1/positions/{deal_id}", timeout=20)
         return r.ok, r.text[:200]
+
+    def close_all_epics(self, positions, epics):
+        """Pomocnicze zamknięcie listy pozycji — używane przez /close_all."""
+        out = []
+        for p in positions:
+            if p["epic"] in epics:
+                ok, msg = self.close(p["dealId"])
+                out.append((p["epic"], ok, msg))
+        return out
 
     def usd_pln(self):
         try:
@@ -634,12 +780,233 @@ def calc_size(cap, target_acc, epic, acc_ccy):
 # ----------------------------------------------------------------------------
 # SYNCHRONIZACJA PORTFELA (/run)
 # ----------------------------------------------------------------------------
-def desired_book(sig):
+# ----------------------------------------------------------------------------
+# STAN RACHUNKU: ceny wejścia, kontrola kapitału, bramka wyzwalaczy
+# ----------------------------------------------------------------------------
+RYNEK_OTWARTY = "TRADEABLE"
+
+
+def rynek(cap, epic, rep, etykieta):
+    """Zwraca migawkę rynku albo None, opisując powód w raporcie.
+
+    Rozdziela DWA różne zdarzenia, które wcześniej lądowały w jednym worku
+    "błędy": zamknięty rynek (weekend, święto, przerwa) to normalne
+    POMINIĘCIE, a nie awaria. 12-13.09.2026 każdy weekendowy bieg raportował
+    "błędy: 3", przez co prawdziwa awaria w dzień sesyjny wyglądała tak samo
+    jak sobota i nie zwracała niczyjej uwagi.
+    """
+    try:
+        m = cap.market(epic)
+    except requests.RequestException as e:
+        rep["błędy"].append(f"{etykieta}: rynek niedostępny ({e})")
+        return None
+    if not m["mid"]:
+        rep["pominiete"].append(f"{etykieta}: brak ceny (rynek zamknięty?)")
+        return None
+    if m["status"] != RYNEK_OTWARTY:
+        rep["pominiete"].append(f"{etykieta}: rynek {m['status']}")
+        return None
+    return m
+
+
+def ceny_wejscia(sig, positions, epic2tic):
+    """Mapa ticker -> cena wejścia, z pozycji brokera i z signals.json.
+
+    Pierwszeństwo ma poziom otwarcia u brokera (to fakt), signals.json jest
+    zapasem na wypadek, gdyby API nie podało pola level.
+    """
+    fills = {}
+    for t, f in (sig.get("fills") or {}).items():
+        try:
+            c = float((f or {}).get("cena"))
+            if c > 0:
+                fills[t] = {"cena": c, "data": (f or {}).get("data"),
+                            "zrodlo": "signals.json"}
+        except (TypeError, ValueError):
+            continue
+    for p in positions:
+        t = epic2tic.get(p["epic"])
+        if t and p.get("wejscie"):
+            fills[t] = {"cena": float(p["wejscie"]),
+                        "data": (p.get("otwarta") or "")[:10] or None,
+                        "kierunek": p.get("direction"),
+                        "zrodlo": "broker"}
+    return fills
+
+
+def kontrola_kapitalu(snap, positions, managed, rep):
+    """Czy kapitał z API daje się odtworzyć z pozycji, które bot zna?
+
+    Rozliczenie okresu 27.08-18.09.2026 pokazało, że kapitał raportowany
+    przez bota rósł ok. 2,5x szybciej, niż wynikało z historii transakcji
+    (17.09: log +47,1 USD wobec +21,8 USD z odtworzonych pozycji). Bot
+    liczył kapitał jako balance + profitLoss i nigdy nie sprawdzał, czy
+    profitLoss pochodzi z jego własnej książki. Ta funkcja to sprawdza
+    i przy rozjeździe blokuje skalowanie wielkości pozycji.
+    """
+    obce = [p for p in positions if p["epic"] not in managed]
+    znane = [p for p in positions if p["epic"] in managed]
+    suma_upl = sum(p["upl"] for p in znane if p.get("upl") is not None)
+    braki = [p["epic"] for p in znane if p.get("upl") is None]
+    roznica = snap["wycena"] - suma_upl
+    prog = max(abs(snap["equity"]) * EQUITY_TOL, 1.0)
+    ok = abs(roznica) <= prog and not obce and not braki
+    wynik = {
+        "kapital": round(snap["equity"], 2),
+        "saldo": round(snap["saldo"], 2),
+        "wycena_z_api": round(snap["wycena"], 2),
+        "suma_upl_pozycji_bota": round(suma_upl, 2),
+        "roznica": round(roznica, 2),
+        "tolerancja": round(prog, 2),
+        "pozycje_spoza_ksiazki": [f"{p['epic']} {p['direction']} {p['size']}"
+                                  for p in obce],
+        "pozycje_bez_wyceny": braki,
+        "zgodne": ok}
+    if not ok:
+        powody = []
+        if obce:
+            powody.append(f"{len(obce)} pozycji spoza książki bota "
+                          f"({', '.join(wynik['pozycje_spoza_ksiazki'][:5])})")
+        if braki:
+            powody.append(f"{len(braki)} pozycji bez wyceny z API")
+        if abs(roznica) > prog:
+            powody.append(f"wycena z API {snap['wycena']:.2f} vs suma upl "
+                          f"{suma_upl:.2f} (różnica {roznica:+.2f} przy "
+                          f"tolerancji {prog:.2f})")
+        wynik["powod"] = "; ".join(powody)
+        rep["błędy"].append("KONTROLA KAPITAŁU: " + wynik["powod"]
+                            + " — wielkość pozycji ograniczona do "
+                              f"ALLOC_PCT_SAFE={ALLOC_PCT_SAFE}")
+    return wynik
+
+
+def _kierunek_tickera(sig, ticker):
+    if ticker in sig.get("long", []):
+        return "BUY"
+    if ticker in sig.get("short", []):
+        return "SELL"
+    for t in sig.get("tactical", []):
+        if t.get("ticker") == ticker:
+            return t.get("direction")
+    return None
+
+
+def ruch_przeciw_tezie(kierunek, wejscie, biezaca):
+    """Dodatnia liczba = pozycja jest pod wodą o tyle ułamka ceny wejścia."""
+    if not wejscie or not biezaca or wejscie <= 0:
+        return None
+    if kierunek == "BUY":
+        return (wejscie - biezaca) / wejscie
+    if kierunek == "SELL":
+        return (biezaca - wejscie) / wejscie
+    return None
+
+
+def bramka_reakcji(sig, cap, fills, rep):
+    """Weryfikuje wyzwalacze CENOWE wobec faktycznych cen wejścia.
+
+    Bramka wyłącznie ŁAGODZI: może obniżyć CLOSE do REDUCE albo pominąć
+    reakcję, nigdy nie zaostrza i nigdy nie dokłada nowych wpisów. Wpisy
+    reżimowe (P1/P2) i wpisy o podstawie innej niż cenowa przechodzą bez
+    sprawdzania — one nie mierzą ruchu kursu.
+    """
+    closed, reduced, slad = set(), set(), []
+    for e in sig.get("exclude", []):
+        ticker = e.get("ticker")
+        akcja = e.get("action", "CLOSE")
+        podstawa = str(e.get("basis") or "cena").lower()
+        powod = str(e.get("reason") or "")
+        rezim = (powod.upper().startswith("REŻIM")
+                 or podstawa in ("rezim", "reżim"))
+        cel = closed if akcja == "CLOSE" else reduced
+        if not REACT_GATE or rezim or podstawa not in ("cena", "price"):
+            cel.add(ticker)
+            slad.append({"ticker": ticker, "wpis": akcja, "wykonane": akcja,
+                         "podstawa": "reżim" if rezim else podstawa,
+                         "uwaga": "bez bramki — wyzwalacz nie jest cenowy"})
+            continue
+        kierunek = _kierunek_tickera(sig, ticker)
+        wejscie = (fills.get(ticker) or {}).get("cena")
+        epic = sig["epics"].get(ticker, "")
+        m = None
+        if epic:
+            try:
+                m = cap.market(epic)
+            except requests.RequestException:
+                m = None
+        biezaca = (m or {}).get("mid")
+        ruch = ruch_przeciw_tezie(kierunek, wejscie, biezaca)
+        if ruch is None:
+            # Nie potrafimy zweryfikować (brak ceny wejścia albo rynek
+            # zamknięty) — wykonujemy wpis pulsu bez zmian. Bramka ma
+            # korygować pomiar, a nie wprowadzać własną uznaniowość.
+            cel.add(ticker)
+            slad.append({"ticker": ticker, "wpis": akcja, "wykonane": akcja,
+                         "podstawa": "cena",
+                         "uwaga": "brak danych do weryfikacji — wpis wykonany"})
+            continue
+        if ruch >= REACT_CLOSE_PCT:
+            nowa = akcja                      # CLOSE zostaje, REDUCE zostaje
+        elif ruch >= REACT_REDUCE_PCT:
+            nowa = "REDUCE"
+        else:
+            nowa = "BRAK"
+        if nowa == "CLOSE":
+            closed.add(ticker)
+        elif nowa == "REDUCE":
+            reduced.add(ticker)
+        wpis = {"ticker": ticker, "wpis": akcja, "wykonane": nowa,
+                "podstawa": "cena", "cena_wejscia": round(wejscie, 4),
+                "cena_biezaca": round(biezaca, 4),
+                "ruch_przeciw_tezie": f"{ruch * 100:+.2f}%"}
+        if nowa != akcja:
+            opis = (f"pozycja jest NA PLUSIE o {-ruch * 100:.2f}%"
+                    if ruch < 0 else
+                    f"strata wynosi {ruch * 100:.2f}%")
+            wpis["uwaga"] = (f"złagodzone: licząc od ceny wejścia {opis}, "
+                             f"progi {REACT_REDUCE_PCT * 100:.0f}%/"
+                             f"{REACT_CLOSE_PCT * 100:.0f}%")
+            rep["pominiete"].append(
+                f"{ticker}: wpis {akcja} złagodzony do "
+                f"{'braku reakcji' if nowa == 'BRAK' else nowa} — licząc od "
+                f"ceny wejścia {wejscie:.2f} {opis}")
+        slad.append(wpis)
+    return closed, reduced, slad
+
+
+def stopy_bezpieczenstwa(positions, fills, epic2tic, cap, rep):
+    """Zwraca epic-i pozycji, które przebiły twardy stop od ceny wejścia."""
+    trafione = {}
+    if STOP_LOSS_PCT <= 0:
+        return trafione
+    for p in positions:
+        t = epic2tic.get(p["epic"])
+        if not t:
+            continue
+        wejscie = p.get("wejscie") or (fills.get(t) or {}).get("cena")
+        m = None
+        try:
+            m = cap.market(p["epic"])
+        except requests.RequestException:
+            continue
+        if not m["mid"] or m["status"] != RYNEK_OTWARTY:
+            continue
+        ruch = ruch_przeciw_tezie(p["direction"], wejscie, m["mid"])
+        if ruch is not None and ruch >= STOP_LOSS_PCT:
+            trafione[p["epic"]] = (f"STOP {STOP_LOSS_PCT * 100:.0f}%: "
+                                   f"{t} {ruch * 100:.1f}% pod ceną wejścia "
+                                   f"{wejscie:.2f}")
+    return trafione
+
+
+def desired_book(sig, closed=None, reduced=None):
     book, skipped = {}, []
-    closed = {e.get("ticker") for e in sig.get("exclude", [])
-              if e.get("action", "CLOSE") == "CLOSE"}
-    reduced = {e.get("ticker") for e in sig.get("exclude", [])
-               if e.get("action") == "REDUCE"}
+    if closed is None:
+        closed = {e.get("ticker") for e in sig.get("exclude", [])
+                  if e.get("action", "CLOSE") == "CLOSE"}
+    if reduced is None:
+        reduced = {e.get("ticker") for e in sig.get("exclude", [])
+                   if e.get("action") == "REDUCE"}
     pary = [(t, "BUY") for t in sig["long"]]
     if HEDGE_MODE == "classic":
         pary += [(t, "SELL") for t in sig["short"]]
@@ -662,7 +1029,12 @@ def desired_book(sig):
             if HEDGE_MODE != "classic" and t.get("direction") == "SELL":
                 skipped.append(f"{ticker} (taktyczna SELL — rachunek LONG_ONLY)")
                 continue
-            epic = sig["epics"].get(ticker, "")
+            # Pozycja taktyczna może mieć własny epic spoza mapy koszykowej:
+            # najmocniejszym twardym wyzwalaczem 17.09.2026 był kontrakt
+            # Generac z Amazonem (+21,35%), odrzucony wyłącznie dlatego, że
+            # spółka nie należy do NDX-100. Uniwersum koszyków zostaje bez
+            # zmian, skan taktyczny może sięgnąć szerzej.
+            epic = (t.get("epic") or sig["epics"].get(ticker, "")).strip()
             if not epic or epic.upper().startswith("UZUP"):
                 skipped.append(f"{ticker} (taktyczna, brak epic)")
                 continue
@@ -687,7 +1059,7 @@ def sync():
                          "bez potwierdzenia.")}
     rep = {"czas_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "dry_run": DRY_RUN, "akcje": [], "pominiete": [], "błędy": []}
-    sig, _ = load_signals()
+    sig, sig_sha = load_signals()
 
     if rep_uwaga_live:
         rep["uwaga"] = rep_uwaga_live
@@ -703,15 +1075,31 @@ def sync():
                          "żeby nie działać na niewłaściwym rachunku. Otwórz "
                          "/status i skopiuj poprawne pole accountId z "
                          "'konta_wszystkie' (to NIE jest numer konta z aplikacji).")}
-    equity, ccy, acc = cap.equity()
-    rep["konto"] = {"accountId": acc, "kapital": equity, "waluta": ccy}
+    snap = cap.account_snapshot()
+    equity, ccy, acc = snap["equity"], snap["ccy"], snap["accountId"]
+    rep["konto"] = {"accountId": acc, "kapital": equity, "waluta": ccy,
+                    "saldo": snap["saldo"], "wycena_pozycji": snap["wycena"]}
     managed = {e for e in sig["epics"].values()
                if e and not e.upper().startswith("UZUP")}
     if HEDGE_MODE == "index" and HEDGE_EPIC:
         managed.add(HEDGE_EPIC)
     epic2tic = {v: k for k, v in sig["epics"].items()}
-    positions = [p for p in cap.positions() if p["epic"] in managed]
+    for t in sig.get("tactical", []):
+        e = (t.get("epic") or "").strip()
+        if e:
+            managed.add(e)
+            epic2tic.setdefault(e, t.get("ticker"))
+    wszystkie = cap.positions()
+    positions = [p for p in wszystkie if p["epic"] in managed]
     rep["pozycje_przed"] = positions
+
+    # KONTROLA KAPITAŁU — czy equity daje się odtworzyć z książki bota.
+    rep["kontrola_kapitalu"] = kontrola_kapitalu(snap, wszystkie, managed, rep)
+    alloc = ALLOC_PCT if rep["kontrola_kapitalu"]["zgodne"] else ALLOC_PCT_SAFE
+    rep["alloc_pct"] = alloc
+
+    fills = ceny_wejscia(sig, positions, epic2tic)
+    rep["ceny_wejscia"] = fills
 
     def do_close(p, powod):
         if DRY_RUN:
@@ -719,16 +1107,44 @@ def sync():
                                 f"{epic2tic.get(p['epic'], p['epic'])} — {powod}")
             return
         ok, msg = cap.close(p["dealId"])
-        rep["akcje"].append(f"ZAMKNIĘTO {epic2tic.get(p['epic'], p['epic'])} "
-                            f"({powod})" if ok
-                            else f"BŁĄD zamykania {p['epic']}: {msg}")
-        if not ok:
-            rep["błędy"].append(msg)
+        if ok:
+            rep["akcje"].append(
+                f"ZAMKNIĘTO {epic2tic.get(p['epic'], p['epic'])} ({powod})")
+            return
+        # Nieudane zamknięcie przy zamkniętym rynku to nie awaria bota —
+        # spróbuje w kolejnym biegu. Do "błędów" trafiają tylko odmowy,
+        # których sam czas nie naprawi.
+        etykieta = epic2tic.get(p["epic"], p["epic"])
+        zamkniety = False
+        try:
+            m = cap.market(p["epic"])
+            zamkniety = (not m["mid"]) or m["status"] != RYNEK_OTWARTY
+        except requests.HTTPError:
+            zamkniety = False
+        if zamkniety:
+            rep["pominiete"].append(
+                f"{etykieta}: zamknięcie odłożone — rynek zamknięty ({powod})")
+        else:
+            rep["akcje"].append(f"BŁĄD zamykania {etykieta}: {msg}")
+            rep["błędy"].append(f"{etykieta}: {msg}")
 
-    if equity < START_EQUITY * KILL_LEVEL:
+    # Kill switch od KROCZĄCEGO SZCZYTU: przy stałej START_EQUITY próg
+    # rozluźniał się z każdym zarobionym dolarem (kapitał 1104 USD, próg
+    # 750 USD = dopuszczalne obsunięcie -32% zamiast deklarowanych -25%).
+    szczyt = float(sig.get("equity_peak") or 0) or START_EQUITY
+    if KILL_TRAILING and equity > szczyt:
+        szczyt = equity
+    odniesienie = max(szczyt, START_EQUITY) if KILL_TRAILING else START_EQUITY
+    prog_kill = odniesienie * KILL_LEVEL
+    rep["kill_switch"] = {"odniesienie": round(odniesienie, 2),
+                          "prog": round(prog_kill, 2),
+                          "kapital": round(equity, 2),
+                          "kroczacy": KILL_TRAILING}
+    if equity < prog_kill:
         for p in positions:
             do_close(p, "KILL SWITCH")
-        notify(f"⛔ {BOT_NAME} KILL SWITCH: kapitał {equity:.2f} {ccy}. "
+        notify(f"⛔ {BOT_NAME} KILL SWITCH: kapitał {equity:.2f} {ccy} "
+               f"poniżej progu {prog_kill:.2f} (szczyt {odniesienie:.2f}). "
                f"Wszystko zamknięte, handel wstrzymany.")
         rep["akcje"].append("KILL SWITCH aktywny — handel wstrzymany.")
         return rep
@@ -739,13 +1155,27 @@ def sync():
         rep["akcje"].append("Status NIEAKTUALNA — portfel płasko do nowych sygnałów.")
         return rep
 
-    book, skipped, closed = desired_book(sig)
+    # BRAMKA WYZWALACZY: wpisy cenowe pulsu liczą ruch od D0, a pozycja
+    # bywa otwarta kilka sesji po D0 — sprawdzamy je wobec ceny wejścia.
+    g_closed, g_reduced, slad = bramka_reakcji(sig, cap, fills, rep)
+    rep["reakcje"] = slad
+    book, skipped, closed = desired_book(sig, g_closed, g_reduced)
     rep["pominiete"] += skipped
+
+    # TWARDY STOP od ceny wejścia — siatka niezależna od logiki tygodniowej.
+    stopy = stopy_bezpieczenstwa(positions, fills, epic2tic, cap, rep)
+    if stopy:
+        rep["stopy"] = list(stopy.values())
+
     for p in positions:
         if p["epic"] == HEDGE_EPIC:
             continue  # pozycją hedge zarządza osobny blok niżej
         want = book.get(p["epic"])
         tic = epic2tic.get(p["epic"], p["epic"])
+        if p["epic"] in stopy:
+            do_close(p, stopy[p["epic"]])
+            book.pop(p["epic"], None)   # nie otwieraj jej z powrotem w tym biegu
+            continue
         if not want:
             do_close(p, "wykluczona przez puls" if tic in closed
                      else "poza aktualnymi sygnałami")
@@ -762,28 +1192,74 @@ def sync():
     # Ruszamy dopiero poza pasmem REBALANCE_TOL i tylko wtedy, gdy krok
     # wielkości pozwala faktycznie podejść bliżej celu (inaczej byłby to
     # cotygodniowy churn: zamknij i otwórz to samo, płacąc spread).
+    # OGRANICZNIK TEMPA WZROSTU EKSPOZYCJI — liczony raz, przed zmianami.
+    if MAX_EXPOSURE_STEP > 0:
+        teraz_brutto = 0.0
+        for p in positions:
+            if p["epic"] not in book:
+                continue
+            try:
+                m = cap.market(p["epic"])
+            except requests.RequestException:
+                continue
+            if m["mid"]:
+                teraz_brutto += abs(p["size"] * m["mid"]
+                                    / cap.fx_rate(ccy, m["currency"]))
+        cel_brutto = sum(
+            equity * (TACTICAL_ALLOC_PCT if w.get("tactical")
+                      else alloc * (REDUCE_FACTOR if w.get("reduced") else 1.0))
+            for w in book.values())
+        limit = teraz_brutto * (1 + MAX_EXPOSURE_STEP)
+        if teraz_brutto > 0 and cel_brutto > limit:
+            skala = limit / cel_brutto
+            alloc = alloc * skala
+            rep["ogranicznik_tempa"] = {
+                "ekspozycja_teraz": round(teraz_brutto, 2),
+                "ekspozycja_cel": round(cel_brutto, 2),
+                "limit_na_bieg": round(limit, 2),
+                "alloc_po_ograniczeniu": round(alloc, 4)}
+            rep["pominiete"].append(
+                f"ogranicznik tempa: cel {cel_brutto:.0f} {ccy} przekracza "
+                f"limit {limit:.0f} {ccy} (+{MAX_EXPOSURE_STEP * 100:.0f}% "
+                f"od {teraz_brutto:.0f}) — w tym biegu ALLOC_PCT "
+                f"ograniczony do {alloc:.4f}")
+
     stracone = set()
     for p in positions:
         want = book.get(p["epic"])
         # poza koszykiem albo zmiana kierunku = zamknięta w pętli wyżej
         if not want or want["direction"] != p["direction"]:
             continue
-        try:
-            m = cap.market(p["epic"])
-        except requests.HTTPError:
-            continue
-        if not m["mid"] or m["status"] != "TRADEABLE":
-            continue          # rynek zamknięty — spróbujemy w kolejnym biegu
+        m = rynek(cap, p["epic"], rep, want["ticker"])
+        if m is None:
+            continue          # rynek zamknięty albo błąd — już opisane
         fx = cap.fx_rate(ccy, m["currency"])
         cur_acc = p["size"] * m["mid"] / fx
         cel_acc = equity * (TACTICAL_ALLOC_PCT if want.get("tactical")
-                            else ALLOC_PCT * (REDUCE_FACTOR
-                                              if want.get("reduced") else 1.0))
+                            else alloc * (REDUCE_FACTOR
+                                          if want.get("reduced") else 1.0))
         if abs(cur_acc - cel_acc) <= cel_acc * REBALANCE_TOL:
             continue          # w paśmie — zostawiamy
-        size, _, _ = calc_size(cap, cel_acc, p["epic"], ccy)
-        if size is None or size == p["size"]:
-            continue          # grubość kroku nie pozwala podejść bliżej
+        size, _, info = calc_size(cap, cel_acc, p["epic"], ccy)
+        # Cichy brak wykonania redukcji: przy MU (kurs ~980 USD) cel po
+        # redukcji to ~55 USD, a minimalna transakcja 0,1 akcji = ~98 USD,
+        # więc calc_size zwracał None, pętla robiła "continue" i nikt się
+        # nie dowiadywał, że signals.json mówi REDUCE, a portfel ma pełną
+        # pozycję. Teraz każdy taki przypadek jest opisany, a zachowanie
+        # wybiera REDUCE_FALLBACK.
+        if size is None:
+            if want.get("reduced") and REDUCE_FALLBACK == "close":
+                do_close(p, f"REDUCE niewykonalny ({info}) — REDUCE_FALLBACK=close")
+            else:
+                rep["pominiete"].append(
+                    f"{want['ticker']}: nie zmieniam wielkości — {info} "
+                    f"(cel {cel_acc:.0f} {ccy}, obecnie {cur_acc:.0f} {ccy})")
+            continue
+        if size == p["size"]:
+            rep["pominiete"].append(
+                f"{want['ticker']}: krok wielkości nie pozwala podejść bliżej "
+                f"celu {cel_acc:.0f} {ccy} (zostaje {cur_acc:.0f} {ccy})")
+            continue
         if DRY_RUN:
             rep["akcje"].append(f"[DRY] WYRÓWNAJ {want['ticker']} "
                                 f"z size {p['size']} (~{cur_acc:.0f} {ccy}) "
@@ -808,24 +1284,29 @@ def sync():
             if p["epic"] not in stracone}
     rep["wielkosc_docelowa"] = {
         "waluta": ccy,
-        "koszyk": round(equity * ALLOC_PCT, 2),
+        "koszyk": round(equity * alloc, 2),
+        "koszyk_po_redukcji": round(equity * alloc * REDUCE_FACTOR, 2),
         "taktyczna": round(equity * TACTICAL_ALLOC_PCT, 2)}
     for epic, want in book.items():
         if held.get(epic) == want["direction"]:
             continue
         target = equity * (TACTICAL_ALLOC_PCT if want.get("tactical")
-                           else ALLOC_PCT * (REDUCE_FACTOR
-                                             if want.get("reduced") else 1.0))
+                           else alloc * (REDUCE_FACTOR
+                                         if want.get("reduced") else 1.0))
         try:
             size, m, info = calc_size(cap, target, epic, ccy)
         except requests.HTTPError as e:
             rep["błędy"].append(f"{want['ticker']}: rynek niedostępny ({e})")
             continue
+        if m["status"] != RYNEK_OTWARTY or not m["mid"]:
+            # Rynek zamknięty (weekend, święto, przerwa) to POMINIĘCIE,
+            # a nie błąd — sprawdzamy to przed brakiem wielkości, bo bez
+            # ceny calc_size i tak nie ma z czego liczyć.
+            rep["pominiete"].append(f"{want['ticker']}: rynek "
+                                    f"{m['status'] or 'bez ceny'}")
+            continue
         if size is None:
             rep["pominiete"].append(f"{want['ticker']}: {info}")
-            continue
-        if m["status"] != "TRADEABLE":
-            rep["pominiete"].append(f"{want['ticker']}: rynek {m['status']}")
             continue
         if DRY_RUN:
             rep["akcje"].append(f"[DRY] OTWÓRZ {want['direction']} "
@@ -840,19 +1321,62 @@ def sync():
             rep["błędy"].append(msg)
         time.sleep(0.4)
 
+    # ZAPIS CEN WEJŚCIA do signals.json — żeby puls liczył wyzwalacze od
+    # tego, po ile bot naprawdę wszedł, a nie od kursu odniesienia D0.
+    if WRITE_FILLS and not DRY_RUN:
+        try:
+            po = [x for x in cap.positions() if x["epic"] in managed]
+            nowe = {}
+            for x in po:
+                t = epic2tic.get(x["epic"])
+                if t and x.get("wejscie"):
+                    nowe[t] = {"cena": round(float(x["wejscie"]), 4),
+                               "kierunek": x["direction"],
+                               "wielkosc": x["size"],
+                               "data": (x.get("otwarta") or "")[:10] or None}
+            stare = sig.get("fills") or {}
+            szczyt_stary = float(sig.get("equity_peak") or 0)
+            # Próg 0,5% — inaczej każdy nowy szczyt o grosz robiłby commit.
+            zmiana_szczytu = (KILL_TRAILING
+                              and szczyt > max(szczyt_stary * 1.005,
+                                               szczyt_stary + 0.01))
+            if nowe != stare or zmiana_szczytu:
+                sig["fills"] = nowe
+                if KILL_TRAILING:
+                    sig["equity_peak"] = round(szczyt, 2)
+                save_signals(sig, sig_sha,
+                             f"bot: ceny wejścia ({len(nowe)} pozycji)"
+                             + (f", szczyt kapitału {szczyt:.2f}"
+                                if zmiana_szczytu else ""))
+                rep["zapis_fills"] = {"pozycje": len(nowe),
+                                      "equity_peak": sig.get("equity_peak")}
+        except Exception as e:
+            # Zapis to udogodnienie, nie warunek handlu: konflikt sha
+            # (puls zapisał plik w międzyczasie) nie może wywrócić biegu.
+            rep["pominiete"].append(f"zapis cen wejścia pominięty: {e}")
+
     zam = len([a for a in rep["akcje"]
                if a.startswith(("ZAMKNIĘTO", "OTWARTO", "WYRÓWNANO", "[DRY]"))])
     # Błędy MUSZĄ być w powiadomieniu: nieudane zamknięcie (np. przy zamkniętym
     # rynku) nie trafia do licznika akcji i bez tego pola bieg wyglądałby na
     # spokojny "akcje: 0", choć portfel rozjechał się z sygnałami.
+    ostrzezenia = []
+    if not rep["kontrola_kapitalu"]["zgodne"]:
+        ostrzezenia.append("⚠ KONTROLA KAPITAŁU")
+    if rep.get("stopy"):
+        ostrzezenia.append(f"⛔ STOP x{len(rep['stopy'])}")
+    zlagodzone = [r for r in slad if r.get("wykonane") != r.get("wpis")]
+    if zlagodzone:
+        ostrzezenia.append(f"↓ bramka x{len(zlagodzone)}")
     notify(f"🤖 {BOT_NAME} /run v{sig['version']} | kapitał {equity:.2f} {ccy} | "
            f"akcje: {zam} | pominięte: {len(rep['pominiete'])} | "
            f"błędy: {len(rep['błędy'])} | "
-           f"{'DRY-RUN' if DRY_RUN else 'DEMO'}")
+           f"{'DRY-RUN' if DRY_RUN else 'DEMO'}"
+           + (" | " + " ".join(ostrzezenia) if ostrzezenia else ""))
     if HEDGE_MODE == "index":
         long_cel = sum(equity * (TACTICAL_ALLOC_PCT if w.get("tactical")
-                                 else ALLOC_PCT * (REDUCE_FACTOR
-                                                   if w.get("reduced") else 1.0))
+                                 else alloc * (REDUCE_FACTOR
+                                               if w.get("reduced") else 1.0))
                        for w in book.values() if w["direction"] == "BUY")
         hedge_cel = long_cel * HEDGE_RATIO
         hpos = [p for p in positions if p["epic"] == HEDGE_EPIC
@@ -945,7 +1469,8 @@ def status_ep():
         sig, _ = load_signals()
         cap = Capital()
         cap.login()
-        eq, ccy, acc = cap.equity()
+        snap = cap.account_snapshot()
+        eq, ccy, acc = snap["equity"], snap["ccy"], snap["accountId"]
         konta = [{"accountId": a.get("accountId"),
                   "nazwa": a.get("accountName"),
                   "waluta": a.get("currency"),
@@ -963,7 +1488,25 @@ def status_ep():
                                 ("version", "status", "long", "short",
                                  "exclude", "tactical")},
                        historia=sig.get("history", []),
-                       konto={"accountId": acc, "kapital": eq, "waluta": ccy},
+                       konto={"accountId": acc, "kapital": eq, "waluta": ccy,
+                              "saldo": snap["saldo"],
+                              "wycena_pozycji": snap["wycena"]},
+                       kontrola_kapitalu=kontrola_kapitalu(
+                           snap, cap.positions(), managed,
+                           {"błędy": [], "pominiete": []}),
+                       ceny_wejscia=sig.get("fills", {}),
+                       equity_peak=sig.get("equity_peak"),
+                       ustawienia={"alloc_pct": ALLOC_PCT,
+                                   "alloc_pct_safe": ALLOC_PCT_SAFE,
+                                   "reduce_factor": REDUCE_FACTOR,
+                                   "reduce_fallback": REDUCE_FALLBACK,
+                                   "react_gate": REACT_GATE,
+                                   "react_reduce_pct": REACT_REDUCE_PCT,
+                                   "react_close_pct": REACT_CLOSE_PCT,
+                                   "stop_loss_pct": STOP_LOSS_PCT,
+                                   "kill_trailing": KILL_TRAILING,
+                                   "kill_level": KILL_LEVEL,
+                                   "max_exposure_step": MAX_EXPOSURE_STEP},
                        pozycje=[p for p in cap.positions()
                                 if p["epic"] in managed],
                        dry_run=DRY_RUN)
@@ -989,6 +1532,8 @@ def close_all_ep():
                if e and not e.upper().startswith("UZUP")}
     if HEDGE_MODE == "index" and HEDGE_EPIC:
         managed.add(HEDGE_EPIC)
+    managed |= {(t.get("epic") or "").strip()
+                for t in sig.get("tactical", []) if (t.get("epic") or "").strip()}
     out = []
     for p in cap.positions():
         if p["epic"] in managed:

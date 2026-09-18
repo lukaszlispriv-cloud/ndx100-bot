@@ -34,6 +34,8 @@ Wyjście: czytelna tabela; z flagą --json — struktura maszynowa.
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -50,13 +52,57 @@ TOLERANCJA_D0 = 0.005            # 0,5%
 # Uniwersum czytane z signals.json (epics) — tu tylko indeksy
 SYMBOLE = {"NDX100": ["^NDX"], "VIX": ["^VIX"]}
 HOSTY = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"]
-UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+# PRZYCZYNA "limitu Yahoo", przez którą skrypt wisiał godzinami:
+# to nie był limit zapytań, tylko odrzucanie po nagłówku User-Agent.
+# Pomiar z 18.09.2026 na tym samym adresie, w tej samej sekundzie:
+#   "Mozilla/5.0"                                  -> HTTP 200 (3/3 prób)
+#   pełny łańcuch Chrome/126.0 z AppleWebKit...     -> HTTP 429 (3/3 prób)
+#   brak nagłówka User-Agent                        -> HTTP 429
+# Stary kod wysyłał pełny łańcuch Chrome, dostawał 429 i traktował to jak
+# przeciążenie: spał 45/90/180 s, po czym dostawał 429 znowu. Kolejność
+# poniżej jest kolejnością prób — pierwszy działający wygrywa.
+UA_LISTA = [u for u in (os.environ.get("KURSY_UA", "").strip(),
+                        "Mozilla/5.0",
+                        "curl/8.5.0",
+                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                        "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+                        "Version/17.0 Safari/605.1.15") if u]
+UA = UA_LISTA[0]
 
 PAUZA = float(os.environ.get("KURSY_PAUZA", "2"))          # s między zapytaniami
 CACHE_TTL = int(os.environ.get("KURSY_CACHE_TTL", "1200"))  # s ważności cache
 BATCH = 20                       # tickerów na jedno zapytanie spark
+# TWARDY BUDŻET CZASU na cały bieg. Bez niego skrypt przy serii HTTP 429
+# wisiał w pętli backoffu (45/90/180 s na każdy z ~7 adresów) i nie
+# wypisywał niczego — 18.09.2026 nie skończył biegu przez 15 minut, bo
+# stdout był buforowany, a limit Yahoo nie ustępował. Po przekroczeniu
+# budżetu skrypt kończy pobieranie i wypisuje to, co zdążył zebrać.
+LIMIT_CZASU = float(os.environ.get("KURSY_LIMIT_CZASU", "600"))
+# Warstwa transportu: "curl" albo "urllib". W środowisku z proxy egress
+# urllib dostawał HTTP 429 tam, gdzie curl z tym samym User-Agentem
+# dostawał 200 — curl wysyła komplet nagłówków Accept*, których urllib
+# domyślnie nie ustawia, a Yahoo po nich rozpoznaje ruch automatyczny.
+TRANSPORT = os.environ.get("KURSY_TRANSPORT", "auto").lower()
 _ostatnie_zapytanie = [0.0]
+_start = [time.time()]
+
+
+def budzet_wyczerpany():
+    return (time.time() - _start[0]) > LIMIT_CZASU
+
+
+def _uzyj_curl():
+    if TRANSPORT == "curl":
+        return True
+    if TRANSPORT == "urllib":
+        return False
+    return shutil.which("curl") is not None
+
+
+def naglowki(ua):
+    return {"User-Agent": ua,
+            "Accept": "application/json,text/plain,*/*",
+            "Accept-Language": "en-US,en;q=0.9"}
 
 
 def _cache_sciezka(url):
@@ -76,34 +122,81 @@ def http_json(sciezka_url):
             return json.load(open(plik, encoding="utf-8")), None
     except (OSError, json.JSONDecodeError):
         pass
+    if budzet_wyczerpany():
+        return None, f"budżet czasu {LIMIT_CZASU:.0f} s wyczerpany"
     blad = "nie próbowano"
     for proba in range(3):
+        if budzet_wyczerpany():
+            return None, f"{blad}; budżet czasu wyczerpany"
         host = HOSTY[proba % len(HOSTY)]
         czekaj = PAUZA - (time.time() - _ostatnie_zapytanie[0])
         if czekaj > 0:
             time.sleep(czekaj)
-        req = urllib.request.Request(f"https://{host}{sciezka_url}",
-                                     headers={"User-Agent": UA})
+        url = f"https://{host}{sciezka_url}"
         _ostatnie_zapytanie[0] = time.time()
-        try:
-            with urllib.request.urlopen(req, timeout=25) as r:
-                dane = json.load(r)
+        # Najpierw przechodzimy CAŁĄ listę User-Agentów bez spania: 429 z
+        # tego powodu jest deterministyczne i przespanie go niczego nie da.
+        dane, blad = None, "nie próbowano"
+        for ua in UA_LISTA:
+            dane, blad = _pobierz_raz(url, ua)
+            if dane is not None:
+                if ua != UA_LISTA[0]:
+                    print(f"    (zadziałał User-Agent: {ua[:40]})", flush=True)
+                break
+            if blad != "HTTP 429":
+                break
+        if dane is not None:
             try:
                 json.dump(dane, open(plik, "w", encoding="utf-8"))
             except OSError:
                 pass
             return dane, None
-        except urllib.error.HTTPError as e:
-            blad = f"HTTP {e.code}"
-            if e.code == 429:                      # limit Yahoo — backoff
-                time.sleep(45 * (2 ** proba))
-                continue
+        if blad == "HTTP 429":
+            # Backoff przycięty do reszty budżetu — lepiej wrócić z częściowym
+            # wynikiem niż przespać cały bieg na jednym adresie.
+            zostalo = LIMIT_CZASU - (time.time() - _start[0])
+            drzemka = min(45 * (2 ** proba), max(0.0, zostalo - 5))
+            if drzemka <= 0:
+                return None, "HTTP 429; budżet czasu wyczerpany"
+            print(f"    ! HTTP 429 z {host} — czekam {drzemka:.0f} s",
+                  flush=True)
+            time.sleep(drzemka)
+            continue
+        if blad.startswith("HTTP "):
             return None, blad
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError,
-                OSError) as e:
-            blad = f"błąd sieci/odpowiedzi: {e}"
-            time.sleep(5)
+        time.sleep(5)
     return None, blad
+
+
+def _pobierz_raz(url, ua=None):
+    """Jedno zapytanie GET. Zwraca (dane, None) albo (None, opis_błędu)."""
+    ua = ua or UA_LISTA[0]
+    if _uzyj_curl():
+        cmd = ["curl", "-sS", "--max-time", "30", "-w", "\n%{http_code}"]
+        for k, v in naglowki(ua).items():
+            cmd += ["-H", f"{k}: {v}"]
+        cmd.append(url)
+        try:
+            p = subprocess.run(cmd, capture_output=True, text=True, timeout=40)
+        except subprocess.TimeoutExpired:
+            return None, "timeout curl"
+        tresc, _, kod = p.stdout.rpartition("\n")
+        kod = (kod or "").strip()
+        if kod != "200":
+            return None, f"HTTP {kod or '???'}"
+        try:
+            return json.loads(tresc), None
+        except json.JSONDecodeError as e:
+            return None, f"zła odpowiedź JSON: {e}"
+    req = urllib.request.Request(url, headers=naglowki(ua))
+    try:
+        with urllib.request.urlopen(req, timeout=25) as r:
+            return json.load(r), None
+    except urllib.error.HTTPError as e:
+        return None, f"HTTP {e.code}"
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError,
+            OSError) as e:
+        return None, f"błąd sieci/odpowiedzi: {e}"
 
 
 def _bary_z_result(res):
@@ -284,19 +377,29 @@ def main():
 
     # 1) jedno przejście batchem po całym uniwersum...
     wszystkie = sorted({s for kandydaci in SYMBOLE.values() for s in kandydaci})
+    if not tryb_json:
+        print(f"Pobieram {len(wszystkie)} symboli "
+              f"({'curl' if _uzyj_curl() else 'urllib'}, budżet "
+              f"{LIMIT_CZASU:.0f} s)...", flush=True)
     batch, problemy_batch = pobierz_batch(wszystkie)
+    if not tryb_json:
+        print(f"  batch: {len(batch)}/{len(wszystkie)} symboli, "
+              f"{time.time() - _start[0]:.0f} s", flush=True)
 
-    wynik, problemy = {}, []
+    wynik, problemy, bez_danych = {}, [], []
     for ticker, kandydaci in SYMBOLE.items():
         bary, blad, uzyty = [], "nie próbowano", None
         for sym in kandydaci:
             bary = batch.get(sym, [])
-            if not bary:                       # 2) ...fallback per symbol
-                bary, blad = pobierz(sym)
+            if not bary and not budzet_wyczerpany():
+                bary, blad = pobierz(sym)      # 2) ...fallback per symbol
+            elif not bary:
+                blad = "budżet czasu wyczerpany"
             if bary:
                 uzyty = sym
                 break
         if not bary:
+            bez_danych.append(ticker)
             problemy.append(f"{ticker}: brak danych ({', '.join(kandydaci)}; "
                             f"{blad}) — użyj depesz agencyjnych i oznacz źródło")
             continue
@@ -325,6 +428,13 @@ def main():
 
     rezim = rezim_rynkowy(vix_bary=batch.get("^VIX"))
     problemy = problemy_batch + problemy
+    if budzet_wyczerpany():
+        problemy.insert(0, f"BUDŻET CZASU {LIMIT_CZASU:.0f} s WYCZERPANY — "
+                           f"wynik jest CZĘŚCIOWY; bez danych: "
+                           f"{', '.join(bez_danych) if bez_danych else 'brak'}")
+    if not tryb_json:
+        print(f"  gotowe: {len(wynik)}/{len(SYMBOLE)} tickerów w "
+              f"{time.time() - _start[0]:.0f} s\n", flush=True)
 
     if tryb_json:
         print(json.dumps({"wygenerowano": datetime.now(NY).isoformat(timespec="minutes"),
