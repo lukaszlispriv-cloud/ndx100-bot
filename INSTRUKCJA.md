@@ -262,7 +262,7 @@ python3 scripts/test_app.py     # 52 testy logiki decyzyjnej, bez sieci
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 
-`test_app.py` (52 testy) pokrywa bramkę wyzwalaczy, kontrolę kapitału,
+`test_app.py` (77 testów) pokrywa bramkę wyzwalaczy, kontrolę kapitału,
 stopy, klasyfikację stanu rynku, budowę książki, ogranicznik tempa i
 kontrolę spójności `signals.json`. Uruchom go po każdej zmianie w
 `app.py`.
@@ -293,7 +293,41 @@ Znaczenie dopisków na końcu linii `NOTIFY:`:
 | `⚠ KONTROLA KAPITAŁU` | Kapitał z API nie zgadza się z pozycjami bota — wielkość pozycji zeszła na `ALLOC_PCT_SAFE`. |
 | `⛔ STOP xN` | N pozycji zamkniętych twardym stopem od ceny wejścia. |
 
-## 8. Czego poprawki NIE zmieniają
+## 8. Decyzja projektowa: dwa różne progi, celowo
+
+System mierzy ruch kursu DWOMA sposobami i to nie jest niedopatrzenie.
+
+| Kto | Co mierzy | Próg |
+|---|---|---|
+| Rutyna dzienna (puls) | ruch spółki **względem ^NDX** od ceny wejścia | 4–8 p.p. REDUCE, >8 p.p. CLOSE |
+| Bramka w `app.py` | ruch **bezwzględny** od ceny wejścia | 4% REDUCE, 8% CLOSE |
+
+Reakcja wykonuje się tylko wtedy, gdy **oba** testy wypadną na tak. Puls
+odpowiada na pytanie „czy teza się psuje", bramka na pytanie „czy pozycja
+realnie traci pieniądze". Do cięcia potrzebne są obie odpowiedzi.
+
+**Dlaczego tak, a nie bramka też względna.** Rozliczenie okresu
+27.08–18.09.2026 pokazało, że wszystkie cztery reakcje czysto cenowe
+trafiły w lokalny dołek i kosztowały **17,43 USD**, a cały zysk okresu
+siedział w pozycjach, których nikt nie ruszył. Przy takim rozkładzie
+błędów pomyłka w stronę „nie tnij" jest tańsza od pomyłki w stronę „tnij",
+więc koniunkcja dwóch progów jest właściwym ustawieniem. Dodanie bramce
+odniesienia do indeksu wymagałoby pobierania serii ^NDX z Capital.com
+przy każdym biegu i powiększyłoby liczbę rzeczy, które mogą zawieść,
+w zamian za częstsze cięcia — czyli dokładnie to, co okazało się kosztowne.
+
+**Konsekwencja dla rutyny dziennej.** Wpis, którego ruch bezwzględny nie
+sięga progu, nie zostanie wykonany, więc puls ma go w ogóle nie tworzyć,
+tylko oznaczyć spółkę jako OBSERWOWANĄ. Wpis, którego bot nie wykona,
+zaśmieca `signals.json` i fałszuje sobotnie rozliczenie reakcji.
+
+**Kiedy tę decyzję odwrócić.** Gdy sobotnie rozliczenie przez kilka tygodni
+z rzędu pokaże dodatnie `reaction_cena_pp` — czyli że reakcje cenowe
+zaczęły zarabiać — progi bramki są za luźne i wtedy warto wrócić do tematu.
+Testy `scripts/test_app.py` w sekcji „KONIUNKCJA PROGÓW" pilnują, żeby
+zachowanie nie zmieniło się przypadkiem.
+
+## 9. Czego poprawki NIE zmieniają
 
 - Metody budowania koszyków i rankingu tygodniowego.
 - Kierunków pozycji — bramka tylko łagodzi reakcje, nigdy nie odwraca tezy.

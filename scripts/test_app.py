@@ -444,6 +444,41 @@ sprawdz("ALLOC_PCT_SAFE zostaje zachowawczy",
         app.ALLOC_PCT_SAFE < app.ALLOC_PCT)
 
 
+# -------------------------------- koniunkcja: analityk wzglednie, bot bezwzglednie
+print("\nKONIUNKCJA PROGOW (decyzja projektowa, 18.09.2026)")
+# Puls liczy ruch WZGLEDEM ^NDX, bot liczy BEZWZGLEDNIE od ceny wejscia.
+# Wpis wykonuje sie tylko wtedy, gdy OBA testy wypadna na tak. Ustawienie
+# jest swiadomie konserwatywne: czesciej NIE tnie pozycji. Rozliczenie
+# okresu 27.08-18.09.2026 pokazalo, ze ciecia kosztowaly 17,43 USD, wiec
+# blad w strone "nie tnij" jest tanszy niz blad w strone "tnij".
+s = sig(exclude=[{"ticker": "MU", "action": "REDUCE",
+                  "reason": "-5 p.p. wzglednie vs ^NDX", "basis": "cena"}])
+# Spolka -2% od wejscia, indeks +3% -> wzglednie -5 p.p. (puls widzi sygnal),
+# ale bezwzglednie tylko -2% (bot ponizej progu 4%).
+cap = FakeCap({"MU": 913.35 * 0.98})
+closed, reduced, slad = app.bramka_reakcji(s, cap, {"MU": {"cena": 913.35}},
+                                           pusty_rep())
+sprawdz("sygnal wylacznie wzgledny NIE jest wykonywany przez bota",
+        "MU" not in reduced and "MU" not in closed, f"r={reduced}")
+sprawdz("powod odrzucenia jest zapisany w sladzie decyzji",
+        slad[0]["wykonane"] == "BRAK" and "uwaga" in slad[0])
+
+# Ten sam sygnal, ale pozycja realnie 5% pod woda -> oba testy na tak.
+cap = FakeCap({"MU": 913.35 * 0.95})
+closed, reduced, _ = app.bramka_reakcji(s, cap, {"MU": {"cena": 913.35}},
+                                        pusty_rep())
+sprawdz("sygnal wzgledny POPARTY realna strata jest wykonywany",
+        "MU" in reduced)
+
+# Bramka nie dziala w druga strone: nie tworzy wpisu tam, gdzie puls go nie dal.
+s_pusty = sig(exclude=[])
+closed, reduced, slad = app.bramka_reakcji(s_pusty, FakeCap({"MU": 500.0}),
+                                           {"MU": {"cena": 913.35}},
+                                           pusty_rep())
+sprawdz("bramka nigdy nie dokłada reakcji z wlasnej inicjatywy",
+        not closed and not reduced and not slad)
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)
