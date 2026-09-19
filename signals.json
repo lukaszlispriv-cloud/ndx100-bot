@@ -20,36 +20,41 @@
     {
       "ticker": "LITE",
       "action": "CLOSE",
+      "basis": "cena",
       "reason": "twardy wyzwalacz: -9,92% od D0 przeciw tezie dlugiej (927,03 -> 835,03; zamkn. 14.09.2026, CBOE delayed quotes) - ruch >8% od D0. Sesja 14.09 sama dala -9,9%: optyka centrow danych najmocniej przeceniona w lancuchu AI po apelu liderow Anthropic/OpenAI/xAI o spowolnienie rozwoju AI (12.09). Nie odnotowano udokumentowanych anulacji zamowien na optyke - podstawa wpisu jest wylacznie skala ruchu.",
       "date": "2026-09-15"
     },
     {
       "ticker": "ADSK",
       "action": "REDUCE",
+      "basis": "cena",
       "reason": "miekki wyzwalacz: +7,78% od D0 przeciw tezie krotkiej (212,40 -> 228,93; zamkn. 14.09.2026, CBOE delayed quotes) - pasmo 4-8%, najsilniejszy miekki wyzwalacz dnia. Przyczyna: rotacja kapitalu z hardware'u AI do software'u po apelu o spowolnienie rozwoju AI. Do progu CLOSE (8%) pozostaje 0,22 p.p.",
       "date": "2026-09-15"
     },
     {
       "ticker": "AVGO",
       "action": "REDUCE",
+      "basis": "cena",
       "reason": "miekki wyzwalacz: -6,28% od D0 przeciw tezie dlugiej (361,99 -> 339,27; zamkn. 15.09.2026, CBOE delayed quotes) - pasmo 4-8%, najdotkliwszy ruch dnia wsrod pozycji spoza listy. AVGO jako jedyna pozycja LONG nie odbila we wtorek (-1,58% d/d): oprocz presji sektorowej ciazy prognoza przychodow na fiskalny 4Q 34,8 mld USD wobec konsensusu 35,03 mld i kompresja marzy na custom XPU (raport z 2.09, przed D0 - w kursie D0). Wpis oparty wylacznie na skali ruchu od D0.",
       "date": "2026-09-16"
     },
     {
       "ticker": "MRVL",
       "action": "REDUCE",
+      "basis": "cena",
       "reason": "miekki wyzwalacz: -6,10% od D0 przeciw tezie dlugiej (236,10 -> 221,70; zamkn. 15.09.2026, CBOE delayed quotes) - pasmo 4-8%. Wtorkowe odbicie (+1,32% d/d, wsparte nota BofA: Buy, cel 365 USD) nie wystarczylo, by zejsc ponizej progu 4%. MRVL stal wczoraj pierwszy w kolejce miekkich wyzwalaczy.",
       "date": "2026-09-16"
     },
     {
       "ticker": "MU",
       "action": "REDUCE",
+      "basis": "cena",
       "reason": "miekki wyzwalacz: -4,99% od D0 przeciw tezie dlugiej (975,26 -> 926,55; zamkn. 16.09.2026, Yahoo chart/spark API potwierdzone CBOE delayed quotes, roznica 0,00%) - pasmo 4-8%. MU stal wczoraj trzeci w kolejce miekkich wyzwalaczy i limit 2/dzien go odcial; dzis jest najglebsza pozycja bez reakcji. Sesja 16.09 plaska (-0,11% d/d), brak newsa emitenckiego - podstawa wpisu jest wylacznie skala ruchu od D0. Ceny kontraktowe DRAM/NAND nadal rosna (TrendForce 3Q26: DRAM +13-18%, NAND +10-15% kw/kw), wiec twardy wyzwalacz bloku pamieci nie zostal uruchomiony.",
       "date": "2026-09-17"
     }
   ],
   "tactical": [],
-  "last_daily": "2026-09-18",
+  "last_daily": "2026-09-19",
   "history": [
     {
       "week": "2026-W1",
