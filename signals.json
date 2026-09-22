@@ -215,46 +215,46 @@
       "wielkosc": 0.4,
       "data": "2026-09-22"
     },
-    "AMD": {
-      "cena": 611.42,
-      "kierunek": "BUY",
-      "wielkosc": 0.1,
-      "data": "2026-09-21"
-    },
-    "INTU": {
-      "cena": 302.46,
-      "kierunek": "SELL",
-      "wielkosc": 0.25,
-      "data": "2026-09-21"
-    },
-    "ADSK": {
-      "cena": 218.55,
-      "kierunek": "SELL",
-      "wielkosc": 0.3,
-      "data": "2026-09-21"
-    },
-    "SBUX": {
-      "cena": 95.4,
-      "kierunek": "SELL",
-      "wielkosc": 1.0,
-      "data": "2026-09-22"
-    },
     "AVGO": {
       "cena": 360.55,
       "kierunek": "BUY",
       "wielkosc": 0.3,
       "data": "2026-09-22"
     },
-    "CMCSA": {
-      "cena": 22.85,
-      "kierunek": "SELL",
-      "wielkosc": 4.0,
-      "data": "2026-09-22"
-    },
     "APP": {
       "cena": 325.76,
       "kierunek": "SELL",
       "wielkosc": 0.3,
+      "data": "2026-09-22"
+    },
+    "AMD": {
+      "cena": 616.75,
+      "kierunek": "BUY",
+      "wielkosc": 0.2,
+      "data": "2026-09-22"
+    },
+    "INTU": {
+      "cena": 290.93,
+      "kierunek": "SELL",
+      "wielkosc": 0.38,
+      "data": "2026-09-22"
+    },
+    "ADSK": {
+      "cena": 217.21,
+      "kierunek": "SELL",
+      "wielkosc": 0.5,
+      "data": "2026-09-22"
+    },
+    "SBUX": {
+      "cena": 94.99,
+      "kierunek": "SELL",
+      "wielkosc": 1.2,
+      "data": "2026-09-22"
+    },
+    "CMCSA": {
+      "cena": 22.55,
+      "kierunek": "SELL",
+      "wielkosc": 5.0,
       "data": "2026-09-22"
     },
     "MU": {
@@ -264,5 +264,5 @@
       "data": "2026-08-27"
     }
   },
-  "equity_peak": 1069.31
+  "equity_peak": 1072.84
 }
