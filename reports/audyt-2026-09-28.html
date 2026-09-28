@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audyt NDX100 — miesiąc</title>
+<style>
+*{box-sizing:border-box}
+:root{
+ --bg:#F6F7F4; --surface:#ffffff; --line:#E1E4DE; --navy:#10243E;
+ --ink:#15202B; --ink2:#4A5763; --ink3:#77808A;
+ --ok:#0E7C4A; --bad:#C4372E; --warn:#B4740E;
+ --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --bg:#141614; --surface:#1d201d; --line:#333833; --navy:#0B1A2E;
+ --ink:#F2F3EF; --ink2:#B6BDB6; --ink3:#8B938B;
+ --ok:#4FC98C; --bad:#F08A7C; --warn:#E3B55E;
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}}
+:root[data-theme="dark"]{
+ --bg:#141614; --surface:#1d201d; --line:#333833; --navy:#0B1A2E;
+ --ink:#F2F3EF; --ink2:#B6BDB6; --ink3:#8B938B;
+ --ok:#4FC98C; --bad:#F08A7C; --warn:#E3B55E;
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.58;font-size:16px;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px 56px}
+header{background:var(--navy);color:#fff;padding:24px 16px 28px;margin-bottom:24px}
+header .in{max-width:1000px;margin:0 auto}
+.eyebrow{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin:0 0 5px}
+h1{font-size:1.4rem;margin:0 0 4px;font-weight:700;line-height:1.25}
+.sub{font-size:.85rem;opacity:.76;margin:0 0 18px}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{flex:1 1 150px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+ border-radius:10px;padding:10px 12px}
+.kpi .l{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;opacity:.72}
+.kpi .v{font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi .n{font-size:.7rem;opacity:.7}
+h2{font-size:1.1rem;margin:36px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--navy);color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) h2{border-color:#3A4A5E}}
+h3{font-size:.98rem;margin:20px 0 8px}
+p{margin:9px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.m{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:rgba(127,127,127,.14);padding:1px 5px;border-radius:4px;font-size:.87em}
+.pos{color:var(--ok);font-weight:700}.neg{color:var(--bad);font-weight:700}
+/* --- wykres --- */
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 12px 8px}
+figcaption{font-size:.82rem;color:var(--ink2);margin-top:6px;padding:0 4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 4px 8px;font-size:.82rem;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chart{overflow-x:auto}
+svg{display:block;width:100%;min-width:640px;height:auto}
+.g{stroke:var(--line);stroke-width:1}
+.base{stroke:var(--ink3);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.ax{fill:var(--ink3);font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.s1{stroke:var(--s1)} .s2{stroke:var(--s2)}
+.s1f{fill:var(--s1)} .s2f{fill:var(--s2)}
+.end{stroke:var(--surface);stroke-width:2}
+.dl{font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.dv{font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.s1t{fill:var(--s1)} .s2t{fill:var(--s2)}
+.ch{stroke:var(--ink3);stroke-width:1;opacity:0}
+.dt{opacity:0;stroke:var(--surface);stroke-width:2}
+.db{fill:var(--s1)} .dn{fill:var(--s2)}
+.hp:hover .ch,.hp:hover .dt{opacity:1}
+/* --- tabele --- */
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:480px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th{background:rgba(127,127,127,.09);font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;
+ color:var(--ink2);font-weight:700}
+tbody th{text-align:left;font-weight:700}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+details{margin:10px 0}
+summary{cursor:pointer;font-size:.85rem;color:var(--ink2);padding:6px 0}
+/* --- ustalenia --- */
+.f{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--bad);
+ border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.f.w{border-left-color:var(--warn)} .f.o{border-left-color:var(--ok)}
+.f .tag{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.09em;padding:3px 8px;
+ border-radius:4px;background:var(--bad);color:#fff;margin-right:8px;vertical-align:2px}
+.f.w .tag{background:var(--warn)} .f.o .tag{background:var(--ok)}
+.f h3{display:inline;font-size:1rem;margin:0}
+ul.lst{margin:9px 0 0;padding-left:20px;font-size:.9rem} ul.lst li{margin-bottom:7px}
+.note{background:rgba(180,116,14,.09);border:1px solid rgba(180,116,14,.3);border-left:5px solid var(--warn);
+ border-radius:8px;padding:13px 16px;margin:12px 0;font-size:.89rem}
+.okbox{background:rgba(14,124,74,.08);border:1px solid rgba(14,124,74,.28);border-left:5px solid var(--ok);
+ border-radius:8px;padding:13px 16px;margin:12px 0;font-size:.89rem}
+footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--navy);font-size:.77rem;color:var(--ink2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) footer{border-color:#3A4A5E}}
+@media(max-width:560px){h1{font-size:1.15rem}.kpi .v{font-size:1.25rem}}
+</style></head><body>
+<header><div class="in">
+<p class="eyebrow">NDX100 · audyt miesiąca · 28.09.2026</p>
+<h1>Miesiąc pracy systemu: 29.08 – 25.09.2026</h1>
+<p class="sub">Rachunek DEMO 328401737847231684 · CFD · USD · źródła: eksport 447 transakcji lewarowanych, log Render (21–27.09), kursy Yahoo chart API, <code>signals.json</code> i <code>app.py</code> z repo</p>
+<div class="kpis">
+  <div class="kpi"><div class="l">Kapitał</div><div class="v">1 072,32</div><div class="n">z 1 000 USD · <b>+7,23%</b></div></div>
+  <div class="kpi"><div class="l">Benchmark ^NDX</div><div class="v">+3,99%</div><div class="n">29 433,43 → 30 608,13</div></div>
+  <div class="kpi"><div class="l">Przewaga</div><div class="v">+3,24 p.p.</div><div class="n">przy becie 0,51</div></div>
+  <div class="kpi"><div class="l">Realizacja alokacji</div><div class="v">26%</div><div class="n">celu <code>ALLOC_PCT</code></div></div>
+  <div class="kpi"><div class="l">Koszt churnu</div><div class="v">−11,82</div><div class="n">USD, 1,1% kapitału/mies.</div></div>
+</div>
+</div></header>
+
+<div class="wrap">
+
+<div class="okbox">
+<b>Krótka odpowiedź: system zarabia i bije benchmark, ale robi to na ćwiartce zaplanowanej ekspozycji i płaci za to podatek transakcyjny, którego nie planowaliśmy.</b>
+Cztery z pięciu mechanizmów, które ustaliliśmy, działają. Piąty — <b>wyrównywanie wielkości pozycji</b> — zamyka i natychmiast otwiera te same pozycje, co kasuje cenę wejścia. A cena wejścia jest punktem odniesienia dla <i>bramki reakcji</i> i dla <i>stop-lossa</i>, więc oba te zabezpieczenia są dziś praktycznie martwe. To jeden defekt z trzema skutkami i on porządkuje całą listę optymalizacji.
+</div>
+
+<h2>1. System wobec benchmarku</h2>
+
+<figure>
+<div class="legend">
+  <span><i class="sw" style="background:var(--s1)"></i> System NDX100 (kapitał, wycena EOD)</span>
+  <span><i class="sw" style="background:var(--s2)"></i> ^NDX (benchmark, rebazowany na 1000)</span>
+  <span style="color:var(--ink3)">— — start 1000 USD</span>
+</div>
+<div class="chart">
+<svg viewBox="0 0 860 340" role="img" aria-label="Krzywa kapitału systemu NDX100 wobec indeksu Nasdaq-100, 28.08–25.09.2026, obie serie od 1000">
+<line class="g" x1="52" x2="744" y1="306.0" y2="306.0"/><text class="ax" x="44" y="310.0" text-anchor="end">960</text><line class="g" x1="52" x2="744" y1="239.5" y2="239.5"/><text class="ax" x="44" y="243.5" text-anchor="end">990</text><line class="g" x1="52" x2="744" y1="173.1" y2="173.1"/><text class="ax" x="44" y="177.1" text-anchor="end">1020</text><line class="g" x1="52" x2="744" y1="106.6" y2="106.6"/><text class="ax" x="44" y="110.6" text-anchor="end">1050</text><line class="g" x1="52" x2="744" y1="40.2" y2="40.2"/><text class="ax" x="44" y="44.2" text-anchor="end">1080</text><line class="base" x1="52" x2="744" y1="217.4" y2="217.4"/>
+<text class="ax" x="748" y="221.4">start 1000</text>
+<text class="ax" x="52.0" y="326" text-anchor="middle">28.08</text><text class="ax" x="161.3" y="326" text-anchor="middle">02.09</text><text class="ax" x="270.5" y="326" text-anchor="middle">08.09</text><text class="ax" x="379.8" y="326" text-anchor="middle">11.09</text><text class="ax" x="489.1" y="326" text-anchor="middle">16.09</text><text class="ax" x="598.3" y="326" text-anchor="middle">21.09</text><text class="ax" x="744.0" y="326" text-anchor="middle">25.09</text>
+<path class="ln s2" d="M52.0,217.4 L88.4,215.6 L124.8,244.2 L161.3,239.2 L197.7,213.7 L234.1,209.1 L270.5,211.8 L306.9,218.3 L343.4,242.2 L379.8,222.3 L416.2,240.4 L452.6,254.7 L489.1,254.1 L525.5,216.4 L561.9,201.5 L598.3,138.4 L634.7,119.6 L671.2,139.3 L707.6,138.7 L744.0,129.0"/><path class="ln s1" d="M52.0,217.4 L88.4,249.4 L124.8,238.0 L161.3,232.4 L197.7,226.8 L234.1,184.7 L270.5,167.7 L306.9,138.8 L343.4,173.6 L379.8,188.2 L416.2,243.3 L452.6,220.7 L489.1,189.6 L525.5,142.7 L561.9,106.0 L598.3,81.7 L634.7,56.8 L671.2,68.9 L707.6,54.3 L744.0,57.2"/>
+<circle class="end s1f" cx="744.0" cy="57.2" r="4.5"/>
+<circle class="end s2f" cx="744.0" cy="129.0" r="4.5"/>
+<text class="dl s1t" x="752" y="54.2">System</text><text class="dv s1t" x="752" y="69.2">1072,3 · +7,2%</text>
+<text class="dl s2t" x="752" y="126.0">^NDX</text><text class="dv s2t" x="752" y="141.0">1039,9 · +4,0%</text>
+<g class="hp" data-x="52.0"><rect x="35.0" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="52.0" x2="52.0" y1="18" y2="306"/><circle class="dt db" cx="52.0" cy="217.4" r="5"/><circle class="dt dn" cx="52.0" cy="217.4" r="5"/><title>2026-08-28 — system 1000.00 · ^NDX 1000.00</title></g><g class="hp" data-x="88.4"><rect x="71.4" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="88.4" x2="88.4" y1="18" y2="306"/><circle class="dt db" cx="88.4" cy="249.4" r="5"/><circle class="dt dn" cx="88.4" cy="215.6" r="5"/><title>2026-08-31 — system 985.55 · ^NDX 1000.80</title></g><g class="hp" data-x="124.8"><rect x="107.8" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="124.8" x2="124.8" y1="18" y2="306"/><circle class="dt db" cx="124.8" cy="238.0" r="5"/><circle class="dt dn" cx="124.8" cy="244.2" r="5"/><title>2026-09-01 — system 990.68 · ^NDX 987.90</title></g><g class="hp" data-x="161.3"><rect x="144.3" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="161.3" x2="161.3" y1="18" y2="306"/><circle class="dt db" cx="161.3" cy="232.4" r="5"/><circle class="dt dn" cx="161.3" cy="239.2" r="5"/><title>2026-09-02 — system 993.23 · ^NDX 990.14</title></g><g class="hp" data-x="197.7"><rect x="180.7" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="197.7" x2="197.7" y1="18" y2="306"/><circle class="dt db" cx="197.7" cy="226.8" r="5"/><circle class="dt dn" cx="197.7" cy="213.7" r="5"/><title>2026-09-03 — system 995.77 · ^NDX 1001.66</title></g><g class="hp" data-x="234.1"><rect x="217.1" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="234.1" x2="234.1" y1="18" y2="306"/><circle class="dt db" cx="234.1" cy="184.7" r="5"/><circle class="dt dn" cx="234.1" cy="209.1" r="5"/><title>2026-09-04 — system 1014.74 · ^NDX 1003.76</title></g><g class="hp" data-x="270.5"><rect x="253.5" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="270.5" x2="270.5" y1="18" y2="306"/><circle class="dt db" cx="270.5" cy="167.7" r="5"/><circle class="dt dn" cx="270.5" cy="211.8" r="5"/><title>2026-09-08 — system 1022.42 · ^NDX 1002.52</title></g><g class="hp" data-x="306.9"><rect x="289.9" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="306.9" x2="306.9" y1="18" y2="306"/><circle class="dt db" cx="306.9" cy="138.8" r="5"/><circle class="dt dn" cx="306.9" cy="218.3" r="5"/><title>2026-09-09 — system 1035.49 · ^NDX 999.60</title></g><g class="hp" data-x="343.4"><rect x="326.4" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="343.4" x2="343.4" y1="18" y2="306"/><circle class="dt db" cx="343.4" cy="173.6" r="5"/><circle class="dt dn" cx="343.4" cy="242.2" r="5"/><title>2026-09-10 — system 1019.75 · ^NDX 988.79</title></g><g class="hp" data-x="379.8"><rect x="362.8" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="379.8" x2="379.8" y1="18" y2="306"/><circle class="dt db" cx="379.8" cy="188.2" r="5"/><circle class="dt dn" cx="379.8" cy="222.3" r="5"/><title>2026-09-11 — system 1013.16 · ^NDX 997.79</title></g><g class="hp" data-x="416.2"><rect x="399.2" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="416.2" x2="416.2" y1="18" y2="306"/><circle class="dt db" cx="416.2" cy="243.3" r="5"/><circle class="dt dn" cx="416.2" cy="240.4" r="5"/><title>2026-09-14 — system 988.30 · ^NDX 989.59</title></g><g class="hp" data-x="452.6"><rect x="435.6" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="452.6" x2="452.6" y1="18" y2="306"/><circle class="dt db" cx="452.6" cy="220.7" r="5"/><circle class="dt dn" cx="452.6" cy="254.7" r="5"/><title>2026-09-15 — system 998.49 · ^NDX 983.16</title></g><g class="hp" data-x="489.1"><rect x="472.1" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="489.1" x2="489.1" y1="18" y2="306"/><circle class="dt db" cx="489.1" cy="189.6" r="5"/><circle class="dt dn" cx="489.1" cy="254.1" r="5"/><title>2026-09-16 — system 1012.56 · ^NDX 983.41</title></g><g class="hp" data-x="525.5"><rect x="508.5" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="525.5" x2="525.5" y1="18" y2="306"/><circle class="dt db" cx="525.5" cy="142.7" r="5"/><circle class="dt dn" cx="525.5" cy="216.4" r="5"/><title>2026-09-17 — system 1033.70 · ^NDX 1000.46</title></g><g class="hp" data-x="561.9"><rect x="544.9" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="561.9" x2="561.9" y1="18" y2="306"/><circle class="dt db" cx="561.9" cy="106.0" r="5"/><circle class="dt dn" cx="561.9" cy="201.5" r="5"/><title>2026-09-18 — system 1050.28 · ^NDX 1007.16</title></g><g class="hp" data-x="598.3"><rect x="581.3" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="598.3" x2="598.3" y1="18" y2="306"/><circle class="dt db" cx="598.3" cy="81.7" r="5"/><circle class="dt dn" cx="598.3" cy="138.4" r="5"/><title>2026-09-21 — system 1061.23 · ^NDX 1035.64</title></g><g class="hp" data-x="634.7"><rect x="617.7" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="634.7" x2="634.7" y1="18" y2="306"/><circle class="dt db" cx="634.7" cy="56.8" r="5"/><circle class="dt dn" cx="634.7" cy="119.6" r="5"/><title>2026-09-22 — system 1072.47 · ^NDX 1044.13</title></g><g class="hp" data-x="671.2"><rect x="654.2" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="671.2" x2="671.2" y1="18" y2="306"/><circle class="dt db" cx="671.2" cy="68.9" r="5"/><circle class="dt dn" cx="671.2" cy="139.3" r="5"/><title>2026-09-23 — system 1067.01 · ^NDX 1035.23</title></g><g class="hp" data-x="707.6"><rect x="690.6" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="707.6" x2="707.6" y1="18" y2="306"/><circle class="dt db" cx="707.6" cy="54.3" r="5"/><circle class="dt dn" cx="707.6" cy="138.7" r="5"/><title>2026-09-24 — system 1073.61 · ^NDX 1035.52</title></g><g class="hp" data-x="744.0"><rect x="727.0" y="18" width="34" height="288" fill="transparent"/><line class="ch" x1="744.0" x2="744.0" y1="18" y2="306"/><circle class="dt db" cx="744.0" cy="57.2" r="5"/><circle class="dt dn" cx="744.0" cy="129.0" r="5"/><title>2026-09-25 — system 1072.32 · ^NDX 1039.91</title></g></svg>
+</div>
+<figcaption>Obie serie startują z 1000 w dniu 28.08.2026 (ostatnie zamknięcie przed pierwszym dniem eksportu). Kapitał systemu odtworzony metodą <span class="m">1000 + zrealizowany + niezrealizowany</span>; wycena otwartych pozycji po cenach z wierszy <code>SWAP</code> brokera (21:00 UTC = zamknięcie sesji). Ostatni punkt: piątek 25.09.2026 — ostatnia zakończona sesja. Najedź na wykres, by zobaczyć wartości dnia.</figcaption>
+</figure>
+
+<details><summary>Pokaż dane liczbowe wykresu (20 sesji)</summary>
+<div class="tw"><table>
+<thead><tr><th>Sesja</th><th>System</th><th>^NDX</th><th>Różnica (p.p.)</th></tr></thead>
+<tbody><tr><th>2026-08-28</th><td class="m">1000.00</td><td class="m">1000.00</td><td class="m">+0.00</td></tr><tr><th>2026-08-31</th><td class="m">985.55</td><td class="m">1000.80</td><td class="m">-1.52</td></tr><tr><th>2026-09-01</th><td class="m">990.68</td><td class="m">987.90</td><td class="m">+0.28</td></tr><tr><th>2026-09-02</th><td class="m">993.23</td><td class="m">990.14</td><td class="m">+0.31</td></tr><tr><th>2026-09-03</th><td class="m">995.77</td><td class="m">1001.66</td><td class="m">-0.59</td></tr><tr><th>2026-09-04</th><td class="m">1014.74</td><td class="m">1003.76</td><td class="m">+1.10</td></tr><tr><th>2026-09-08</th><td class="m">1022.42</td><td class="m">1002.52</td><td class="m">+1.99</td></tr><tr><th>2026-09-09</th><td class="m">1035.49</td><td class="m">999.60</td><td class="m">+3.59</td></tr><tr><th>2026-09-10</th><td class="m">1019.75</td><td class="m">988.79</td><td class="m">+3.10</td></tr><tr><th>2026-09-11</th><td class="m">1013.16</td><td class="m">997.79</td><td class="m">+1.54</td></tr><tr><th>2026-09-14</th><td class="m">988.30</td><td class="m">989.59</td><td class="m">-0.13</td></tr><tr><th>2026-09-15</th><td class="m">998.49</td><td class="m">983.16</td><td class="m">+1.53</td></tr><tr><th>2026-09-16</th><td class="m">1012.56</td><td class="m">983.41</td><td class="m">+2.91</td></tr><tr><th>2026-09-17</th><td class="m">1033.70</td><td class="m">1000.46</td><td class="m">+3.32</td></tr><tr><th>2026-09-18</th><td class="m">1050.28</td><td class="m">1007.16</td><td class="m">+4.31</td></tr><tr><th>2026-09-21</th><td class="m">1061.23</td><td class="m">1035.64</td><td class="m">+2.56</td></tr><tr><th>2026-09-22</th><td class="m">1072.47</td><td class="m">1044.13</td><td class="m">+2.83</td></tr><tr><th>2026-09-23</th><td class="m">1067.01</td><td class="m">1035.23</td><td class="m">+3.18</td></tr><tr><th>2026-09-24</th><td class="m">1073.61</td><td class="m">1035.52</td><td class="m">+3.81</td></tr><tr><th>2026-09-25</th><td class="m">1072.32</td><td class="m">1039.91</td><td class="m">+3.24</td></tr></tbody></table></div>
+</details>
+
+<div class="tw"><table>
+<thead><tr><th>Miara (29.08 – 25.09.2026)</th><th>System</th><th>^NDX</th><th>Ocena</th></tr></thead>
+<tbody>
+<tr><th>Zwrot okresu</th><td class="m pos">+7,23%</td><td class="m pos">+3,99%</td><td>przewaga <b>+3,24 p.p.</b></td></tr>
+<tr><th>Maks. obsunięcie</th><td class="m neg">−4,56%</td><td class="m neg">−2,05%</td><td>gorzej — dołek 14.09</td></tr>
+<tr><th>Zmienność dzienna</th><td class="m">1,20%</td><td class="m">0,99%</td><td>wyżej mimo mniejszej ekspozycji</td></tr>
+<tr><th>Beta do ^NDX</th><td class="m">0,51</td><td class="m">1,00</td><td>zgodne z konstrukcją long/short</td></tr>
+<tr><th>Korelacja dzienna</th><td class="m">0,42</td><td class="m">1,00</td><td>zwrot jest w większości <b>własny</b>, nie rynkowy</td></tr>
+<tr><th>Ekspozycja brutto</th><td class="m">62–93% kapitału</td><td class="m">100%</td><td>cel wg <code>ALLOC_PCT</code>: <b>270%</b></td></tr>
+</tbody></table></div>
+
+<p><b>Jak to czytać.</b> Przy korelacji 0,42 i becie 0,51 przewaga +3,24 p.p. nie jest „rynkiem w przebraniu” — to wynik doboru koszyków. Kosztem jest wyższa zmienność i głębsze obsunięcie niż indeksu, mimo że portfel stoi na ułamku docelowej ekspozycji: przy pełnej alokacji i tej samej konstrukcji obsunięcie 14.09 byłoby odpowiednio większe. To jest właściwy kontekst dla punktu 3 niżej — <b>nie „podnieść alokację, bo zarabia”, tylko „uzgodnić deklarowaną z faktyczną i świadomie wybrać poziom ryzyka”.</b></p>
+<h2>2. Co działa dokładnie tak, jak ustaliliśmy</h2>
+
+<div class="f o"><span class="tag">OK</span><h3>Pięć mechanizmów bez zastrzeżeń</h3>
+<ul class="lst">
+<li><b>Kill switch kroczący.</b> <code>equity_peak</code> = 1 080,37, próg 0,75 × = 810,28. Pole rośnie razem z kapitałem i nigdy nie schodzi w dół; przez cały miesiąc nie był blisko uruchomienia (najniższy odczyt kapitału: 985,55 z 31.08). Poprawka z 18.09 (kapitał = samo <code>balance</code>, nie <code>balance + profitLoss</code>) trzyma się: odtworzony kapitał zgadza się z logiem Render w granicach 8 USD, czyli różnicy między wyceną śródsesyjną a EOD.</li>
+<li><b>Wielkość taktyczna.</b> AKAM otwarty 25.09 za 0,9 × 116,41 = <span class="m">104,8 USD</span> przy <code>TACTICAL_ALLOC_PCT</code> 10% × 1 070 = 107 USD. Trafione co do dolara — bo pozycje taktyczne <b>nie przechodzą</b> przez ogranicznik, który dusi koszykowe (punkt 3).</li>
+<li><b>Reżim i status.</b> P0 przez cały okres, zgodnie z progami; <code>status</code> ani razu nie przeszedł na NIEAKTUALNA bez podstawy; puls nigdy sam nie zdjął reżimowego REDUCE.</li>
+<li><b>Dziennik i zapis.</b> Wszystkie 20 biegów dziennych zapisało <code>signals.json</code> i raport HTML; walidacja D0 10/10 OK w każdym biegu; bot nie odrzucił pliku ani razu (zero wstrzymań handlu z powodu złego <code>signals.json</code>).</li>
+<li><b>Rozdzielenie ról puls / bramka.</b> Konstrukcja „puls stawia wpis, bramka decyduje o wykonaniu” jest zaimplementowana zgodnie z ustaleniem: bramka wyłącznie łagodzi, wpisy <code>news</code>/<code>rekom</code>/<code>short</code>/<code>rezim</code> ją omijają. Problem nie leży w regule, tylko w danych, które do niej wchodzą.</li>
+</ul>
+</div>
+
+<h2>3. Cztery obszary do naprawy — w kolejności wagi</h2>
+
+<div class="f"><span class="tag">1 · KRYTYCZNE</span><h3>Bot zamyka i natychmiast otwiera tę samą pozycję — 63 razy w miesiącu</h3>
+<p>W eksporcie jest <b>63 par</b> „CLOSED + OPENED tego samego instrumentu w tej samej sekundzie”. Od 21.09 dzieje się to <b>w każdym biegu i na prawie każdej pozycji</b>: bieg 13:45 zamyka pięć pozycji i otwiera je na nowo, bieg 17:05 zamyka osiem i otwiera osiem. To nie jest rotacja koszyka — koszyk się nie zmienił. To <code>REBALANCE</code>: kod nie potrafi zmienić wielkości pozycji, więc ją zamyka i otwiera w nowym rozmiarze (<code>app.py:1410–1417</code>).</p>
+<p><b>Ile to kosztuje — liczone z eksportu, nie szacowane.</b> Dla każdej pary policzyłem różnicę między ceną zamknięcia a ceną ponownego otwarcia w tej samej sekundzie. To jest zapłacony spread:</p>
+<div class="tw"><table>
+<thead><tr><th>Okres</th><th>Koszt</th><th>% kapitału</th><th>Na sesję</th></tr></thead>
+<tbody>
+<tr><th>Cały miesiąc (63 pary)</th><td class="m neg">−11,82 USD</td><td class="m">1,10%</td><td class="m">—</td></tr>
+<tr><th>Faza pełnego churnu 21–25.09</th><td class="m neg">−11,10 USD</td><td class="m">1,04%</td><td class="m neg">−2,22 USD = 0,21%</td></tr>
+<tr><th>Ekstrapolacja: miesiąc (21 sesji)</th><td class="m neg">−46,6 USD</td><td class="m neg">−4,4%</td><td class="m">—</td></tr>
+<tr><th>Ekstrapolacja: rok (252 sesje)</th><td class="m neg">—</td><td class="m neg">−52%</td><td class="m">—</td></tr>
+</tbody></table></div>
+<p>Dla porównania: <b>cały zysk miesiąca to +72 USD</b>. Tempo z ostatnich pięciu sesji zjada 47 USD miesięcznie, czyli dwie trzecie wyniku. Obrót księgi wyniósł <b>14 754 USD przy kapitale 1 070 USD</b> — czternastokrotność kapitału w 30 dni.</p>
+<p><b>Gdzie boli najbardziej.</b> Koszt nie rozkłada się równo — dwie najtańsze spółki w koszyku odpowiadają za 49% rachunku, bo ich spread jest najszerszy <i>względnie</i>:</p>
+<div class="tw"><table>
+<thead><tr><th>Spółka</th><th>Śr. spread na parę</th><th>Koszt miesięczny</th><th>Udział</th></tr></thead>
+<tbody>
+<tr><th>SBUX</th><td class="m neg">0,328%</td><td class="m neg">−3,07 USD</td><td class="m">26%</td></tr>
+<tr><th>CMCSA</th><td class="m neg">0,312%</td><td class="m neg">−2,73 USD</td><td class="m">23%</td></tr>
+<tr><th>MRVL</th><td class="m">0,153%</td><td class="m">−1,45 USD</td><td class="m">12%</td></tr>
+<tr><th>APP</th><td class="m">0,179%</td><td class="m">−1,38 USD</td><td class="m">12%</td></tr>
+<tr><th>ADSK</th><td class="m">0,251%</td><td class="m">−1,23 USD</td><td class="m">10%</td></tr>
+<tr><th>AVGO · INTU · AMD · reszta</th><td class="m">0,076–0,168%</td><td class="m">−1,96 USD</td><td class="m">17%</td></tr>
+</tbody></table></div>
+<p><b>Co zrobić.</b> Pasmo tolerancji <code>REBALANCE_TOL_MIN</code> = 0,12 jest za wąskie wobec tego, co kosztuje jego przekroczenie. Trzy zmiany, każda osobno sensowna:</p>
+<ul class="lst">
+<li><b>Nie wyrównuj, dopóki różnica nie przekracza kilkukrotności spreadu.</b> Najprościej: podnieść <code>REBALANCE_TOL_MIN</code> z 0,12 do ok. 0,30 i zostawić <code>REBALANCE_TOL</code> 0,35. Wyrównanie o 15% wielkości pozycji kosztuje dziś 0,3% jej wartości — to się nie zwraca.</li>
+<li><b>Wyrównuj najwyżej raz dziennie</b> (w biegu 17:05), a bieg 13:45 zostaw wyłącznie dla otwarć, zamknięć i reakcji. Połowa par znika bez żadnej zmiany w logice.</li>
+<li><b>Próg minimalnej wartości transakcji.</b> Nie ruszaj pozycji, jeśli zmiana jest warta mniej niż np. 25 USD — to odcina drobne korekty na CMCSA i SBUX, gdzie krok wielkości jest gruby względem ceny.</li>
+</ul>
+</div>
+
+<div class="f"><span class="tag">2 · KRYTYCZNE</span><h3>Churn kasuje cenę wejścia — bramka reakcji i stop-loss są martwe</h3>
+<p>To jest skutek uboczny punktu 1 i realnie ważniejszy od samego kosztu. Funkcja <code>ceny_wejscia()</code> (<code>app.py:881–903</code>) buduje mapę cen wejścia <b>z poziomów otwarcia u brokera</b>, dając im pierwszeństwo przed <code>signals.json</code> — słusznie, bo to fakt. Ale skoro pozycja jest otwierana na nowo w każdym biegu, <b>„fakt” ma kilka godzin</b>. Efekt łańcuchowy:</p>
+<ul class="lst">
+<li><b>Bramka reakcji</b> (<code>REACT_REDUCE_PCT</code> 4% / <code>REACT_CLOSE_PCT</code> 8%) mierzy ruch od ceny wejścia. Przy wejściu sprzed kilku godzin ruch wynosi ułamek procenta, więc bramka zawsze zwraca „BRAK”. Widać to w każdym powiadomieniu: <b><code>↓ bramka x4</code> w 20 biegach z rzędu</b> — cztery wpisy <code>exclude</code> łagodzone do zera, dzień po dniu. Pięć reakcji, które puls postawił 15–17.09, <b>nie zostało wykonanych ani razu</b>.</li>
+<li><b>Stop-loss</b> <code>STOP_LOSS_PCT</code> = 10% też liczy od ceny wejścia. Przy wejściu resetowanym dwa razy dziennie stop może się uruchomić wyłącznie przy luce &gt;10% między biegami. <b>Praktycznie nie mamy stop-lossa.</b></li>
+<li><b>Kolumna „zwrot od wejścia” w raportach dziennych i pole <code>spread_fills_pp</code></b> mierzą godziny, nie tydzień. Moja własna interpretacja w raportach 24–28.09 — że portfel „został złożony 25.09” i stąd zwroty bliskie zeru — <b>była błędna</b>: portfel jest rozbierany i składany dwa razy dziennie, a 25.09 to po prostu data ostatniego składania. Narracja o „koszcie opóźnienia między publikacją koszyka a złożeniem portfela” nie miała podstaw i wycofuję ją.</li>
+</ul>
+<p><b>Co zrobić.</b> Rozdzielić dwa różne pojęcia, które dziś są jednym polem:</p>
+<ul class="lst">
+<li><code>cena_wejscia_brokera</code> — poziom otwarcia bieżącej pozycji, do rachunku P/L. Zostaje jak jest.</li>
+<li><code>cena_odniesienia_tezy</code> — cena pierwszego wejścia w daną tezę, <b>przenoszona przez wyrównania</b> i kasowana dopiero przy faktycznym zamknięciu pozycji albo sobotniej rotacji. Bramka, stop-loss i kolumna „zwrot od wejścia” mają czytać <b>to</b> pole.</li>
+</ul>
+<p>Technicznie to kilka linii: przy wyrównaniu nie nadpisuj <code>fills[t]["cena"]</code>, tylko zachowaj poprzednią wartość i datę (dziś <code>ceny_wejscia()</code> bezwarunkowo nadpisuje wpis z <code>signals.json</code> wpisem od brokera). Alternatywa minimalna, jeśli nie chcesz ruszać struktury: wyłączyć nadpisywanie, gdy nowa data wejścia jest późniejsza niż <code>d0.date</code> <b>i</b> pozycja nie zmieniła kierunku.</p>
+</div>
+<div class="f w"><span class="tag">3 · WAŻNE</span><h3>Pozycja koszykowa to ~6,5% kapitału, a nie 26% — system chodzi na ćwiartce mocy</h3>
+<p>Deklarujemy w stopce każdego raportu: pozycja koszykowa 26% kapitału, taktyczna 10%. Faktyczne wielkości z ostatniego biegu (25.09 17:05):</p>
+<div class="tw"><table>
+<thead><tr><th>Pozycja</th><th>Wielkość</th><th>Wartość</th><th>% kapitału</th><th>Cel</th></tr></thead>
+<tbody>
+<tr><th>AMD</th><td class="m">0,10</td><td class="m">63,0 USD</td><td class="m neg">5,9%</td><td class="m">26%</td></tr>
+<tr><th>AVGO</th><td class="m">0,20</td><td class="m">70,6 USD</td><td class="m neg">6,6%</td><td class="m">26%</td></tr>
+<tr><th>MRVL</th><td class="m">0,30</td><td class="m">79,9 USD</td><td class="m neg">7,5%</td><td class="m">26%</td></tr>
+<tr><th>INTU</th><td class="m">−0,26</td><td class="m">71,6 USD</td><td class="m neg">6,7%</td><td class="m">26%</td></tr>
+<tr><th>SBUX · CMCSA · APP · ADSK</th><td class="m">—</td><td class="m">62,5–75,4 USD</td><td class="m neg">5,8–7,0%</td><td class="m">26%</td></tr>
+<tr><th>MU (niesiony od 27.08)</th><td class="m">0,10</td><td class="m">108,2 USD</td><td class="m neg">10,1%</td><td class="m">26%</td></tr>
+<tr><th>AKAM (taktyczna)</th><td class="m">0,90</td><td class="m">104,8 USD</td><td class="m pos">9,8%</td><td class="m">10%</td></tr>
+<tr><th><b>Razem brutto</b></th><td class="m">—</td><td class="m">765 USD</td><td class="m neg"><b>71%</b></td><td class="m"><b>270%</b></td></tr>
+</tbody></table></div>
+<p><b>Dlaczego.</b> W <code>app.py:1294–1317</code> limit depozytowy przycina <code>ALLOC_PCT</code> proporcjonalnie: <span class="m">max_brutto = kapitał × MARGIN_BUDGET / stopa</span>, gdzie <code>MARGIN_BUDGET</code> = 0,60, a <code>stopa</code> to <b>wyliczony z rachunku</b> stosunek depozytu do ekspozycji. Osiągnięta ekspozycja 660–765 USD jest praktycznie równa budżetowi depozytu (0,60 × 1 070 = <b>642 USD</b>), co oznacza, że bot wylicza <code>stopa</code> ≈ 1,0 — czyli <b>„każdy dolar ekspozycji wymaga dolara depozytu”</b>. Kod na to pozwala, bo warunek brzmi <code>if 0.01 &lt;= wyliczona &lt;= 1.0</code>. Przy takiej stopie cel 270% zostaje przycięty do ok. 60%, czyli alokacja koszykowa spada z 0,26 do ok. 0,06 — dokładnie to widać w wielkościach.</p>
+<p><b>Sygnał potwierdzający:</b> pozycja taktyczna AKAM ma pełne 9,8%, bo w <code>cel_brutto_dla()</code> taktyczne biorą <code>TACTICAL_ALLOC_PCT</code> wprost i nie są mnożone przez przyciętą <code>alloc</code>. Gdyby problemem był brak wolnych środków, przycięłoby też ją.</p>
+<p><b>Ile to kosztuje.</b> Spread koszyka W4 od D0 wyniósł <b>+15,97 p.p.</b> Przy 10 pozycjach:</p>
+<div class="tw"><table>
+<thead><tr><th>Alokacja na pozycję</th><th>Wynik portfela z W4</th><th>Komentarz</th></tr></thead>
+<tbody>
+<tr><th>26% (deklarowana)</th><td class="m pos">+20,8% kapitału</td><td>…i proporcjonalnie głębsze obsunięcie</td></tr>
+<tr><th>~6,5% (faktyczna)</th><td class="m">+5,2% kapitału</td><td>zgodne z tym, co widać na rachunku</td></tr>
+</tbody></table></div>
+<p><b>Co zrobić — i czego nie robić.</b> Nie „podnosić alokacji, bo działa”. Czterokrotny wzrost ekspozycji to czterokrotnie głębsze obsunięcie: dołek 14.09 (−4,56%) zrobiłby się −18%, a próg kill switcha −25% byłby realnie w zasięgu jednej złej sesji. Kolejność powinna być taka:</p>
+<ul class="lst">
+<li><b>Najpierw zdiagnozować jedną liczbę.</b> Odpalić <code>/run</code> i odczytać z JSON-a blok <code>limit_depozytowy</code>: pola <code>stopa_depozytu</code> i <code>zrodlo</code>. Jeśli pokaże „wyliczona z rachunku” i wartość bliską 1,0 — hipoteza potwierdzona i wiadomo, że to kwestia tego, jak rachunek DEMO raportuje depozyt, a nie błędu w arytmetyce.</li>
+<li><b>Potem uzgodnić deklarację z rzeczywistością.</b> Albo poprawić wyliczanie <code>stopa</code> (np. odrzucać wartości &gt; 0,5 jako niewiarygodne i schodzić na <code>MARGIN_RATE_FALLBACK</code> 0,20), albo — bezpieczniej na start — <b>zostawić faktyczną ekspozycję i zmienić deklarowane <code>ALLOC_PCT</code> na to, co system naprawdę robi</b>. Dziś stopka raportu mówi „1 p.p. zwrotu pozycji = 0,26 p.p. kapitału”, a prawda to 0,065 — każde przeliczenie punktów na dolary jest czterokrotnie zawyżone.</li>
+<li><b>Dopiero na końcu, świadomie, wybrać docelowy poziom ryzyka</b> — i zmieniać go stopniowo, <code>MAX_EXPOSURE_STEP</code> = 0,25 właśnie po to jest.</li>
+</ul>
+</div>
+
+<div class="f w"><span class="tag">4 · WAŻNE</span><h3>Rutyna sobotnia nie wystartowała od dwóch tygodni</h3>
+<p>W repo są raporty tygodniowe <code>W1</code>–<code>W4</code> i nic więcej. <code>signals.json</code> nadal ma <code>version: "2026-W4"</code> i <code>d0.date: "2026-09-11"</code>, a <code>history</code> kończy się na <code>2026-W3</code>. Sobota 19.09 i sobota 26.09 <b>nie zrobiły rotacji</b>. Skutki są realne, nie kosmetyczne:</p>
+<ul class="lst">
+<li><b>Koszyk W4 pracuje 17 dzień zamiast 5.</b> Prognoza tygodniowa jest z założenia tygodniowa; trzymanie jej trzy tygodnie to inna strategia niż ta, którą testujemy.</li>
+<li><b>Reguła „raz zredukowana zostaje do soboty” zamieniła się w „do odwołania”.</b> Pięć wpisów z 15–17.09 wisi już dwa tygodnie. LITE ma CLOSE postawiony przy 835,03 i kosztuje dziś 941,65 — gdyby bramka działała (punkt 2), ten wpis zostałby wykonany i strata byłaby realna.</li>
+<li><b>Brak wpisów <code>W4</code>, <code>W5</code> w <code>history</code></b> oznacza, że nie mamy serii <code>spread_pp</code> / <code>spread_fills_pp</code> / <code>reaction_pp</code> za ostatnie dwa tygodnie — czyli nie da się rozliczyć skuteczności reakcji, co jest jedynym sposobem sprawdzenia, czy protokół wyzwalaczy w ogóle zarabia.</li>
+</ul>
+<p><b>Co zrobić.</b> Sprawdzić, czy zadanie sobotnie w ogóle jest zaplanowane i czy się nie wywraca po cichu. To jedyna pozycja na tej liście, której nie umiem zdiagnozować z dostarczonych plików — log Render pokazuje wyłącznie biegi <code>/run</code> bota (cron-job.org, 13:45 i 17:05), nie ma w nim śladu rutyny tygodniowej.</p>
+</div>
+
+<div class="f w"><span class="tag">5 · DROBNE</span><h3>Weekendowe biegi bota kończą się błędem</h3>
+<p>Trzy z czterech biegów weekendowych raportują <code>błędy: 1</code> przy <code>akcje: 0 | pominięte: 14</code> (26.09 13:45, 27.09 13:45, 27.09 17:05). Bieg 26.09 17:05 z <code>pominięte: 15</code> ma <code>błędy: 0</code> — czyli jedna pozycja przy zamkniętym rynku ląduje raz w „pominięte”, raz w „błędy”, zależnie od tego, czy broker odpowiedział statusem rynku, czy rzucił wyjątkiem.</p>
+<p>Nie ma to wpływu na handel (weekend, nic się nie dzieje), ale zaszumia jedyny kanał, w którym błąd ma coś znaczyć. W <code>app.py:1442–1452</code> ścieżka „rynek zamknięty” jest już obsłużona jako pominięcie; wystarczy złapać wyjątek <code>requests.HTTPError</code> dla rynku o statusie innym niż otwarty i skierować go tam samo. <b>Albo</b> — prościej i taniej — nie odpalać crona w soboty i niedziele.</p>
+</div>
+
+<h2>4. Rekomendacje w kolejności zwrotu z pracy</h2>
+<div class="tw"><table>
+<thead><tr><th>#</th><th>Zmiana</th><th>Efekt</th><th>Ryzyko wdrożenia</th></tr></thead>
+<tbody>
+<tr><th>1</th><td style="text-align:left">Szersze pasmo wyrównywania + wyrównywanie raz dziennie + próg min. 25 USD</td><td class="m pos">+4% kapitału/mies.</td><td>niskie — trzy stałe</td></tr>
+<tr><th>2</th><td style="text-align:left">Osobne pole „cena odniesienia tezy”, nieresetowane przy wyrównaniu</td><td>ożywia bramkę <b>i</b> stop-loss</td><td>niskie — kilka linii w <code>ceny_wejscia()</code></td></tr>
+<tr><th>3</th><td style="text-align:left">Diagnoza <code>stopa_depozytu</code> z <code>/run</code>, potem decyzja o poziomie ryzyka</td><td>zamyka lukę 26% → 6,5%</td><td><b>wysokie</b> — zmienia skalę strat</td></tr>
+<tr><th>4</th><td style="text-align:left">Przywrócić rutynę sobotnią (rotacja + <code>history</code>)</td><td>odblokowuje rozliczanie reakcji</td><td>niskie</td></tr>
+<tr><th>5</th><td style="text-align:left">Weekendowy cron wyłączony albo błąd przekwalifikowany na pominięcie</td><td>czysty kanał błędów</td><td>zerowe</td></tr>
+</tbody></table></div>
+
+<div class="note">
+<b>Jedno zastrzeżenie do wszystkich liczb wyniku.</b> Miesiąc to 20 sesji, a przewaga +3,24 p.p. pochodzi w dużej mierze z jednej pozycji: MU, niesionej od 27.08 i jedynej, której churn nie dotknął (brak choćby jednego wiersza <code>OPENED</code>/<code>CLOSED</code> w całym eksporcie — 30 wierszy <code>SWAP</code> pod rząd). Jej niezrealizowany zysk to +16,9 USD z +72 USD wyniku okresu. To za mało danych, żeby mówić o przewadze strategii; to wystarczająco dużo, żeby mówić o defektach implementacji, bo te widać w każdej sesji.
+</div>
+
+<h2>5. Metodyka i źródła</h2>
+<ul class="lst">
+<li><b>Kapitał.</b> Odtworzony jako <span class="m">1000 + zrealizowany + niezrealizowany</span> z eksportu 447 transakcji. Otwarte pozycje wyceniane po cenach z wierszy <code>SWAP</code> (broker dopisuje je codziennie o 21:00 UTC dla każdej otwartej pozycji, więc są zarazem spisem stanu i wyceną). Wejścia pozycji przeniesionych sprzed 29.08 wyliczone wstecz z <code>rpl</code> pierwszego zamknięcia; dla MU wzięte z <code>signals.json</code> (913,35 z 27.08). <b>Kontrola:</b> metoda odtwarza „kapitał prawdziwy” z rozliczenia 27.08–18.09 z dokładnością do 1 USD w 5 z 6 punktów i zgadza się z logiem Render w granicach 8 USD (różnica wyceny śródsesyjnej 13:05 NY wobec EOD).</li>
+<li><b>Benchmark.</b> ^NDX, zamknięcia dzienne, Yahoo chart API, odczyt 28.09.2026. Baza 28.08.2026 = 29 433,43. Ostatni punkt 25.09.2026 = 30 608,13 — ostatnia zakończona sesja; dzisiejsza sesja 28.09 jeszcze trwa i nie wchodzi do żadnej liczby.</li>
+<li><b>Koszt churnu.</b> Dla każdej pary CLOSED+OPENED tego samego instrumentu w tej samej sekundzie: <span class="m">|cena_otwarcia − cena_zamknięcia| × wielkość</span>. To bezpośredni pomiar zapłaconego spreadu, bez zakładania cennika brokera. Kolumna <code>Fee</code> w eksporcie jest zerowa (suma +0,30 USD, wyłącznie korekta przy dywidendzie NVDA) — Capital.com pobiera koszt w spreadzie, nie w prowizji, więc pomiar z cen jest jedynym możliwym.</li>
+<li><b>Czego tu nie ma.</b> Nie mam JSON-a z <code>/run</code>, więc bloków <code>limit_depozytowy</code>, <code>ogranicznik_tempa</code> i <code>slad_bramki</code> nie widziałem — hipoteza o <code>stopa</code> ≈ 1,0 opiera się na zgodności osiągniętej ekspozycji z budżetem depozytu (765 vs 642 USD) i na kodzie, nie na odczycie. To pierwsza rzecz do sprawdzenia. Log Render pokrywa 21–27.09; wcześniejsze biegi znam tylko z eksportu transakcji.</li>
+</ul>
+
+<footer>
+<p><b>Audyt NDX100</b> · okres 29.08–25.09.2026 · sporządzony 28.09.2026. Źródła: eksport transakcji lewarowanych 29.08–28.09.2026 (447 wierszy), log Render 21–27.09.2026, <code>app.py</code> i <code>signals.json</code> z gałęzi <code>main</code>, kursy ^NDX z Yahoo chart API.</p>
+<p>Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej ani oferty nabycia lub zbycia instrumentów finansowych. Rachunek DEMO. Opracowanie przygotowane automatycznie przez model AI; wszystkie liczby opatrzone źródłem i metodą, braki oznaczone wprost.</p>
+</footer>
+
+</div>
+</body></html>
