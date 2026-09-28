@@ -217,52 +217,34 @@
     "KHC": "KHC"
   },
   "fills": {
-    "INTU": {
-      "cena": 275.56,
-      "kierunek": "SELL",
-      "wielkosc": 0.26,
-      "data": "2026-09-25"
-    },
-    "AMD": {
-      "cena": 630.37,
-      "kierunek": "BUY",
-      "wielkosc": 0.1,
-      "data": "2026-09-25"
-    },
     "ADSK": {
       "cena": 211.55,
       "kierunek": "SELL",
       "wielkosc": 0.3,
       "data": "2026-09-25"
     },
-    "AVGO": {
-      "cena": 352.92,
-      "kierunek": "BUY",
-      "wielkosc": 0.2,
-      "data": "2026-09-25"
-    },
-    "CMCSA": {
-      "cena": 21.79,
-      "kierunek": "SELL",
-      "wielkosc": 3.0,
-      "data": "2026-09-25"
-    },
     "SBUX": {
-      "cena": 94.29,
+      "cena": 94.73,
       "kierunek": "SELL",
-      "wielkosc": 0.8,
-      "data": "2026-09-25"
+      "wielkosc": 1.1,
+      "data": "2026-09-28"
     },
     "MRVL": {
-      "cena": 266.25,
+      "cena": 253.45,
       "kierunek": "BUY",
-      "wielkosc": 0.3,
-      "data": "2026-09-25"
+      "wielkosc": 0.2,
+      "data": "2026-09-28"
     },
     "APP": {
-      "cena": 312.33,
+      "cena": 310.98,
       "kierunek": "SELL",
-      "wielkosc": 0.2,
+      "wielkosc": 0.3,
+      "data": "2026-09-28"
+    },
+    "INTU": {
+      "cena": 275.56,
+      "kierunek": "SELL",
+      "wielkosc": 0.26,
       "data": "2026-09-25"
     },
     "AKAM": {
@@ -270,6 +252,24 @@
       "kierunek": "BUY",
       "wielkosc": 0.9,
       "data": "2026-09-25"
+    },
+    "CMCSA": {
+      "cena": 21.56,
+      "kierunek": "SELL",
+      "wielkosc": 5.0,
+      "data": "2026-09-28"
+    },
+    "AMD": {
+      "cena": 612.82,
+      "kierunek": "BUY",
+      "wielkosc": 0.2,
+      "data": "2026-09-28"
+    },
+    "AVGO": {
+      "cena": 352.7,
+      "kierunek": "BUY",
+      "wielkosc": 0.3,
+      "data": "2026-09-28"
     },
     "MU": {
       "cena": 913.35,
