@@ -479,6 +479,107 @@ sprawdz("bramka nigdy nie dokłada reakcji z wlasnej inicjatywy",
         not closed and not reduced and not slad)
 
 
+# ------------------------- cena odniesienia tezy (audyt 28.09.2026) ---------
+# Wyrównanie wielkości musi zamknąć i otworzyć pozycję na nowo, więc poziom
+# otwarcia u brokera bywa sprzed kilku godzin. Bramka i stop-loss liczą od
+# ceny wejścia, więc nadpisywanie jej tym poziomem unieruchamiało oba
+# zabezpieczenia: "bramka x4" w dwudziestu biegach z rzędu i ani jedna
+# z pięciu reakcji z 15-17.09 nie została wykonana.
+print("\nCENA ODNIESIENIA TEZY — przeżywa wyrównanie wielkości")
+
+E2T = {t: t for t in BAZA["epics"]}
+
+
+def poz(epic, wejscie, kier="BUY", otwarta="2026-09-25T13:45:00", size=0.1):
+    return {"epic": epic, "direction": kier, "wejscie": wejscie,
+            "otwarta": otwarta, "size": size, "dealId": "d-" + epic}
+
+
+# 1. Pozycja zamknięta i otwarta na nowo w ramach wyrównania: broker podaje
+#    nowy poziom 1082,28, ale tezę zakładaliśmy po 913,35.
+s = sig(fills={"MU": {"cena": 913.35, "kierunek": "BUY", "data": "2026-08-27",
+                      "wersja": "2026-W4"}})
+f = app.ceny_wejscia(s, [poz("MU", 1082.28)], E2T)
+sprawdz("wyrownanie NIE kasuje ceny odniesienia",
+        f["MU"]["cena"] == 913.35, f["MU"])
+sprawdz("biezacy poziom brokera zachowany osobno",
+        f["MU"]["cena_brokera"] == 1082.28)
+sprawdz("data wejscia w teze tez przezywa",
+        f["MU"]["data"] == "2026-08-27")
+
+# 2. Bramka liczy od odniesienia, nie od poziomu z ostatniego wyrownania.
+#    MU 913,35 -> 822,00 to -10% przeciw tezie dlugiej: CLOSE ma przejsc.
+s2 = sig(exclude=[{"ticker": "MU", "action": "CLOSE", "basis": "cena"}],
+         fills={"MU": {"cena": 913.35, "kierunek": "BUY",
+                       "wersja": "2026-W4"}})
+closed, reduced, slad = app.bramka_reakcji(
+    s2, FakeCap({"MU": 822.0}), app.ceny_wejscia(s2, [poz("MU", 830.0)], E2T),
+    pusty_rep())
+sprawdz("bramka widzi strate liczona od odniesienia, nie od wyrownania",
+        "MU" in closed, f"c={closed} r={reduced}")
+
+# 3. Rotacja koszyka (zmiana version) kasuje odniesienie — nowy tydzien to
+#    nowa teza i nowa cena wejscia.
+s3 = sig(version="2026-W5",
+         fills={"MU": {"cena": 913.35, "kierunek": "BUY",
+                       "wersja": "2026-W4"}})
+f3 = app.ceny_wejscia(s3, [poz("MU", 1082.28)], E2T)
+sprawdz("rotacja koszyka resetuje cene odniesienia",
+        f3["MU"]["cena"] == 1082.28 and f3["MU"]["wersja"] == "2026-W5", f3)
+
+# 4. Odwrocenie kierunku tez kasuje odniesienie.
+s4 = sig(fills={"MU": {"cena": 913.35, "kierunek": "SELL",
+                       "wersja": "2026-W4"}})
+f4 = app.ceny_wejscia(s4, [poz("MU", 1082.28, kier="BUY")], E2T)
+sprawdz("zmiana kierunku resetuje cene odniesienia",
+        f4["MU"]["cena"] == 1082.28, f4)
+
+# 5. Wpis sprzed tej zmiany (bez pola "wersja") jest uznawany za wazny —
+#    migracja nie moze zgubic historycznych cen wejscia.
+s5 = sig(fills={"MU": {"cena": 913.35, "kierunek": "BUY"}})
+f5 = app.ceny_wejscia(s5, [poz("MU", 1082.28)], E2T)
+sprawdz("wpis sprzed migracji (bez pola wersja) zostaje zachowany",
+        f5["MU"]["cena"] == 913.35, f5)
+
+# 6. Pozycja bez wczesniejszego wpisu bierze poziom brokera.
+f6 = app.ceny_wejscia(sig(fills={}), [poz("AMD", 630.37)], E2T)
+sprawdz("pierwsze wejscie bierze poziom brokera",
+        f6["AMD"]["cena"] == 630.37 and "nowe" in f6["AMD"]["zrodlo"], f6)
+
+# 7. Stop-loss tez liczy od odniesienia: MU -12% od 913,35 przebija 10%,
+#    mimo ze od ostatniego wyrownania po 1000,00 spadek to tylko -3,7%.
+s7 = sig(fills={"MU": {"cena": 913.35, "kierunek": "BUY",
+                       "wersja": "2026-W4"}})
+f7 = app.ceny_wejscia(s7, [poz("MU", 1000.0)], E2T)
+traf = app.stopy_bezpieczenstwa([poz("MU", 1000.0)], f7, E2T,
+                                FakeCap({"MU": 803.75}), pusty_rep())
+sprawdz("stop-loss liczy od odniesienia, nie od ostatniego wyrownania",
+        "MU" in traf, traf)
+
+
+# ----------------------- prog oplacalnosci wyrownania -----------------------
+# Kazde wyrownanie kosztuje pelny spread pozycji (zmierzone: 0,33% na SBUX,
+# 0,31% na CMCSA, 11,82 USD w miesiac). Domyslne progi maja te drobne
+# korekty odciac.
+print("\nPROGI ANTY-CHURNOWE")
+sprawdz("prog minimalnej wartosci wyrownania jest ustawiony",
+        app.MIN_REBALANCE_ACC >= 25, app.MIN_REBALANCE_ACC)
+sprawdz("dolne pasmo tolerancji podniesione z 0,12",
+        app.REBALANCE_TOL_MIN >= 0.30, app.REBALANCE_TOL_MIN)
+sprawdz("pasmo dolne nie przekracza gornego",
+        app.REBALANCE_TOL_MIN <= app.REBALANCE_TOL)
+sprawdz("wyrownywanie domyslnie tylko w jednym oknie doby",
+        len([g for g in app.REBALANCE_HOURS.split(",") if g.strip()]) == 1,
+        app.REBALANCE_HOURS)
+
+# Straznik stopy depozytu: domyslnie nic nie zmienia (1.0 = zachowanie
+# sprzed audytu), ale nizsza wartosc odrzuca niewiarygodny odczyt.
+sprawdz("straznik stopy depozytu domyslnie nie zmienia zachowania",
+        app.MARGIN_RATE_MAX == 1.0, app.MARGIN_RATE_MAX)
+sprawdz("ostrzezenie o wieku koszyka wlaczone",
+        app.ROTATION_MAX_DNI > 0, app.ROTATION_MAX_DNI)
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)

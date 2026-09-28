@@ -57,7 +57,11 @@ Nowe (wszystkie mają sensowne domyślne — ustaw tylko to, co chcesz zmienić)
 | `MAX_EXPOSURE_STEP` | `0.25` | O ile najwyżej mogą urosnąć w JEDNYM biegu pozycje już niesione. `0` wyłącza. |
 | `MARGIN_BUDGET` | `0.60` | Jaka część kapitału może być najwyżej zamrożona w depozycie zabezpieczającym. |
 | `MARGIN_RATE_FALLBACK` | `0.20` | Stopa depozytu przyjmowana, gdy nie da się jej wyliczyć z rachunku. |
-| `REBALANCE_TOL_MIN` | `0.12` | Dolna granica pasma tolerancji wielkości pozycji. |
+| `REBALANCE_TOL_MIN` | `0.30` | Dolna granica pasma tolerancji wielkości pozycji. **Podniesione z `0.12` po audycie 28.09.2026** — patrz rozdział 10. |
+| `MIN_REBALANCE_ACC` | `25` | Minimalna wartość korekty wielkości (w walucie rachunku). Poniżej progu bot nie rusza pozycji, bo spread za wyrównanie jest droższy niż korekta. |
+| `REBALANCE_HOURS` | `17` | Godziny UTC, w których bot wyrównuje wielkości pozycji (lista po przecinku; puste = w każdym biegu). Otwarcia, zamknięcia, reakcje i stopy działają w każdym biegu niezależnie od tego ustawienia. |
+| `MARGIN_RATE_MAX` | `1.0` | Górna granica wiarygodności stopy depozytu wyliczonej z rachunku. `1.0` = zachowanie sprzed audytu. Niższa wartość (np. `0.5`) każe odrzucić niewiarygodny odczyt i zejść na `MARGIN_RATE_FALLBACK`. **Zwiększa ekspozycję kilkukrotnie — zmieniaj dopiero po odczytaniu diagnozy z `/run`.** |
+| `ROTATION_MAX_DNI` | `9` | Po ilu dniach od `d0` bot ostrzega, że rutyna tygodniowa nie wystartowała. `0` wyłącza ostrzeżenie. |
 | `KURSY_LIMIT_CZASU` | `600` | Budżet czasu dla `scripts/kursy.py` (sekundy). |
 | `KURSY_UA` | — | Własny User-Agent dla Yahoo, próbowany jako pierwszy. |
 
@@ -336,3 +340,98 @@ zachowanie nie zmieniło się przypadkiem.
 - Zachowania bez pola `fills` w `signals.json`: dopóki bot nie zapisze cen
   wejścia, bramka przepuszcza wpisy pulsu bez zmian, czyli system działa
   dokładnie jak przed poprawką.
+
+---
+
+## 10. Audyt miesiąca (28.09.2026) — cztery poprawki w kodzie
+
+Pełny raport: `reports/audyt-2026-09-28.html`. Wynik okresu 29.08–25.09.2026:
+kapitał 1 000 → 1 072,32 USD (**+7,23%**) wobec ^NDX **+3,99%**, przewaga
+**+3,24 p.p.** przy becie 0,51. Poniżej to, co audyt wykrył i co zostało
+zmienione w kodzie.
+
+### 10.1. Churn — bot zamykał i otwierał tę samą pozycję
+
+W eksporcie transakcji jest **63 par „CLOSED + OPENED tego samego
+instrumentu w tej samej sekundzie"**; od 21.09 działo się to w każdym biegu.
+To nie była rotacja koszyka, tylko wyrównywanie wielkości: Capital.com nie
+zmienia wielkości pozycji w miejscu, więc kod ją zamyka i otwiera na nowo.
+
+Koszt zmierzony wprost z cen (różnica między ceną zamknięcia a ceną
+ponownego otwarcia): **11,82 USD = 1,1% kapitału w miesiąc**, a w fazie
+pełnego churnu **0,21% kapitału na sesję**, czyli ok. **4,4% miesięcznie**
+przy wyniku +7,2%. Obrót księgi: 14 754 USD przy kapitale 1 070 USD.
+Najdroższe są tanie spółki — SBUX 0,328% i CMCSA 0,312% na parę, wobec
+AVGO 0,088%; SBUX i CMCSA to 49% rachunku.
+
+**Zmiana:** `REBALANCE_TOL_MIN` z `0.12` na `0.30`, nowy próg
+`MIN_REBALANCE_ACC` = 25 (nie ruszamy pozycji dla korekty wartej mniej niż
+25 USD) i nowe okno `REBALANCE_HOURS` = `17` (wyrównywanie tylko w biegu
+17:05 UTC). Otwarcia, zamknięcia, reakcje i stopy działają w każdym biegu.
+
+### 10.2. Churn kasował cenę wejścia — bramka i stop-loss były martwe
+
+To skutek uboczny 10.1 i realnie ważniejszy od samego kosztu.
+`ceny_wejscia()` bezwarunkowo nadpisywała cenę z `signals.json` poziomem
+otwarcia u brokera. Skoro pozycja była otwierana na nowo w każdym biegu,
+„cena wejścia" miała kilka godzin. Skutki:
+
+- bramka reakcji (4% / 8%) zawsze widziała ruch bliski zeru i zwracała
+  „BRAK" — w logu **`↓ bramka x4` w dwudziestu biegach z rzędu**, a pięć
+  reakcji postawionych 15–17.09 **nie wykonało się ani razu**;
+- `STOP_LOSS_PCT` = 10% mógł zadziałać wyłącznie przy luce >10% między
+  biegami, czyli praktycznie nigdy;
+- kolumna „zwrot od wejścia" w raporcie dziennym i pole `spread_fills_pp`
+  mierzyły godziny, nie tydzień.
+
+**Zmiana:** `signals.json` → `fills` niesie teraz **cenę odniesienia tezy**,
+a nie poziom otwarcia u brokera. Cena przeżywa wyrównanie i kasuje się tylko
+przy: zmianie kierunku pozycji, rotacji koszyka (poznawanej po zmianie
+`version`, zapisywanej w nowym polu `fills[TICKER].wersja`) albo pierwszym
+otwarciu pozycji. Bieżący poziom brokera idzie do nowego pola
+`fills[TICKER].cena_brokera` — do rachunku P/L i diagnostyki. Wpis bez pola
+`wersja` (sprzed tej zmiany) jest uznawany za ważny, więc migracja niczego
+nie gubi. Osiem testów w sekcji „CENA ODNIESIENIA TEZY".
+
+### 10.3. Alokacja 6,5% zamiast deklarowanych 26%
+
+Ekspozycja brutto wynosiła 765 USD wobec celu 2 890 USD (10 × 26% + 10%
+taktyczna). Osiągnięta ekspozycja była praktycznie równa budżetowi depozytu
+(0,60 × 1 070 = 642 USD), co znaczy, że bot wyliczał stopę depozytu bliską
+**1,0** — „dolar ekspozycji wymaga dolara depozytu". Warunek w kodzie
+(`0.01 <= wyliczona <= 1.0`) taki odczyt przepuszczał, a limit przycinał
+`ALLOC_PCT` proporcjonalnie: z 0,26 do ok. 0,06. W powiadomieniach widać to
+jako `poz. 6.7%` i `poz. 12.5%` zamiast 26%.
+
+**Zmiana — celowo bez wpływu na zachowanie.** Nowa zmienna
+`MARGIN_RATE_MAX` (domyślnie `1.0`, czyli dokładnie jak dotąd) pozwala
+odrzucić niewiarygodny odczyt. Bot **diagnozuje** problem sam: blok
+`limit_depozytowy` w odpowiedzi `/run` ma teraz pola `stopa_wyliczona`,
+`stopa_odrzucona`, `realizacja_celu` i `alloc_pct_faktyczny`, a gdy cel jest
+osiągalny w mniej niż 90%, do „pominiętych" trafia linia `UWAGA ALOKACJA`,
+a do powiadomienia znacznik `↘ alokacja X%/26%`.
+
+Podniesienie alokacji **czterokrotnie zwiększa też obsunięcia** — dołek
+14.09 (−4,56%) zrobiłby się ok. −18%, a próg kill switcha −25% byłby
+w zasięgu jednej złej sesji. Dlatego domyślna wartość niczego nie zmienia
+i decyzja należy do właściciela rachunku (patrz instrukcja wdrożenia).
+
+### 10.4. Rutyna tygodniowa nie wystartowała — bot o tym nie mówił
+
+Soboty 19.09 i 26.09 nie zrobiły rotacji: w repo są raporty `W1`–`W4`
+i nic więcej, `signals.json` nadal ma `version: 2026-W4` i `d0: 2026-09-11`,
+a `history` kończy się na `2026-W3`. Koszyk pracował 17. dzień zamiast 5.,
+a reguła „raz zredukowana zostaje do soboty" zamieniła się w „do odwołania".
+
+**Zmiana:** nowa zmienna `ROTATION_MAX_DNI` (domyślnie 9). Po przekroczeniu
+bot dopisuje `UWAGA ROTACJA` do „pominiętych", wystawia blok `wiek_koszyka`
+w odpowiedzi `/run` i znacznik `⏳ koszyk N dni` w powiadomieniu. Bot nie
+umie rotacji wymusić — ma o niej przypominać.
+
+### 10.5. Weekendowe biegi kończyły się błędem
+
+Trzy z czterech biegów weekendowych raportowały `błędy: 1` przy
+`akcje: 0`. Ta sama sytuacja — brak wyceny rynku — raz kończyła się statusem
+(POMINIĘCIE), a raz wyjątkiem `requests.HTTPError` (BŁĄD). **Zmiana:** brak
+wyceny rynku w pętli otwarć jest teraz zawsze pominięciem; kanał „błędy"
+zostaje dla rzeczy, które wymagają reakcji człowieka.

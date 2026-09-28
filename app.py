@@ -130,6 +130,17 @@ ALLOC_PCT_SAFE   = float(os.environ.get("ALLOC_PCT_SAFE", "0.10"))
 # wyliczyć, przyjmuje MARGIN_RATE_FALLBACK.
 MARGIN_BUDGET        = float(os.environ.get("MARGIN_BUDGET", "0.60"))
 MARGIN_RATE_FALLBACK = float(os.environ.get("MARGIN_RATE_FALLBACK", "0.20"))
+# GÓRNA GRANICA WIARYGODNOŚCI wyliczonej stopy depozytu. Audyt 28.09.2026
+# pokazał, że osiągnięta ekspozycja brutto (765 USD) była praktycznie równa
+# budżetowi depozytu (0,60 x 1 070 = 642 USD), co znaczy, że bot wyliczał
+# stopę bliską 1,0 - "dolar ekspozycji wymaga dolara depozytu". Przy takiej
+# stopie limit przycinał ALLOC_PCT z 0,26 do ok. 0,06 i pozycja koszykowa
+# wychodziła 6,5% kapitału zamiast deklarowanych 26%.
+# 1.0 = zachowanie sprzed audytu (ufamy każdej wyliczonej stopie).
+# Ustawienie np. 0.5 każe odrzucić niewiarygodnie wysoki odczyt i zejść na
+# MARGIN_RATE_FALLBACK. UWAGA: to ZWIĘKSZA ekspozycję kilkukrotnie, więc
+# zmieniaj dopiero po odczytaniu bloku "limit_depozytowy" z /run.
+MARGIN_RATE_MAX      = float(os.environ.get("MARGIN_RATE_MAX", "1.0"))
 MAX_OVERSHOOT    = float(os.environ.get("MAX_OVERSHOOT", "1.6"))
 START_EQUITY     = float(os.environ.get("START_EQUITY", "1000"))
 KILL_LEVEL       = float(os.environ.get("KILL_LEVEL", "0.75"))
@@ -189,6 +200,12 @@ STOP_LOSS_PCT    = float(os.environ.get("STOP_LOSS_PCT", "0.10"))
 # Zapis faktycznych cen wejścia do signals.json (pole "fills") — źródło
 # prawdy dla bramki wyzwalaczy i dla raportu dziennego.
 WRITE_FILLS      = os.environ.get("WRITE_FILLS", "true").lower() == "true"
+# PO ILU DNIACH OD D0 KOSZYK JEST PRZETERMINOWANY. Prognoza jest tygodniowa,
+# więc rotacja powinna przychodzić w sobotę. We wrześniu 2026 rutyna
+# sobotnia nie wystartowała dwa weekendy z rzędu (brak raportów W5 i W6,
+# history kończy się na 2026-W3) i koszyk 2026-W4 pracował 17 dzień zamiast
+# 5 - bot nie miał jak o tym powiedzieć. 0 = ostrzeżenie wyłączone.
+ROTATION_MAX_DNI = int(os.environ.get("ROTATION_MAX_DNI", "9"))
 # Pasmo tolerancji wyrównywania wielkości pozycji już otwartych. Poza pasmem
 # pozycja jest docinana/dokładana do celu; w paśmie zostawiamy ją w spokoju,
 # bo każde wyrównanie kosztuje drugi spread, a przy grubym kroku wielkości
@@ -207,7 +224,22 @@ MAX_EXPOSURE_STEP  = float(os.environ.get("MAX_EXPOSURE_STEP", "0.25"))
 # szerokie pasmo tylko trzyma pozycję daleko od celu. Stałe 0,35
 # powodowało, że po podwojeniu ALLOC_PCT pozycje zatrzymywały się ok. 29%
 # poniżej celu i deklarowana wielkość rozjeżdżała się z faktyczną.
-REBALANCE_TOL_MIN  = float(os.environ.get("REBALANCE_TOL_MIN", "0.12"))
+REBALANCE_TOL_MIN  = float(os.environ.get("REBALANCE_TOL_MIN", "0.30"))
+# MINIMALNA WARTOŚĆ WYRÓWNANIA. Wyrównanie nie da się zrobić inaczej niż
+# przez zamknięcie i ponowne otwarcie pozycji (Capital.com nie zmienia
+# wielkości w miejscu), więc każde kosztuje pełny spread. Audyt 28.09.2026
+# zmierzył go wprost, porównując cenę zamknięcia z ceną ponownego otwarcia
+# w TEJ SAMEJ sekundzie: 63 pary, 11,82 USD = 1,1% kapitału w miesiąc, a w
+# fazie pełnego churnu (21-25.09) 0,21% kapitału NA SESJĘ, czyli ok. 4,4%
+# miesięcznie przy wyniku +7,2%. Najgorsze są tanie spółki: SBUX 0,328% i
+# CMCSA 0,312% na parę wobec AVGO 0,088%. Poniżej tego progu korekta jest
+# warta mniej niż spread, który za nią płacimy.
+MIN_REBALANCE_ACC  = float(os.environ.get("MIN_REBALANCE_ACC", "25"))
+# GODZINY WYRÓWNYWANIA (UTC, lista po przecinku; puste = w każdym biegu).
+# Domyślnie tylko bieg 17:05 wyrównuje wielkości; bieg 13:45 robi wyłącznie
+# otwarcia, zamknięcia, reakcje i stopy. To samo z siebie połowi liczbę par
+# zamknij-otwórz, bez żadnej zmiany w logice doboru wielkości.
+REBALANCE_HOURS    = os.environ.get("REBALANCE_HOURS", "17")
 
 # Nazwa w powiadomieniach — bliźniacze boty (WIG20 / NDX100) piszą na ten sam
 # czat, więc etykieta musi mówić, KTÓRY bot zadziałał.
@@ -879,27 +911,67 @@ def rynek(cap, epic, rep, etykieta):
 
 
 def ceny_wejscia(sig, positions, epic2tic):
-    """Mapa ticker -> cena wejścia, z pozycji brokera i z signals.json.
+    """Mapa ticker -> CENA ODNIESIENIA TEZY (nie poziom otwarcia u brokera).
 
-    Pierwszeństwo ma poziom otwarcia u brokera (to fakt), signals.json jest
-    zapasem na wypadek, gdyby API nie podało pola level.
+    To są dwie różne rzeczy i pomylenie ich unieruchomiło bramkę reakcji
+    oraz stop-loss na cały wrzesień 2026. Wyrównanie wielkości pozycji musi
+    ją zamknąć i otworzyć na nowo (Capital.com nie zmienia wielkości
+    w miejscu), więc poziom otwarcia u brokera bywa sprzed kilku godzin.
+    Poprzednia wersja tej funkcji bezwarunkowo nadpisywała nim wpis
+    z signals.json, przez co:
+      * bramka mierzyła ruch od ceny sprzed jednego biegu i zawsze zwracała
+        "BRAK" - w logu widać "bramka x4" w dwudziestu biegach z rzędu,
+        a pięć reakcji postawionych 15-17.09 nie wykonało się ani razu;
+      * stop-loss 10% mógł się uruchomić wyłącznie przy luce >10% MIĘDZY
+        biegami, czyli praktycznie nigdy;
+      * kolumna "zwrot od wejścia" w raporcie mierzyła godziny, nie tydzień.
+
+    Teraz cena odniesienia PRZEŻYWA wyrównanie i kasuje się tylko wtedy,
+    gdy naprawdę przestaje opisywać tę samą tezę:
+      * zmiana kierunku pozycji,
+      * rotacja koszyka - poznajemy ją po zmianie sig["version"], którą
+        zapisujemy razem z ceną (wpis bez pola "wersja" pochodzi sprzed tej
+        zmiany i uznajemy go za ważny, żeby migracja nic nie zgubiła),
+      * brak wcześniejszego wpisu, czyli pozycja otwarta po raz pierwszy.
+
+    Pole "cena_brokera" niesie bieżący poziom otwarcia - do rachunku P/L
+    i do diagnostyki; bramka i stopy czytają "cena".
     """
+    wersja = str(sig.get("version") or "")
     fills = {}
     for t, f in (sig.get("fills") or {}).items():
         try:
             c = float((f or {}).get("cena"))
             if c > 0:
                 fills[t] = {"cena": c, "data": (f or {}).get("data"),
+                            "kierunek": (f or {}).get("kierunek"),
+                            "wersja": (f or {}).get("wersja"),
                             "zrodlo": "signals.json"}
         except (TypeError, ValueError):
             continue
     for p in positions:
         t = epic2tic.get(p["epic"])
-        if t and p.get("wejscie"):
-            fills[t] = {"cena": float(p["wejscie"]),
-                        "data": (p.get("otwarta") or "")[:10] or None,
+        if not t or not p.get("wejscie"):
+            continue
+        poziom = float(p["wejscie"])
+        data_b = (p.get("otwarta") or "")[:10] or None
+        stary = fills.get(t)
+        # Brak pola "wersja" = wpis sprzed tej zmiany; nie kasujemy go.
+        ta_sama_wersja = (not stary or not stary.get("wersja")
+                          or str(stary["wersja"]) == wersja)
+        ten_sam_kierunek = (not stary or not stary.get("kierunek")
+                            or stary["kierunek"] == p.get("direction"))
+        if stary and stary.get("cena") and ta_sama_wersja and ten_sam_kierunek:
+            fills[t] = {"cena": float(stary["cena"]),
+                        "data": stary.get("data") or data_b,
                         "kierunek": p.get("direction"),
-                        "zrodlo": "broker"}
+                        "wersja": stary.get("wersja") or wersja,
+                        "cena_brokera": poziom,
+                        "zrodlo": "teza (przeniesiona przez wyrównania)"}
+        else:
+            fills[t] = {"cena": poziom, "data": data_b,
+                        "kierunek": p.get("direction"), "wersja": wersja,
+                        "cena_brokera": poziom, "zrodlo": "broker (nowe wejście)"}
     return fills
 
 
@@ -1173,6 +1245,28 @@ def sync():
     fills = ceny_wejscia(sig, positions, epic2tic)
     rep["ceny_wejscia"] = fills
 
+    # WIEK KOSZYKA. Prognoza jest tygodniowa i rotacja ma przychodzić
+    # w sobotę. Gdy rutyna tygodniowa nie wystartuje, nic tego nie zgłasza:
+    # bot handluje dalej starym koszykiem, a reguła "raz zredukowana zostaje
+    # do soboty" zamienia się w "do odwołania". Bot nie ma jak rotacji
+    # wymusić, ale ma obowiązek o niej przypomnieć.
+    rep["wiek_koszyka"] = {"d0": (sig.get("d0") or {}).get("date"),
+                           "wersja": sig.get("version"), "dni": None,
+                           "przeterminowany": False}
+    try:
+        d0d = date.fromisoformat((sig.get("d0") or {})["date"])
+        dni = (date.today() - d0d).days
+        rep["wiek_koszyka"]["dni"] = dni
+        if ROTATION_MAX_DNI > 0 and dni > ROTATION_MAX_DNI:
+            rep["wiek_koszyka"]["przeterminowany"] = True
+            rep["pominiete"].append(
+                f"UWAGA ROTACJA: koszyk {sig.get('version')} ma {dni} dni od "
+                f"D0 ({d0d}), limit {ROTATION_MAX_DNI} — rutyna tygodniowa "
+                f"prawdopodobnie nie wystartowała. Reakcje w exclude też są "
+                f"zamrożone do najbliższej rotacji.")
+    except (KeyError, TypeError, ValueError):
+        pass
+
     def do_close(p, powod):
         if DRY_RUN:
             rep["akcje"].append(f"[DRY] ZAMKNIJ {p['direction']} "
@@ -1293,20 +1387,51 @@ def sync():
     # że po prostu zabrakło wolnego depozytu.
     stopa = MARGIN_RATE_FALLBACK
     zrodlo_stopy = f"założona {MARGIN_RATE_FALLBACK:.0%}"
+    wyliczona = odrzucona = None
     if snap.get("depozyt") and teraz_brutto > 0:
         wyliczona = snap["depozyt"] / teraz_brutto
-        if 0.01 <= wyliczona <= 1.0:
+        # Odczyt powyżej MARGIN_RATE_MAX znaczy "dolar ekspozycji wymaga
+        # dolara depozytu", czyli brak dźwigni. Na akcjach USA to nieprawda,
+        # a skutek jest dotkliwy: limit przycina ALLOC_PCT proporcjonalnie
+        # i pozycja koszykowa schodzi z 26% do ok. 6%. Przy MARGIN_RATE_MAX
+        # = 1.0 (domyślnie) nic się nie zmienia względem wersji sprzed
+        # audytu - dopiero niższa wartość każe odrzucić taki odczyt.
+        if 0.01 <= wyliczona <= MARGIN_RATE_MAX:
             stopa, zrodlo_stopy = wyliczona, "wyliczona z rachunku"
+        else:
+            odrzucona = round(wyliczona, 4)
+            zrodlo_stopy = (f"odrzucona wyliczona {wyliczona:.2f} "
+                            f"(poza 0,01–{MARGIN_RATE_MAX:g}) → "
+                            f"założona {MARGIN_RATE_FALLBACK:.0%}")
     max_brutto = equity * MARGIN_BUDGET / stopa if stopa > 0 else float("inf")
     cel = cel_brutto_dla(alloc)
     rep["limit_depozytowy"] = {
         "stopa_depozytu": round(stopa, 4), "zrodlo": zrodlo_stopy,
+        "stopa_wyliczona": round(wyliczona, 4) if wyliczona else None,
+        "stopa_odrzucona": odrzucona,
+        "margin_rate_max": MARGIN_RATE_MAX,
         "depozyt_teraz": snap.get("depozyt"),
         "ekspozycja_teraz": round(teraz_brutto, 2),
         "ekspozycja_cel": round(cel, 2),
         "ekspozycja_max": round(max_brutto, 2),
         "depozyt_po_celu": round(cel * stopa, 2),
-        "budzet_depozytu": round(equity * MARGIN_BUDGET, 2)}
+        "budzet_depozytu": round(equity * MARGIN_BUDGET, 2),
+        "alloc_pct_deklarowany": ALLOC_PCT}
+    # DIAGNOZA DLA CZŁOWIEKA. Rozjazd między deklarowanym ALLOC_PCT a tym,
+    # co naprawdę wychodzi na rachunku, był we wrześniu 2026 niewidoczny:
+    # raport podawał 26%, a pozycja miała 6,5%. Teraz bot mówi to wprost.
+    if cel > 0:
+        realizacja = min(1.0, max_brutto / cel)
+        rep["limit_depozytowy"]["realizacja_celu"] = round(realizacja, 3)
+        rep["limit_depozytowy"]["alloc_pct_faktyczny"] = round(
+            ALLOC_PCT * realizacja, 4)
+        if realizacja < 0.9:
+            rep["pominiete"].append(
+                f"UWAGA ALOKACJA: cel {ALLOC_PCT * 100:.0f}% na pozycję jest "
+                f"osiągalny w {realizacja * 100:.0f}% — faktycznie ok. "
+                f"{ALLOC_PCT * realizacja * 100:.1f}%. Stopa depozytu "
+                f"{stopa:.2f} ({zrodlo_stopy}), budżet "
+                f"{equity * MARGIN_BUDGET:.0f} {ccy}")
     if cel > max_brutto > 0:
         alloc = alloc * (max_brutto / cel)
         rep["limit_depozytowy"]["alloc_po_ograniczeniu"] = round(alloc, 4)
@@ -1348,7 +1473,32 @@ def sync():
     rep["alloc_pct"] = round(alloc, 4)
 
     stracone = set()
-    for p in positions:
+    # OKNO WYRÓWNYWANIA. Każde wyrównanie to zamknięcie i ponowne otwarcie,
+    # czyli pełny spread; robienie tego dwa razy dziennie podwajało rachunek
+    # bez żadnej korzyści, bo cel między biegami prawie się nie zmienia.
+    godziny = []
+    for g in REBALANCE_HOURS.split(","):
+        g = g.strip()
+        if not g:
+            continue
+        try:
+            godziny.append(int(g) % 24)
+        except ValueError:
+            # Literówka w zmiennej środowiskowej nie może wywrócić biegu —
+            # wpis nie do odczytania pomijamy i mówimy o tym w raporcie.
+            rep["pominiete"].append(
+                f"REBALANCE_HOURS: nie rozumiem wpisu {g!r} — pomijam")
+    wyrownuj = (not godziny) or (datetime.now(timezone.utc).hour in godziny)
+    rep["wyrownywanie"] = {"okno_utc": godziny or "każdy bieg",
+                           "aktywne_w_tym_biegu": wyrownuj,
+                           "prog_min": MIN_REBALANCE_ACC,
+                           "pasmo_min": REBALANCE_TOL_MIN}
+    if not wyrownuj:
+        rep["pominiete"].append(
+            f"wyrównywanie wielkości pominięte — ten bieg jest poza oknem "
+            f"REBALANCE_HOURS={REBALANCE_HOURS} UTC (otwarcia, zamknięcia, "
+            f"reakcje i stopy działają normalnie)")
+    for p in (positions if wyrownuj else []):
         want = book.get(p["epic"])
         # poza koszykiem albo zmiana kierunku = zamknięta w pętli wyżej
         if not want or want["direction"] != p["direction"]:
@@ -1373,6 +1523,16 @@ def sync():
                         max(REBALANCE_TOL_MIN, 0.75 * krok_acc / cel_docelowy))
         # W paśmie wobec celu DOCELOWEGO = nie ma czego poprawiać.
         if abs(cur_acc - cel_docelowy) <= cel_docelowy * pasmo:
+            continue
+        # PRÓG OPŁACALNOŚCI. Korekta o kilkanaście dolarów kosztuje pełny
+        # spread pozycji; przy SBUX i CMCSA to 0,3% jej wartości, więc taka
+        # zmiana nigdy się nie zwraca. Liczymy wobec celu DOCELOWEGO, bo to
+        # on mówi, jak daleko naprawdę jesteśmy.
+        if abs(cur_acc - cel_docelowy) < MIN_REBALANCE_ACC:
+            rep["pominiete"].append(
+                f"{want['ticker']}: różnica {abs(cur_acc - cel_docelowy):.0f} "
+                f"{ccy} poniżej progu opłacalności {MIN_REBALANCE_ACC:.0f} "
+                f"{ccy} — spread za wyrównanie byłby droższy niż korekta")
             continue
         # Poza pasmem, ale ogranicznik tempa nie daje ruszyć się sensownie
         # w tym biegu — czekamy, zamiast płacić spread za kosmetykę.
@@ -1441,7 +1601,15 @@ def sync():
         try:
             size, m, info = calc_size(cap, target, epic, ccy)
         except requests.HTTPError as e:
-            rep["błędy"].append(f"{want['ticker']}: rynek niedostępny ({e})")
+            # Ta sama sytuacja co dwie linie niżej - nie da się wycenić
+            # rynku - raz kończyła się statusem (POMINIĘCIE), a raz
+            # wyjątkiem (BŁĄD), zależnie od tego, jak odpowiedział broker.
+            # Stąd "błędy: 1" w weekendowych biegach przy zerowym handlu.
+            # Brak wyceny nigdy nie jest awarią bota: w kolejnym biegu
+            # rynek albo będzie otwarty, albo znowu go pominiemy.
+            rep["pominiete"].append(
+                f"{want['ticker']}: brak wyceny rynku — otwarcie odłożone "
+                f"do kolejnego biegu ({e})")
             continue
         if m["status"] != RYNEK_OTWARTY or not m["mid"]:
             # Rynek zamknięty (weekend, święto, przerwa) to POMINIĘCIE,
@@ -1471,14 +1639,26 @@ def sync():
     if WRITE_FILLS and not DRY_RUN:
         try:
             po = [x for x in cap.positions() if x["epic"] in managed]
+            # Zapisujemy CENĘ ODNIESIENIA TEZY, nie poziom otwarcia u brokera:
+            # ta sama reguła, co przy wczytywaniu (patrz ceny_wejscia), więc
+            # wyrównanie wielkości nie kasuje punktu odniesienia bramki i stopu.
+            # Karmimy ją stanem z początku biegu, żeby pozycja zamknięta
+            # i otwarta na nowo w TYM biegu też zachowała swoją cenę.
+            odniesienia = ceny_wejscia({"version": sig.get("version"),
+                                        "fills": fills}, po, epic2tic)
+            rozmiary = {epic2tic.get(x["epic"]): x["size"] for x in po
+                        if epic2tic.get(x["epic"])}
             nowe = {}
-            for x in po:
-                t = epic2tic.get(x["epic"])
-                if t and x.get("wejscie"):
-                    nowe[t] = {"cena": round(float(x["wejscie"]), 4),
-                               "kierunek": x["direction"],
-                               "wielkosc": x["size"],
-                               "data": (x.get("otwarta") or "")[:10] or None}
+            for t, f in odniesienia.items():
+                if t not in rozmiary:
+                    continue          # wpis bez pozycji = nazwa poza książką
+                nowe[t] = {"cena": round(float(f["cena"]), 4),
+                           "kierunek": f.get("kierunek"),
+                           "wielkosc": rozmiary[t],
+                           "data": f.get("data"),
+                           "wersja": f.get("wersja") or sig.get("version")}
+                if f.get("cena_brokera"):
+                    nowe[t]["cena_brokera"] = round(float(f["cena_brokera"]), 4)
             stare = sig.get("fills") or {}
             szczyt_stary = float(sig.get("equity_peak") or 0)
             # Próg 0,5% — inaczej każdy nowy szczyt o grosz robiłby commit.
@@ -1513,6 +1693,13 @@ def sync():
     zlagodzone = [r for r in slad if r.get("wykonane") != r.get("wpis")]
     if zlagodzone:
         ostrzezenia.append(f"↓ bramka x{len(zlagodzone)}")
+    if rep.get("wiek_koszyka", {}).get("przeterminowany"):
+        ostrzezenia.append(f"⏳ koszyk {rep['wiek_koszyka']['dni']} dni")
+    _lim = rep.get("limit_depozytowy") or {}
+    if _lim.get("realizacja_celu") is not None and _lim["realizacja_celu"] < 0.9:
+        ostrzezenia.append(
+            f"↘ alokacja {_lim['alloc_pct_faktyczny'] * 100:.1f}%"
+            f"/{ALLOC_PCT * 100:.0f}%")
     notify(f"🤖 {BOT_NAME} /run v{sig['version']} | kapitał {equity:.2f} {ccy} | "
            f"poz. {rep['alloc_pct'] * 100:.1f}% | "
            f"akcje: {zam} | pominięte: {len(rep['pominiete'])} | "
