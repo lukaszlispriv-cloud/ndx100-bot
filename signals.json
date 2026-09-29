@@ -186,59 +186,43 @@
   },
   "fills": {
     "ADSK": {
-      "cena": 211.55,
+      "cena": 206.8,
       "kierunek": "SELL",
       "wielkosc": 0.6,
-      "data": "2026-09-25",
-      "wersja": "2026-W4",
+      "data": "2026-09-28",
+      "wersja": "2026-W5",
       "cena_brokera": 206.8
     },
     "SBUX": {
-      "cena": 94.73,
+      "cena": 95.28,
       "kierunek": "SELL",
       "wielkosc": 1.3,
       "data": "2026-09-28",
-      "wersja": "2026-W4",
+      "wersja": "2026-W5",
       "cena_brokera": 95.28
     },
-    "MRVL": {
-      "cena": 253.45,
-      "kierunek": "BUY",
-      "wielkosc": 0.5,
-      "data": "2026-09-28",
-      "wersja": "2026-W4",
-      "cena_brokera": 253.22
-    },
     "APP": {
-      "cena": 310.98,
+      "cena": 308.51,
       "kierunek": "SELL",
       "wielkosc": 0.4,
       "data": "2026-09-28",
-      "wersja": "2026-W4",
+      "wersja": "2026-W5",
       "cena_brokera": 308.51
     },
     "INTU": {
-      "cena": 275.56,
+      "cena": 269.57,
       "kierunek": "SELL",
       "wielkosc": 0.45,
-      "data": "2026-09-25",
-      "wersja": "2026-W4",
+      "data": "2026-09-28",
+      "wersja": "2026-W5",
       "cena_brokera": 269.57
     },
-    "AKAM": {
-      "cena": 116.41,
-      "kierunek": "BUY",
-      "wielkosc": 0.9,
-      "data": "2026-09-25",
-      "wersja": "2026-W4",
-      "cena_brokera": 116.41
-    },
     "CMCSA": {
-      "cena": 21.56,
+      "cena": 21.71,
       "kierunek": "SELL",
       "wielkosc": 6.0,
       "data": "2026-09-28",
-      "wersja": "2026-W4",
+      "wersja": "2026-W5",
       "cena_brokera": 21.71
     },
     "AMD": {
@@ -246,24 +230,24 @@
       "kierunek": "BUY",
       "wielkosc": 0.2,
       "data": "2026-09-28",
-      "wersja": "2026-W4",
+      "wersja": "2026-W5",
       "cena_brokera": 612.82
-    },
-    "AVGO": {
-      "cena": 352.7,
-      "kierunek": "BUY",
-      "wielkosc": 0.3,
-      "data": "2026-09-28",
-      "wersja": "2026-W4",
-      "cena_brokera": 352.7
     },
     "MU": {
       "cena": 913.35,
       "kierunek": "BUY",
       "wielkosc": 0.1,
       "data": "2026-08-27",
-      "wersja": "2026-W4",
+      "wersja": "2026-W5",
       "cena_brokera": 913.35
+    },
+    "NFLX": {
+      "cena": 69.87,
+      "kierunek": "SELL",
+      "wielkosc": 1.52,
+      "data": "2026-09-29",
+      "wersja": "2026-W5",
+      "cena_brokera": 69.87
     }
   },
   "equity_peak": 1080.37
