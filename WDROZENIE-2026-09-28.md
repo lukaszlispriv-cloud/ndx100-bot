@@ -76,62 +76,72 @@ czyli nic się nie zmienia, dopóki sam nie zdecydujesz.
 
 ---
 
-## KROK 3 — Decyzja o alokacji (to jedyna decyzja, jaką masz podjąć)
+## KROK 3 — Decyzja o alokacji (SPROSTOWANIE 29.09, opcja A odpada)
 
-Co się stanie przy każdym ustawieniu, policzone na Twoich danych z 29.09:
+### Co się zmieniło w tej analizie
 
-| Ustawienie | Stopa | Pozycja koszykowa | Ekspozycja docelowa |
+Pisałem wcześniej, że opcja A (`ALLOC_PCT=0.07`) zatrzyma dzisiejsze cięcie
+portfela. **To było błędne.** Po wiernym przeliczeniu według kodu:
+
+limit depozytowy przycina `ALLOC_PCT` **proporcjonalnie**, żeby zmieścić się
+w `ekspozycja_max`. Przy stopie 0,89 ten sufit wynosi **713 USD** i jest
+sztywny — obniżanie `ALLOC_PCT` nie podnosi sufitu, tylko obniża cel jeszcze
+bardziej. Dlatego A tnie **mocniej** niż nicnierobienie.
+
+### Trzy scenariusze na bieg 17:05 UTC, policzone na danych z 29.09 08:57
+
+| Scenariusz | Ustawienie | Transakcji dziś | Ekspozycja po biegu |
 |---|---|---|---|
-| **dziś** (`MARGIN_FROM_AVAILABLE=false`) | 0,89 | 69 USD (6,5%) | 713 USD = 67% kapitału |
-| **po włączeniu** (`=true`) | 0,20 | **275 USD (26%)** | **2 856 USD = 270% kapitału** |
+| Nic nie robię | `ALLOC_PCT=0.26` | **9** (cel 76 USD/poz.) | 1 184 → 789 USD (75%) |
+| ~~Opcja A~~ | `ALLOC_PCT=0.07` | **9** (cel 68 USD/poz.) | 1 184 → 721 USD (68%) |
+| **Opcja B** | `MARGIN_FROM_AVAILABLE=true`<br>`ALLOC_PCT=0.12` | **0** | 1 184 → **1 190 USD (113%)** |
 
-### ⏰ Najpierw rzecz pilna — bieg 17:05 UTC dzisiaj
+**Opcja A jest zdominowana** — ta sama liczba spreadów co przy
+nicnierobieniu, a portfel mniejszy. Nie ma powodu jej wybierać.
 
-Niezależnie od decyzji: **przy obecnym ustawieniu dzisiejszy bieg 17:05
-zetnie portfel.** Pozycje mają dziś po ok. 120–130 USD, a cel wynosi 76 USD,
-więc bot utnie **~400 USD ekspozycji i zapłaci 9 spreadów**:
+Kluczowa obserwacja: przy `ALLOC_PCT=0.12` i poprawnej stopie cel wynosi
+**126,9 USD na pozycję**, a Twoje pozycje mają dziś 106–130 USD. Wszystkie
+mieszczą się w paśmie tolerancji (±38 USD) — czyli **opcja B to zero
+transakcji i zero spreadu**. To nie jest podniesienie ekspozycji, tylko
+zatrzymanie jej tam, gdzie już jest.
 
-```
-MRVL 127 → 76 · SBUX 124 → 76 · APP 123 → 76 · INTU 121 → 76
-CMCSA 130 → 76 · AMD 123 → 76 · AVGO 106 → 76 · ADSK 124 → 76 · MU 107 → 76
-```
+### Co zrobić dziś — rekomendacja
 
-Jeśli i tak zamierzasz podnosić alokację, ścinanie dziś i odbudowa jutro to
-czysta strata na spreadzie. **Decyzja przed 17:05 UTC oszczędza ten koszt.**
+**Ustaw opcję B już dziś**, przed 17:05 UTC:
 
-### Twoje trzy opcje
-
-**A — zostaw ryzyko jak jest, popraw tylko deklarację** *(najbezpieczniejsza)*
-W panelu Rendera ustaw:
-```
-ALLOC_PCT = 0.07
-```
-Nic więcej. Ekspozycja bez zmian, ale przestajesz deklarować 26% tam, gdzie
-naprawdę jest 7% — i bieg 17:05 nie zetnie portfela, bo cel zrówna się z tym,
-co już masz. Stopka raportów przestaje kłamać czterokrotnie.
-
-**B — podnieś dwukrotnie** *(zalecana, jeśli chcesz iść w stronę projektu)*
 ```
 MARGIN_FROM_AVAILABLE = true
-ALLOC_PCT             = 0.12
+ALLOC_PCT             = 0.12      (zmiana z 0.26)
 ```
-Ekspozycja rośnie z ~113% do ~130% kapitału. `MAX_EXPOSURE_STEP=0.25`
-rozłoży dojście na kilka biegów. Po tygodniu obserwacji ewentualnie `0.19`,
-potem `0.26`.
 
-**C — pełna alokacja projektowa**
-```
-MARGIN_FROM_AVAILABLE = true
-```
-`ALLOC_PCT` zostaje `0.26`. Ekspozycja **270% kapitału**. Dołek z 14.09
-(−4,6%) zrobiłby się ok. **−18%**, a próg kill switcha (−25%, czyli 810 USD)
-byłby w zasięgu jednej złej sesji. Tylko jeśli to akceptujesz.
+Uzasadnienie, które stoi za pierwotnym „A dziś, B po weekendzie", brzmiało:
+nie podnoś ekspozycji na przeterminowanej prognozie. **B przy 0,12 niczego
+nie podnosi** — zostawia 113% kapitału, czyli dokładnie to, co już masz —
+a przy okazji oszczędza 9 spreadów i naprawia odczyt stopy depozytu.
 
-> Jak ustawić: Render → `ndx100-bot` → **Environment** → **Add Environment
-> Variable** → klucz i wartość → **Save Changes**. Zapis sam wywoła deploy.
-> Po pierwszym biegu sprawdź w `/run` blok `limit_depozytowy`: pole
-> `zrodlo_depozytu` ma pokazać `kapitał − dostępne`, a `alloc_pct_faktyczny`
-> ma się zgadzać z tym, co ustawiłeś.
+### Jedyny powód, żeby zrobić inaczej
+
+Jeśli świadomie chcesz **mniejszej** ekspozycji na 18-dniowym koszyku, zwłaszcza
+przed wynikami Microna w środę 30.09 po sesji — wtedy **nie rób nic dziś**,
+pozwól biegowi 17:05 ściąć portfel do 75% kapitału i ustaw opcję B dopiero
+w poniedziałek. Kosztuje to 9 spreadów dziś plus 9 w poniedziałek, czyli ok.
+**4 USD (0,4% kapitału)** za cztery sesje niższego ryzyka.
+
+To jedyny realny wybór, jaki tu jest. Obie drogi są sensowne; A nie jest.
+
+### Po weekendzie (poniedziałek 5.10)
+
+Jeżeli dziś wybrałeś B, w poniedziałek **nie musisz nic robić** — chyba że
+po rotacji koszyka chcesz iść dalej w stronę projektowych 26%. Wtedy
+`ALLOC_PCT = 0.19`, a po kolejnym tygodniu `0.26`. Za każdym razem sprawdź
+w `/run`, czy `alloc_pct_faktyczny` zgadza się z tym, co ustawiłeś — jeśli
+nie, znowu coś przycina i trzeba to obejrzeć, zanim pójdziesz wyżej.
+
+> **Tego kroku nie mogę wykonać za Ciebie** — to zmienne środowiskowe
+> w Twoim panelu Render, do którego nie mam dostępu.
+> Render → `ndx100-bot` → **Environment** → przy `ALLOC_PCT` wpisz nową
+> wartość, potem **Add Environment Variable** → `MARGIN_FROM_AVAILABLE` =
+> `true` → **Save Changes**. Zapis sam uruchomi deploy. Zajmuje 30 sekund.
 
 ---
 
