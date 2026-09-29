@@ -609,6 +609,39 @@ sprawdz("nowe zrodlo depozytu domyslnie WYLACZONE",
         app.MARGIN_FROM_AVAILABLE is False, app.MARGIN_FROM_AVAILABLE)
 
 
+# ------------------ pozycje osierocone przez rotacje (odczyt /run 29.09) -----
+# Rotacja czysci tactical; pozycja taktyczna spoza NDX-100 (wlasny epic)
+# znikala botowi z oczu: nie byla zamykana, a kontrola kapitalu widziala ja
+# jako obca i scinala ALLOC_PCT do ALLOC_PCT_SAFE. Ledger fills jest zapisem
+# wlasnych pozycji bota - wszystko, co w nim jest, bot zna i moze zamknac.
+print("\nOSIEROCONE POZYCJE — ledger fills wchodzi do managed")
+
+
+def managed_z(sig):
+    m = {e for e in sig["epics"].values() if e and not e.upper().startswith("UZUP")}
+    for t in sig.get("tactical", []):
+        e = (t.get("epic") or "").strip()
+        if e: m.add(e)
+    for t, f in (sig.get("fills") or {}).items():
+        e = ((f or {}).get("epic") or sig["epics"].get(t) or t or "").strip()
+        if e: m.add(e)
+    return m
+
+
+s_rot = sig(tactical=[], fills={"AKAM": {"cena": 116.41, "kierunek": "BUY",
+                                          "wersja": "2026-W4", "epic": "AKAM"}})
+sprawdz("AKAM po rotacji (tactical=[]) nadal w managed dzieki fills",
+        "AKAM" in managed_z(s_rot))
+s_stary = sig(tactical=[], fills={"AKAM": {"cena": 116.41, "kierunek": "BUY"}})
+sprawdz("wpis fills bez pola epic mapuje sie przez ticker",
+        "AKAM" in managed_z(s_stary))
+s_brak = sig(tactical=[], fills={})
+sprawdz("bez wpisu w fills obca pozycja NIE jest dotykana",
+        "AKAM" not in managed_z(s_brak))
+sprawdz("pozycje z NDX-100 nadal w managed niezaleznie od fills",
+        "MU" in managed_z(s_brak))
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)

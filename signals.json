@@ -248,6 +248,14 @@
       "data": "2026-09-29",
       "wersja": "2026-W5",
       "cena_brokera": 69.87
+    },
+    "AKAM": {
+      "cena": 116.41,
+      "kierunek": "BUY",
+      "wielkosc": 0.9,
+      "data": "2026-09-25",
+      "wersja": "2026-W4",
+      "epic": "AKAM"
     }
   },
   "equity_peak": 1080.37

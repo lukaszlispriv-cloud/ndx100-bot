@@ -1248,6 +1248,22 @@ def sync():
         if e:
             managed.add(e)
             epic2tic.setdefault(e, t.get("ticker"))
+    # POZYCJE OSIEROCONE PRZEZ ROTACJĘ. Rotacja tygodniowa czyści tactical,
+    # a "managed" budowane jest wyłącznie z bieżących sygnałów - więc pozycja
+    # taktyczna spoza NDX-100 (własny epic, np. AKAM) po rotacji znikała botowi
+    # z oczu: nie była zamykana jako "poza aktualnymi sygnałami", za to
+    # kontrola kapitału widziała ją jako obcą i ścinała ALLOC_PCT do
+    # ALLOC_PCT_SAFE (29.09.2026: "1 pozycji spoza książki bota (AKAM BUY
+    # 0.9)", alloc 0,12 -> 0,10, a AKAM został na rachunku bezterminowo).
+    # Ledger fills to zapis własnych pozycji bota, więc wszystko, co w nim
+    # jest, bot zna i ma prawo zamknąć. Wpis niesie od dziś pole "epic";
+    # starsze wpisy mapujemy przez epics albo przez ticker (konwencja
+    # Capital.com dla akcji USA: epic == ticker).
+    for t, f in (sig.get("fills") or {}).items():
+        e = ((f or {}).get("epic") or sig["epics"].get(t) or t or "").strip()
+        if e:
+            managed.add(e)
+            epic2tic.setdefault(e, t)
     wszystkie = cap.positions()
     positions = [p for p in wszystkie if p["epic"] in managed]
     rep["pozycje_przed"] = positions
@@ -1701,7 +1717,13 @@ def sync():
                            "kierunek": f.get("kierunek"),
                            "wielkosc": rozmiary[t],
                            "data": f.get("data"),
-                           "wersja": f.get("wersja") or sig.get("version")}
+                           "wersja": f.get("wersja") or sig.get("version"),
+                           # epic w ledgerze: po rotacji, która czyści
+                           # tactical, to jedyne miejsce, z którego bot
+                           # wie, że pozycja spoza NDX-100 jest jego
+                           "epic": next((x["epic"] for x in po
+                                         if epic2tic.get(x["epic"]) == t),
+                                        None)}
                 if f.get("cena_brokera"):
                     nowe[t]["cena_brokera"] = round(float(f["cena_brokera"]), 4)
             stare = sig.get("fills") or {}
@@ -1918,6 +1940,9 @@ def close_all_ep():
         managed.add(HEDGE_EPIC)
     managed |= {(t.get("epic") or "").strip()
                 for t in sig.get("tactical", []) if (t.get("epic") or "").strip()}
+    # + pozycje z ledgera fills (osierocone przez rotację) - patrz sync()
+    managed |= {((f or {}).get("epic") or sig["epics"].get(t) or t).strip()
+                for t, f in (sig.get("fills") or {}).items()}
     out = []
     for p in cap.positions():
         if p["epic"] in managed:
