@@ -1,9 +1,8 @@
 # Rutyna DZIENNA — „Puls NDX100"
 
-Kopia treści zadania dziennego, z DWIEMA zmianami z 29.09.2026 (oznaczone
-w `rutyny/README.md`): stopka z wielkością pozycji (26% → 12%) i opis pola
-fills (dwa nowe pola: wersja, cena_brokera). Do czasu wklejenia tej wersji do
-zadania autorytatywna jest kopia w schedulerze — porównaj przed podmianą.
+Źródło prawdy dla treści zadania dziennego. Wklejone do schedulera
+29.09.2026 (zmiany względem poprzedniej kopii: `rutyny/README.md`). Od tej
+chwili obowiązuje zasada: najpierw zmiana w tym pliku, potem wklejenie.
 
 Harmonogram: codziennie, ok. 12:40 UTC (14:40 czasu polskiego).
 

@@ -175,10 +175,9 @@ wyczyszczone (AKAM zamknięty — tak działa rotacja z założenia); ceny odnie
 zresetują się dla wszystkich nazw (nowa `version`); ostrzeżenie `⏳ koszyk 18
 dni` zniknie.
 
-**Zadanie dzienne — jedna zmiana, kiedy będziesz miał chwilę.** Kopia z dwiema
-poprawkami: `rutyny/dzienna.md`. Najważniejsza: stopka raportu mówi jeszcze
-„26% kapitału", a prawda to 12%. Skopiuj treść poniżej `---` i wklej do
-zadania „Puls NDX100". To nie jest pilne — nie blokuje niczego.
+**Zadanie dzienne — podmienione 29.09 ✅** na treść z `rutyny/dzienna.md`
+(stopka 26% → 12%, opis nowych pól `fills`). Oba zadania mają teraz źródło
+prawdy w repo.
 
 ---
 
