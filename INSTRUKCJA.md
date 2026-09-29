@@ -439,6 +439,30 @@ zawiera teraz `depozyt_z_pola`, `depozyt_z_dostepnych`, `zrodlo_depozytu`
 oraz `gdyby_drugie_zrodlo` — symulację tego, co zrobiłoby drugie źródło.
 Decyzja o włączeniu jest decyzją o ryzyku, nie o poprawności odczytu.
 
+**DECYZJA WŁAŚCICIELA RACHUNKU, 29.09.2026.** Ustawione w panelu Render:
+
+```
+MARGIN_FROM_AVAILABLE = true
+ALLOC_PCT             = 0.12
+```
+
+Uzasadnienie: przy poprawnej stopie (0,20) i `ALLOC_PCT` 0,12 cel wynosi ok.
+127 USD na pozycję, a pozycje niesione 29.09 miały 106–130 USD — wszystkie
+mieszczą się w paśmie tolerancji, więc zmiana **nie wywołuje ani jednej
+transakcji** i zostawia ekspozycję na dotychczasowym poziomie ok. 113%
+kapitału. Alternatywa (`ALLOC_PCT` 0,07 przy starym źródle depozytu) była
+zdominowana: ta sama liczba spreadów co przy nicnierobieniu, mniejszy portfel.
+
+Docelowe 0,26 jest świadomie odłożone do czasu przywrócenia rutyny tygodniowej
+— podnoszenie ekspozycji na 18-dniowej prognozie zwiększałoby ryzyko na
+gorszym sygnale. Ścieżka: 0,12 → 0,19 → 0,26, za każdym razem po sprawdzeniu
+w `/run`, czy `alloc_pct_faktyczny` zgadza się z ustawionym `ALLOC_PCT`.
+
+**Uwaga o stopce raportu dziennego.** Prompt rutyny dziennej ma zapisane
+„pozycja koszykowa to 26% kapitału, taktyczna 10%". Po tej zmianie zdanie
+jest nieprawdziwe i trzeba je poprawić w treści rutyny, inaczej przeliczenie
+punktów procentowych na dolary będzie zawyżone ponad dwukrotnie.
+
 Podniesienie alokacji **czterokrotnie zwiększa też obsunięcia** — dołek
 14.09 (−4,56%) zrobiłby się ok. −18%, a próg kill switcha −25% byłby
 w zasięgu jednej złej sesji. Dlatego domyślna wartość niczego nie zmienia
