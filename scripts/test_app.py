@@ -580,6 +580,35 @@ sprawdz("ostrzezenie o wieku koszyka wlaczone",
         app.ROTATION_MAX_DNI > 0, app.ROTATION_MAX_DNI)
 
 
+# ---------------------- zrodlo uzytego depozytu (odczyt /run 29.09.2026) ----
+# Pole "deposit" z API Capital.com nie zawsze znaczy depozyt zabezpieczajacy.
+# Sprawdzamy obie metody na dwoch realnych odczytach z rachunku.
+print("\nSTOPA DEPOZYTU — dwa zrodla, dwa realne odczyty")
+
+
+def stopa(kapital, dostepne, deposit, ekspozycja, z_dostepnych):
+    uzyty = (kapital - dostepne) if z_dostepnych else deposit
+    return uzyty / ekspozycja
+
+
+# Odczyt 29.09.2026: deposit == gotowka (kapital - wycena), wiec stopa z pola
+# wychodzi absurdalne 89%; z dostepnych wychodzi 20%.
+sprawdz("29.09: pole deposit daje bzdurne ~89%",
+        abs(stopa(1057.73, 820.42, 1053.62, 1184.43, False) - 0.89) < 0.01)
+sprawdz("29.09: kapital-dostepne daje 20%",
+        abs(stopa(1057.73, 820.42, 1053.62, 1184.43, True) - 0.20) < 0.005)
+# Odczyt 18.09.2026: oba zrodla sa zgodne — to wlasnie dlatego blad dlugo
+# pozostawal niewidoczny.
+sprawdz("18.09: oba zrodla zgodne co do 20%",
+        abs(stopa(1041.61, 864.15, 177.45, 888.0, False)
+            - stopa(1041.61, 864.15, 177.45, 888.0, True)) < 0.001)
+sprawdz("18.09: kapital-dostepne tez daje 20%",
+        abs(stopa(1041.61, 864.15, 177.45, 888.0, True) - 0.20) < 0.005)
+# Domyslnie nic sie nie zmienia — wlaczenie ma byc swiadoma decyzja.
+sprawdz("nowe zrodlo depozytu domyslnie WYLACZONE",
+        app.MARGIN_FROM_AVAILABLE is False, app.MARGIN_FROM_AVAILABLE)
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)

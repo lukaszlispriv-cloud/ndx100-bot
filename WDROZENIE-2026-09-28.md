@@ -9,7 +9,11 @@ Kolejność ma znaczenie. **Nie rób kroku 3 przed krokiem 1.**
 
 ---
 
-## KROK 1 — Wdróż nową wersję na Renderze (2 min, bezpieczne)
+## KROK 1 — Wdróż nową wersję na Renderze ✅ ZROBIONE 29.09
+
+Potwierdzone odczytem `/run`: cena odniesienia przeżywa wyrównanie (ADSK 211,55 przy poziomie brokera 206,80), okno `REBALANCE_HOURS` działa, `błędy: []`, ostrzeżenie o rotacji się zapala. Poniżej zostaje opis dla porządku.
+
+### Co było do zrobienia
 
 Nic nie musisz ustawiać. Wszystkie nowe wartości domyślne są już w kodzie.
 
@@ -42,90 +46,96 @@ robi). To jest poprawne zachowanie, nie usterka.
 
 ---
 
-## KROK 2 — Odczytaj diagnozę alokacji (3 min, tylko czytanie)
+## KROK 2 — Diagnoza: ZROBIONA 29.09.2026 ✅
 
-Po pierwszym biegu na nowej wersji otwórz w przeglądarce:
+Odczyt `/run` z 29.09 o 08:57 UTC rozstrzygnął sprawę. **Nie musisz nic
+sprawdzać** — poniżej wynik.
 
-```
-https://ndx100-bot.onrender.com/run?token=TWÓJ_TOKEN
-```
+Bot liczył stopę depozytu z pola `deposit` zwracanego przez API. To pole
+tego dnia było **co do grosza równe gotówce**, a nie depozytowi
+zabezpieczającemu:
 
-(token masz w adresie, którego używa cron-job.org — skopiuj go stamtąd)
-
-W zwróconym JSON-ie znajdź blok **`limit_depozytowy`**. Interesują Cię
-cztery pola:
-
-```json
-"limit_depozytowy": {
-  "stopa_wyliczona":      <-- TO JEST NAJWAŻNIEJSZA LICZBA
-  "stopa_depozytu":       <-- ta, której bot faktycznie użył
-  "realizacja_celu":      <-- 1.0 = alokacja pełna, 0.25 = ćwiartka
-  "alloc_pct_faktyczny":  <-- ile NAPRAWDĘ wynosi pozycja koszykowa
-}
-```
-
-**Zapisz sobie te cztery liczby** — bez nich krok 3 jest zgadywaniem.
-
-Jak to czytać:
-
-| `stopa_wyliczona` | Co to znaczy | Co robić |
+| | 29.09.2026 | 18.09.2026 |
 |---|---|---|
-| **ok. 0,20** | Wszystko w porządku, dźwignia 5:1 jak na akcjach USA | Krok 3 **niepotrzebny** — alokacja jest zdrowa |
-| **0,90–1,00** | Rachunek raportuje depozyt = pełna wartość pozycji. To hipoteza z audytu | Przejdź do kroku 3 |
-| **coś innego** | Nie zgaduj — **napisz mi, jaka to liczba**, i ustalimy razem | — |
+| kapitał | 1 057,73 | 1 041,61 |
+| dostępne do handlu | 820,42 | 864,15 |
+| pole `deposit` z API | **1 053,62** | 177,45 |
+| gotówka (`kapitał − wycena`) | **1 053,62** ← to samo | — |
+| `kapitał − dostępne` | **237,31** | 177,46 |
+| ekspozycja brutto | 1 184,43 | ~888 |
+| **stopa z pola `deposit`** | **0,89** ❌ | 0,20 |
+| **stopa z `kapitał − dostępne`** | **0,2004** ✅ | 0,1998 |
+
+Różnica `kapitał − dostępne` daje **20,0% w obu odczytach** — podręcznikową
+stopę dla akcji USA. Na odczycie z 18.09 oba źródła były zgodne i dlatego
+błąd tak długo był niewidoczny.
+
+**Wniosek: to nie jest kwestia dźwigni na Twoim rachunku, tylko czytania
+złego pola.** Dodałem zmienną `MARGIN_FROM_AVAILABLE` — domyślnie `false`,
+czyli nic się nie zmienia, dopóki sam nie zdecydujesz.
 
 ---
 
-## KROK 3 — Decyzja o alokacji (tylko jeśli krok 2 pokazał stopę ≈ 1,0)
+## KROK 3 — Decyzja o alokacji (to jedyna decyzja, jaką masz podjąć)
 
-**Przeczytaj to, zanim cokolwiek zmienisz.**
+Co się stanie przy każdym ustawieniu, policzone na Twoich danych z 29.09:
 
-Dziś pozycja koszykowa to ok. **6,5% kapitału**, choć deklarujemy 26%.
-Ustawienie `MARGIN_RATE_MAX=0.5` sprawi, że bot odrzuci niewiarygodny odczyt
-i zejdzie na `MARGIN_RATE_FALLBACK` (0,20) — i **ekspozycja wzrośnie około
-czterokrotnie**.
+| Ustawienie | Stopa | Pozycja koszykowa | Ekspozycja docelowa |
+|---|---|---|---|
+| **dziś** (`MARGIN_FROM_AVAILABLE=false`) | 0,89 | 69 USD (6,5%) | 713 USD = 67% kapitału |
+| **po włączeniu** (`=true`) | 0,20 | **275 USD (26%)** | **2 856 USD = 270% kapitału** |
 
-Co to znaczy w liczbach, na Twoich własnych danych z ostatniego miesiąca:
+### ⏰ Najpierw rzecz pilna — bieg 17:05 UTC dzisiaj
 
-| | Dziś (~6,5%) | Po zmianie (~26%) |
-|---|---|---|
-| Wynik z koszyka W4 | +5,2% kapitału | +20,8% kapitału |
-| Obsunięcie z 14.09 | −4,6% | **ok. −18%** |
-| Odległość do kill switcha (−25%) | daleko | **jedna zła sesja** |
+Niezależnie od decyzji: **przy obecnym ustawieniu dzisiejszy bieg 17:05
+zetnie portfel.** Pozycje mają dziś po ok. 120–130 USD, a cel wynosi 76 USD,
+więc bot utnie **~400 USD ekspozycji i zapłaci 9 spreadów**:
 
-To nie jest „naprawa buga" — to **zmiana profilu ryzyka**, na którą musisz
-świadomie się zgodzić. Masz trzy opcje:
-
-### Opcja A — zostaw jak jest, popraw tylko deklarację (zalecana na start)
-Nic nie ustawiasz na Renderze. Zamiast tego powiedz mi, żebym zmienił
-`ALLOC_PCT` na `0.065`, czyli na to, co system naprawdę robi. Zyskujesz to,
-że stopka raportu („1 p.p. zwrotu pozycji = 0,26 p.p. kapitału") przestaje
-kłamać czterokrotnie. Ryzyko bez zmian.
-
-### Opcja B — podnieś stopniowo
-Ustaw na Renderze:
 ```
-MARGIN_RATE_MAX = 0.5
-ALLOC_PCT       = 0.12
+MRVL 127 → 76 · SBUX 124 → 76 · APP 123 → 76 · INTU 121 → 76
+CMCSA 130 → 76 · AMD 123 → 76 · AVGO 106 → 76 · ADSK 124 → 76 · MU 107 → 76
 ```
-To daje ok. dwukrotny wzrost zamiast czterokrotnego. Ogranicznik
-`MAX_EXPOSURE_STEP=0.25` i tak rozłoży dojście do celu na kilka biegów.
-Obserwuj tydzień, potem ewentualnie `ALLOC_PCT = 0.19`, a na końcu `0.26`.
 
-### Opcja C — pełna alokacja od razu
-```
-MARGIN_RATE_MAX = 0.5
-```
-`ALLOC_PCT` zostaje `0.26`. **Tylko jeśli akceptujesz obsunięcia rzędu −18%
-na rachunku DEMO.**
+Jeśli i tak zamierzasz podnosić alokację, ścinanie dziś i odbudowa jutro to
+czysta strata na spreadzie. **Decyzja przed 17:05 UTC oszczędza ten koszt.**
 
-> Cokolwiek wybierzesz — **napisz mi, którą opcję**, a dopiszę to do
-> `INSTRUKCJA.md` i poprawię stopkę raportów dziennych, żeby przeliczenia
-> punktów na dolary się zgadzały.
+### Twoje trzy opcje
+
+**A — zostaw ryzyko jak jest, popraw tylko deklarację** *(najbezpieczniejsza)*
+W panelu Rendera ustaw:
+```
+ALLOC_PCT = 0.07
+```
+Nic więcej. Ekspozycja bez zmian, ale przestajesz deklarować 26% tam, gdzie
+naprawdę jest 7% — i bieg 17:05 nie zetnie portfela, bo cel zrówna się z tym,
+co już masz. Stopka raportów przestaje kłamać czterokrotnie.
+
+**B — podnieś dwukrotnie** *(zalecana, jeśli chcesz iść w stronę projektu)*
+```
+MARGIN_FROM_AVAILABLE = true
+ALLOC_PCT             = 0.12
+```
+Ekspozycja rośnie z ~113% do ~130% kapitału. `MAX_EXPOSURE_STEP=0.25`
+rozłoży dojście na kilka biegów. Po tygodniu obserwacji ewentualnie `0.19`,
+potem `0.26`.
+
+**C — pełna alokacja projektowa**
+```
+MARGIN_FROM_AVAILABLE = true
+```
+`ALLOC_PCT` zostaje `0.26`. Ekspozycja **270% kapitału**. Dołek z 14.09
+(−4,6%) zrobiłby się ok. **−18%**, a próg kill switcha (−25%, czyli 810 USD)
+byłby w zasięgu jednej złej sesji. Tylko jeśli to akceptujesz.
+
+> Jak ustawić: Render → `ndx100-bot` → **Environment** → **Add Environment
+> Variable** → klucz i wartość → **Save Changes**. Zapis sam wywoła deploy.
+> Po pierwszym biegu sprawdź w `/run` blok `limit_depozytowy`: pole
+> `zrodlo_depozytu` ma pokazać `kapitał − dostępne`, a `alloc_pct_faktyczny`
+> ma się zgadzać z tym, co ustawiłeś.
 
 ---
 
-## KROK 4 — Rutyna tygodniowa (najpilniejsze po kroku 1)
+## KROK 4 — Rutyna tygodniowa (nadal niezrobione, koszyk ma już 18 dni)
 
 Rutyna sobotnia **nie wystartowała 19.09 ani 26.09**. To dlatego koszyk
 `2026-W4` pracuje 17. dzień zamiast 5., a pięć reakcji z 15–17.09 wisi

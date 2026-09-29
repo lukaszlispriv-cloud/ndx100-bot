@@ -141,6 +141,21 @@ MARGIN_RATE_FALLBACK = float(os.environ.get("MARGIN_RATE_FALLBACK", "0.20"))
 # MARGIN_RATE_FALLBACK. UWAGA: to ZWIĘKSZA ekspozycję kilkukrotnie, więc
 # zmieniaj dopiero po odczytaniu bloku "limit_depozytowy" z /run.
 MARGIN_RATE_MAX      = float(os.environ.get("MARGIN_RATE_MAX", "1.0"))
+# SKĄD BRAĆ UŻYTY DEPOZYT. Odczyt /run z 29.09.2026 rozstrzygnął, że pole
+# "deposit" z API Capital.com NIE zawsze znaczy depozyt zabezpieczający:
+#   29.09: kapitał 1057,73 · dostępne 820,42 · deposit 1053,62
+#          deposit == kapitał - wycena, czyli GOTÓWKA, nie margin;
+#          stopa z deposit = 1053,62/1184,43 = 0,89 (bzdura),
+#          stopa z (kapitał - dostępne) = 237,31/1184,43 = 0,2004.
+#   18.09: kapitał 1041,61 · dostępne 864,15 · deposit 177,45
+#          kapitał - dostępne = 177,46 == deposit; stopa = 0,1998.
+# Czyli (kapitał - dostępne) daje 20% w OBU odczytach, a "deposit" tylko
+# w jednym. 20% to zarazem podręcznikowa stopa dla akcji USA.
+# false (domyślnie) = zachowanie sprzed poprawki, żeby włączenie było
+# świadomą decyzją: przy poprawnej stopie ALLOC_PCT przestaje być przycinany
+# i ekspozycja rośnie kilkukrotnie. Diagnostyka pokazuje obie liczby zawsze.
+MARGIN_FROM_AVAILABLE = os.environ.get(
+    "MARGIN_FROM_AVAILABLE", "false").lower() == "true"
 MAX_OVERSHOOT    = float(os.environ.get("MAX_OVERSHOOT", "1.6"))
 START_EQUITY     = float(os.environ.get("START_EQUITY", "1000"))
 KILL_LEVEL       = float(os.environ.get("KILL_LEVEL", "0.75"))
@@ -1388,8 +1403,17 @@ def sync():
     stopa = MARGIN_RATE_FALLBACK
     zrodlo_stopy = f"założona {MARGIN_RATE_FALLBACK:.0%}"
     wyliczona = odrzucona = None
-    if snap.get("depozyt") and teraz_brutto > 0:
-        wyliczona = snap["depozyt"] / teraz_brutto
+    # Dwa niezależne oszacowania użytego depozytu — patrz MARGIN_FROM_AVAILABLE.
+    dep_pole = snap.get("depozyt")
+    dep_dostepne = None
+    if snap.get("dostepne") is not None:
+        kandydat = equity - float(snap["dostepne"])
+        if kandydat > 0:
+            dep_dostepne = kandydat
+    uzyty = (dep_dostepne if (MARGIN_FROM_AVAILABLE and dep_dostepne)
+             else dep_pole)
+    if uzyty and teraz_brutto > 0:
+        wyliczona = uzyty / teraz_brutto
         # Odczyt powyżej MARGIN_RATE_MAX znaczy "dolar ekspozycji wymaga
         # dolara depozytu", czyli brak dźwigni. Na akcjach USA to nieprawda,
         # a skutek jest dotkliwy: limit przycina ALLOC_PCT proporcjonalnie
@@ -1410,6 +1434,11 @@ def sync():
         "stopa_wyliczona": round(wyliczona, 4) if wyliczona else None,
         "stopa_odrzucona": odrzucona,
         "margin_rate_max": MARGIN_RATE_MAX,
+        "zrodlo_depozytu": ("kapitał − dostępne" if MARGIN_FROM_AVAILABLE
+                            and dep_dostepne else "pole deposit z API"),
+        "depozyt_z_pola": dep_pole,
+        "depozyt_z_dostepnych": (round(dep_dostepne, 2)
+                                 if dep_dostepne else None),
         "depozyt_teraz": snap.get("depozyt"),
         "ekspozycja_teraz": round(teraz_brutto, 2),
         "ekspozycja_cel": round(cel, 2),
@@ -1425,6 +1454,22 @@ def sync():
         rep["limit_depozytowy"]["realizacja_celu"] = round(realizacja, 3)
         rep["limit_depozytowy"]["alloc_pct_faktyczny"] = round(
             ALLOC_PCT * realizacja, 4)
+        # SYMULACJA DRUGIEGO ŹRÓDŁA — zawsze widoczna, nigdy nie działająca.
+        # Dzięki niej widać, co zrobiłby MARGIN_FROM_AVAILABLE, zanim się go
+        # włączy; bez tego decyzja o kilkukrotnym wzroście ekspozycji byłaby
+        # podejmowana w ciemno.
+        alt = dep_pole if MARGIN_FROM_AVAILABLE else dep_dostepne
+        if alt and teraz_brutto > 0:
+            alt_stopa = alt / teraz_brutto
+            alt_max = (equity * MARGIN_BUDGET / alt_stopa
+                       if alt_stopa > 0 else float("inf"))
+            rep["limit_depozytowy"]["gdyby_drugie_zrodlo"] = {
+                "zrodlo": ("pole deposit z API" if MARGIN_FROM_AVAILABLE
+                           else "kapitał − dostępne"),
+                "stopa": round(alt_stopa, 4),
+                "realizacja_celu": round(min(1.0, alt_max / cel), 3),
+                "alloc_pct": round(ALLOC_PCT * min(1.0, alt_max / cel), 4),
+                "ekspozycja_max": round(alt_max, 2)}
         if realizacja < 0.9:
             rep["pominiete"].append(
                 f"UWAGA ALOKACJA: cel {ALLOC_PCT * 100:.0f}% na pozycję jest "

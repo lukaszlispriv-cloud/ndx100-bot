@@ -61,6 +61,7 @@ Nowe (wszystkie mają sensowne domyślne — ustaw tylko to, co chcesz zmienić)
 | `MIN_REBALANCE_ACC` | `25` | Minimalna wartość korekty wielkości (w walucie rachunku). Poniżej progu bot nie rusza pozycji, bo spread za wyrównanie jest droższy niż korekta. |
 | `REBALANCE_HOURS` | `17` | Godziny UTC, w których bot wyrównuje wielkości pozycji (lista po przecinku; puste = w każdym biegu). Otwarcia, zamknięcia, reakcje i stopy działają w każdym biegu niezależnie od tego ustawienia. |
 | `MARGIN_RATE_MAX` | `1.0` | Górna granica wiarygodności stopy depozytu wyliczonej z rachunku. `1.0` = zachowanie sprzed audytu. Niższa wartość (np. `0.5`) każe odrzucić niewiarygodny odczyt i zejść na `MARGIN_RATE_FALLBACK`. **Zwiększa ekspozycję kilkukrotnie — zmieniaj dopiero po odczytaniu diagnozy z `/run`.** |
+| `MARGIN_FROM_AVAILABLE` | `false` | Skąd brać użyty depozyt: `false` = pole `deposit` z API (zachowanie sprzed poprawki), `true` = `kapitał − dostępne`. **`true` to wartość poprawna** (patrz 10.3), ale podnosi ekspozycję ok. czterokrotnie — włączaj razem z docelowym `ALLOC_PCT`. |
 | `ROTATION_MAX_DNI` | `9` | Po ilu dniach od `d0` bot ostrzega, że rutyna tygodniowa nie wystartowała. `0` wyłącza ostrzeżenie. |
 | `KURSY_LIMIT_CZASU` | `600` | Budżet czasu dla `scripts/kursy.py` (sekundy). |
 | `KURSY_UA` | — | Własny User-Agent dla Yahoo, próbowany jako pierwszy. |
@@ -410,6 +411,33 @@ odrzucić niewiarygodny odczyt. Bot **diagnozuje** problem sam: blok
 `stopa_odrzucona`, `realizacja_celu` i `alloc_pct_faktyczny`, a gdy cel jest
 osiągalny w mniej niż 90%, do „pominiętych" trafia linia `UWAGA ALOKACJA`,
 a do powiadomienia znacznik `↘ alokacja X%/26%`.
+
+**ROZSTRZYGNIĘTE 29.09.2026 — to nie jest kwestia dźwigni, tylko złego pola.**
+Odczyt `/run` pokazał `stopa_wyliczona: 0.8896`, ale zestawienie całego bloku
+`konto` wyjaśnia dlaczego:
+
+| | 29.09.2026 | 18.09.2026 |
+|---|---|---|
+| kapitał | 1 057,73 | 1 041,61 |
+| dostępne do handlu | 820,42 | 864,15 |
+| pole `deposit` z API | **1 053,62** | 177,45 |
+| `kapitał − wycena` (gotówka) | **1 053,62** | — |
+| `kapitał − dostępne` | **237,31** | 177,46 |
+| ekspozycja brutto | 1 184,43 | ~888 |
+| stopa z pola `deposit` | **0,8896** | 0,1998 |
+| stopa z `kapitał − dostępne` | **0,2004** | 0,1998 |
+
+29.09 pole `deposit` jest co do grosza równe **gotówce**, a nie depozytowi
+zabezpieczającemu — stąd stopa 89%. Różnica `kapitał − dostępne` daje **20,0%
+w obu odczytach**, czyli podręcznikową stopę dla akcji USA. Na odczycie
+z 18.09 oba źródła były zgodne i właśnie dlatego błąd tak długo pozostawał
+niewidoczny.
+
+**Zmiana:** nowa zmienna `MARGIN_FROM_AVAILABLE`. Domyślnie `false`, czyli
+zachowanie bez zmian. Niezależnie od ustawienia blok `limit_depozytowy`
+zawiera teraz `depozyt_z_pola`, `depozyt_z_dostepnych`, `zrodlo_depozytu`
+oraz `gdyby_drugie_zrodlo` — symulację tego, co zrobiłoby drugie źródło.
+Decyzja o włączeniu jest decyzją o ryzyku, nie o poprawności odczytu.
 
 Podniesienie alokacji **czterokrotnie zwiększa też obsunięcia** — dołek
 14.09 (−4,56%) zrobiłby się ok. −18%, a próg kill switcha −25% byłby
