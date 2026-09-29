@@ -145,32 +145,40 @@ nie, znowu coś przycina i trzeba to obejrzeć, zanim pójdziesz wyżej.
 
 ---
 
-## KROK 4 — Rutyna tygodniowa (nadal niezrobione, koszyk ma już 18 dni)
+## KROK 4 — Rutyna tygodniowa: ODTWORZONA 29.09 ✅ — teraz wklej poprawioną wersję
 
-Rutyna sobotnia **nie wystartowała 19.09 ani 26.09**. To dlatego koszyk
-`2026-W4` pracuje 17. dzień zamiast 5., a pięć reakcji z 15–17.09 wisi
-zamrożonych, bo miały obowiązywać „do soboty".
+Ustalone: między 12.09 a 19.09 treść zadania sobotniego została nadpisana
+treścią dziennego (soboty 19.09 i 26.09 odpaliły puls o 07:1x, w slocie
+tygodniowym). Odtworzona wersja to stan sprzed `INSTRUKCJA.md` §5.6.
 
-Sprawdź w kolejności:
+**Poprawiona treść jest w repo: `rutyny/tygodniowa.md`** (lista zmian:
+`rutyny/README.md`). Od teraz to jest źródło prawdy — najpierw plik, potem
+wklejenie do zadania.
 
-1. **Czy zadanie w ogóle istnieje?** Wejdź w listę swoich zaplanowanych
-   rutyn (tam, gdzie zdefiniowana jest rutyna dzienna „Puls NDX100”)
-   i sprawdź, czy obok niej jest rutyna sobotnia.
-2. **Czy ma poprawny harmonogram?** Powinna odpalać w sobotę, po zamknięciu
-   piątkowej sesji.
-3. **Czy się nie wywraca po cichu?** Jeśli jest i ma harmonogram, odpal ją
-   ręcznie raz i zobacz, czy dojdzie do końca.
+1. Otwórz `rutyny/tygodniowa.md`, skopiuj **wszystko poniżej linii `---`**.
+2. Wklej do zadania „Ranking NDX100 — raport tygodniowy", zastępując treść.
+3. **Odpal ręcznie teraz** — najlepiej przed **13:45 UTC (15:45 czasu
+   polskiego)**, żeby bieg bota 13:45 wykonał rotację jednym ruchem.
+   Prompt sam rozpozna, że to bieg w środku tygodnia (n = 12 sesji od D0),
+   i oznaczy rozliczenie W4 jako PRZETERMINOWANE z polem `sesje: 12`.
+4. Po biegu sprawdź:
+   ```
+   grep -o '"version": "[^"]*"' signals.json     # 2026-W5
+   ls reports/raport-2026-W*.html                 # przybyło W5
+   ```
+   W `history` ma być wpis `2026-W4` z obiema seriami (`spread_pp`,
+   `spread_fills_pp`) i `sesje: 12`.
 
-**Po naprawie rutyna sobotnia powinna, tak jak dotąd:** nadpisać `long`,
-`short`, `version`, `d0`, dopisać wpis do `history` (`spread_pp`,
-`spread_fills_pp`, `reaction_pp`), wyczyścić `exclude` i wygenerować
-`reports/raport-2026-WX.html`.
+Czego się spodziewać po rotacji: bot o 13:45 zamknie nazwy spoza nowego
+koszyka i otworzy nowe od razu po ok. 127 USD; `exclude` i `tactical` zostaną
+wyczyszczone (AKAM zamknięty — tak działa rotacja z założenia); ceny odniesienia
+zresetują się dla wszystkich nazw (nowa `version`); ostrzeżenie `⏳ koszyk 18
+dni` zniknie.
 
-**Jeśli rutyny nie da się szybko przywrócić** — napisz mi, a przygotuję
-rotację jako zadanie do odpalenia ręcznie w tej samej sesji co puls dzienny.
-
-> Od teraz bot sam o tym przypomina: po 9 dniach od `d0` w powiadomieniu
-> pojawia się `⏳ koszyk N dni`, a w „pominiętych" linia `UWAGA ROTACJA`.
+**Zadanie dzienne — jedna zmiana, kiedy będziesz miał chwilę.** Kopia z dwiema
+poprawkami: `rutyny/dzienna.md`. Najważniejsza: stopka raportu mówi jeszcze
+„26% kapitału", a prawda to 12%. Skopiuj treść poniżej `---` i wklej do
+zadania „Puls NDX100". To nie jest pilne — nie blokuje niczego.
 
 ---
 
