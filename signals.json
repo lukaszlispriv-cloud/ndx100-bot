@@ -17,8 +17,16 @@
     "APP"
   ],
   "exclude": [],
-  "tactical": [],
-  "last_daily": "2026-09-29",
+  "tactical": [
+    {
+      "ticker": "VICR",
+      "direction": "BUY",
+      "epic": "VICR",
+      "entry_date": "2026-10-01",
+      "reason": "Vicor 30.09 po sesji po raz drugi w ok. 10 dni podniósł guidance wzrostu przychodów 3Q26 kw/kw: z >20% do >30% (tantiemy z pierwszej licencji VPD dla OEM-a AI); reakcja +10,3% po sesji, pre-market 1.10 +13,0% (326,62 vs 288,94). Nasdaq Composite, spoza NDX-100. Teza upada przy zamknięciu poniżej 288,94 w dwóch pierwszych sesjach."
+    }
+  ],
+  "last_daily": "2026-10-01",
   "history": [
     {
       "week": "2026-W1",
