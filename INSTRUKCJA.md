@@ -487,3 +487,41 @@ Trzy z czterech biegów weekendowych raportowały `błędy: 1` przy
 (POMINIĘCIE), a raz wyjątkiem `requests.HTTPError` (BŁĄD). **Zmiana:** brak
 wyceny rynku w pętli otwarć jest teraz zawsze pominięciem; kanał „błędy"
 zostaje dla rzeczy, które wymagają reakcji człowieka.
+
+---
+
+## 11. Poprawki z 3.10.2026 i podwojenie wolumenu
+
+Audyt historii transakcji 3.09–2.10.2026: bot zarobił +100,04 USD (+10,09%)
+przy Nasdaq-100 +5,71%, ale dwa sygnały nie dotarły do rachunku, a
+rozliczenie tygodniowe tego nie zauważyło.
+
+| Usterka | Skutek | Poprawka |
+|---|---|---|
+| REDUCE na pozycji z jednym minimalnym lotem znikał bez śladu (STX 2.10: 0,1 akcji ≈ 85 USD, cel po redukcji ≈ 65 USD mieścił się w paśmie tolerancji) | reakcja pulsu nie wykonana, brak informacji w logu | Redukcja to reakcja, nie wyrównanie: nie podlega pasmu, progowi opłacalności ani oknu `REBALANCE_HOURS`; gdy jest niewykonalna, decyduje `REDUCE_FALLBACK`, a powiadomienie pokazuje `⚠ REDUCE niewykonalny: TICKER` |
+| REDUCE działał tylko w biegu 17:05 UTC | reakcja z rana czekała do popołudnia | Redukcje w każdym biegu |
+| Pozycje taktyczne VICR i ACN nigdy nie otwarte (minimalna transakcja droższa niż 1,6 × cel 109 USD) | sloty taktyczne zajęte przez nieistniejące pozycje | Powiadomienie `⚠ taktyczne nieotwarte: …`; rutyna dzienna sprawdza wykonalność i zwalnia slot |
+| Rozliczenie W5 wpisało `tactical_pp` −1,72 i `reaction_pp` +1,05, których rachunek nie miał | history mierzy decyzje, a nie wynik | Bot zapisuje w `signals.json` pole `wykonanie` (statusy REDUCE i taktycznych); rutyna tygodniowa liczy wynik tylko z wykonanych |
+| Token `/run` w adresie URL w każdym wierszu logu Render | token w logach i w udostępnionych plikach | Token w nagłówku `X-Run-Token` (adres z `?token=` nadal działa); logi dostępu maskują `token=***` |
+
+**Podwojenie wolumenu (decyzja właściciela, 3.10.2026).** Domyślne wartości
+w kodzie: `ALLOC_PCT` 0,24 i `TACTICAL_ALLOC_PCT` 0,20. Wartości w panelu
+Render mają pierwszeństwo, więc trzeba je tam zmienić:
+
+```
+ALLOC_PCT          = 0.24   (było 0.12)
+TACTICAL_ALLOC_PCT = 0.20   (było 0.10)
+```
+
+Skutki: ekspozycja brutto rośnie z ok. 120% do ok. 240% kapitału (ok.
+2 600 USD), depozyt przy stopie 20% to ok. 48% kapitału wobec limitu
+`MARGIN_BUDGET` 60%. Obsunięcia rosną mniej więcej dwukrotnie: dołek
+z 14.09 (−4,57%) wyniósłby ok. −9%. Ogranicznik tempa (`MAX_EXPOSURE_STEP`
+25% na bieg) i okno wyrównywania (17:05 UTC) rozkładają dojście do celu na
+ok. 4 sesje. Po zmianie sprawdź w odpowiedzi `/run`, czy
+`limit_depozytowy.alloc_pct_faktyczny` wynosi 0,24 — znacznik
+`↘ alokacja` w powiadomieniu oznacza, że limit depozytowy przycina cel.
+
+**Token w nagłówku.** W cron-job.org w zadaniu `/run` dodaj nagłówek
+`X-Run-Token: <token>` i usuń `?token=` z adresu. Przed tym wygeneruj nowy
+`RUN_TOKEN` w Renderze — stary trafił do logów.
