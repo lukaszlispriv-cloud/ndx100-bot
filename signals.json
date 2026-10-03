@@ -1,46 +1,23 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W5",
+  "version": "2026-W6",
   "status": "AKTUALNA",
   "long": [
     "MU",
-    "AMD",
-    "ALAB",
-    "STX",
-    "TER"
+    "LITE",
+    "TER",
+    "AMAT",
+    "AMD"
   ],
   "short": [
-    "SBUX",
+    "APP",
     "NFLX",
-    "PEP",
+    "PAYX",
     "CMCSA",
-    "APP"
+    "SBUX"
   ],
-  "exclude": [
-    {
-      "ticker": "STX",
-      "action": "REDUCE",
-      "basis": "news",
-      "reason": "Nikkei Asia 2.10: Toshiba zainwestuje ok. 60 mld JPY (ok. 400 mln USD), by do FY2027 podwoić moce produkcyjne HDD (cel udziału 10% → 30%); uderza w filar tezy (niedobór nearline, alokacja do 2027, siła cenowa duopolu). Reakcja pre-market 2.10 08:36 ET: STX 845,57 (−10,58% vs zamkn. 945,57), WDC −8,14%. Istotny negatyw poniżej rangi szoku → REDUCE natychmiast (basis news, bramka nie dotyczy). Pozycja na zamknięciu 1.10 +3,25% od wejścia 915,81. Awans do CLOSE możliwy, gdy ruch względny vs ^NDX przeciw tezie przekroczy 8 p.p. na dwóch kolejnych zamknięciach przy ruchu bezwzględnym ≥8%.",
-      "date": "2026-10-02"
-    }
-  ],
-  "tactical": [
-    {
-      "ticker": "VICR",
-      "direction": "BUY",
-      "epic": "VICR",
-      "entry_date": "2026-10-01",
-      "reason": "Vicor 30.09 po sesji po raz drugi w ok. 10 dni podniósł guidance wzrostu przychodów 3Q26 kw/kw: z >20% do >30% (tantiemy z pierwszej licencji VPD dla OEM-a AI); reakcja +10,3% po sesji, pre-market 1.10 +13,0% (326,62 vs 288,94). Nasdaq Composite, spoza NDX-100. Teza upada przy zamknięciu poniżej 288,94 w dwóch pierwszych sesjach."
-    },
-    {
-      "ticker": "ACN",
-      "direction": "BUY",
-      "epic": "ACN",
-      "entry_date": "2026-10-02",
-      "reason": "Accenture 1.10 przed sesją: 4Q FY26 EPS 3,29 USD vs kons. ok. 3,18 (LSEG), przychody 18,7 mld USD vs kons. ok. 18,03 mld; rekordowe 141 kontraktów >100 mln USD, prognoza FY27 (wzrost 3–6% w walutach lokalnych) powyżej oczekiwań, podniesiona dywidenda. Reakcja: zamknięcie 212,30 (+15,78% vs 183,37) — najlepszy dzień w historii spółki; pre-market 2.10 08:34 ET 211,73 (luka utrzymana). S&P 500, spoza NDX-100. Teza upada przy zamknięciu poniżej 183,37 (kurs sprzed wyników) w dwóch pierwszych sesjach."
-    }
-  ],
+  "exclude": [],
+  "tactical": [],
   "last_daily": "2026-10-02",
   "history": [
     {
@@ -84,25 +61,37 @@
       "reaction_pp": -3.08,
       "rezim": "P0",
       "sesje": 11
+    },
+    {
+      "week": "2026-W5",
+      "spread_pp": 5.95,
+      "spread_fills_pp": 7.76,
+      "hit_top": "3/5",
+      "hit_bottom": "5/5",
+      "tactical_pp": -1.72,
+      "managed_pp": 7.0,
+      "reaction_pp": 1.05,
+      "rezim": "P0",
+      "sesje": 4
     }
   ],
   "d0": {
-    "date": "2026-09-28",
-    "ndx": 30276.81,
+    "date": "2026-10-02",
+    "ndx": 30807.93,
     "prices": {
-      "MU": 1053.98,
-      "AMD": 607.87,
-      "ALAB": 351.31,
-      "STX": 921.51,
-      "TER": 401.3,
-      "SBUX": 95.27,
-      "NFLX": 69.23,
-      "PEP": 128.5,
-      "CMCSA": 21.79,
-      "APP": 308.24
+      "MU": 1074.89,
+      "LITE": 1085.42,
+      "TER": 449.04,
+      "AMAT": 540.04,
+      "AMD": 633.91,
+      "APP": 268.22,
+      "NFLX": 67.06,
+      "PAYX": 98.94,
+      "CMCSA": 21.57,
+      "SBUX": 94.71
     }
   },
-  "generated": "2026-09-29",
+  "generated": "2026-10-03",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
@@ -205,7 +194,8 @@
     "GEHC": "GEHC",
     "ALNY": "ALNY",
     "CPRT": "CPRT",
-    "KHC": "KHC"
+    "KHC": "KHC",
+    "MRNA": "MRNA"
   },
   "fills": {
     "SBUX": {
