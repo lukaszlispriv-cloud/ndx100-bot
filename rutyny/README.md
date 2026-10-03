@@ -9,7 +9,7 @@ zmieniło, a nadpisanie zadania przez pomyłkę odtwarza się jednym kopiuj-wkle
 | `dzienna.md` | „Puls NDX100" | codziennie ok. 12:40 UTC | tylko `status`, `exclude`, `tactical`, `last_daily` | `reports/puls-RRRR-MM-DD.html` |
 | `tygodniowa.md` | „Ranking NDX100 — raport tygodniowy" | sobota ok. 07:30 UTC | `version`, `long`, `short`, `d0`, `generated`, `exclude=[]`, `tactical=[]`, wpis do `history` | `reports/raport-2026-WX.html` |
 
-Żadna z nich nie dotyka `fills` ani `equity_peak` — te pisze bot.
+Żadna z nich nie dotyka `fills`, `equity_peak` ani `wykonanie` — te pisze bot. `wykonanie` mówi, które REDUCE i pozycje taktyczne naprawdę zadziałały na rachunku; rozliczenie tygodniowe liczy wynik tylko z nich.
 
 ## Jak w 5 sekund poznać, która rutyna faktycznie się odpaliła
 

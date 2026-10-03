@@ -85,6 +85,7 @@ Materiał badawczo-edukacyjny. Nie jest poradą inwestycyjną.
 import os
 import re
 import json
+import hmac
 import math
 import time
 import base64
@@ -118,7 +119,10 @@ DRY_RUN          = os.environ.get("DRY_RUN", "true").lower() == "true"
 # spada z 587% do ok. 192%. Dochodzenie do celu rozkłada MAX_EXPOSURE_STEP
 # na kilka biegów, a LIMIT DEPOZYTOWY niżej pilnuje, żeby broker nie
 # odrzucił zleceń z braku wolnego depozytu.
-ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.26"))
+# PODWOJENIE WOLUMENU (decyzja właściciela, 3.10.2026): 0,12 -> 0,24 na
+# pozycję koszykową i 0,10 -> 0,20 na taktyczną. Zmienna ALLOC_PCT ustawiona
+# w panelu Render ma pierwszeństwo przed tą wartością domyślną.
+ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.24"))
 # Wielkość awaryjna: używana, gdy KONTROLA KAPITAŁU nie przechodzi (na
 # rachunku są pozycje spoza książki albo equity nie zgadza się z sumą upl).
 # Nie skalujemy pozycji na portfelu, którego nie potrafimy odtworzyć.
@@ -190,7 +194,7 @@ WEB_MAX_WEEKLY    = int(os.environ.get("WEB_MAX_WEEKLY", "30"))
 
 # --- Moduł taktyczny: dokładki w środku tygodnia (rozliczane OSOBNO)
 TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "true").lower() == "true"
-TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.10"))
+TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.20"))
 TACTICAL_MAX       = int(os.environ.get("TACTICAL_MAX", "2"))
 REDUCE_FACTOR      = float(os.environ.get("REDUCE_FACTOR", "0.5"))
 # --- Bramka wyzwalaczy cenowych --------------------------------------------
@@ -893,6 +897,66 @@ def calc_size(cap, target_acc, epic, acc_ccy):
     return size, m, "ok"
 
 
+def scal_wykonanie(stare, biezace, sig):
+    """Łączy stan wykonania z bieżącego biegu z zapisanym w signals.json.
+
+    Zostają tylko wpisy, które nadal dotyczą aktualnych sygnałów (REDUCE
+    w exclude, ticker w tactical). Status "rynek zamknięty" nie nadpisuje
+    wcześniejszego, żeby weekendowe biegi nie robiły commitów.
+    """
+    reduce_t = {e.get("ticker") for e in sig.get("exclude", [])
+                if e.get("action") == "REDUCE"}
+    takt_t = {t.get("ticker") for t in sig.get("tactical", [])}
+    wynik = {"reakcje": {}, "taktyczne": {}}
+    for klucz, wazne in (("reakcje", reduce_t), ("taktyczne", takt_t)):
+        poprzednie = (stare or {}).get(klucz) or {}
+        for t in wazne:
+            nowy = (biezace.get(klucz) or {}).get(t)
+            # Pozycja zredukowana we wcześniejszym biegu w kolejnych biegach
+            # wygląda na "na poziomie celu" - zachowujemy fakt wykonania.
+            if (nowy and nowy.startswith("REDUCE: pozycja na poziomie")
+                    and poprzednie.get(t) == "REDUCE wykonany"):
+                nowy = None
+            if nowy and "rynek zamknięty" not in nowy:
+                wynik[klucz][t] = nowy
+            elif t in poprzednie:
+                wynik[klucz][t] = poprzednie[t]
+            elif nowy:
+                wynik[klucz][t] = nowy
+    if stare and stare.get("aktualizacja"):
+        wynik["aktualizacja"] = stare["aktualizacja"]
+    return wynik
+
+
+def plan_redukcji(cap, p, cel_acc, acc_ccy):
+    """Decyzja dla pozycji z REDUCE w exclude. Zwraca (decyzja, size, opis):
+
+      * "zmniejsz"     - da się zejść do mniejszej wielkości (size < obecnej),
+      * "zredukowana"  - pozycja już jest na poziomie celu po redukcji albo
+                         poniżej (np. zredukowana we wcześniejszym biegu),
+      * "niewykonalna" - pozycja jest za duża, ale krok wielkości nie pozwala
+                         jej zmniejszyć (typowo: jeden minimalny lot).
+
+    2.10.2026 REDUCE dla STX (0,1 akcji = ok. 85 USD przy celu po redukcji
+    ok. 65 USD) przepadł bez śladu: pozycja mieściła się w paśmie tolerancji
+    wyrównywania, więc pętla pomijała ją, zanim doszło do raportu. Redukcja
+    nie jest kosmetyką wielkości, tylko reakcją - nie podlega pasmu, progowi
+    opłacalności ani oknu REBALANCE_HOURS.
+    """
+    size, m, info = calc_size(cap, cel_acc, p["epic"], acc_ccy)
+    fx = cap.fx_rate(acc_ccy, m["currency"]) if m.get("currency") else 1.0
+    cur_acc = p["size"] * m["mid"] / fx if m.get("mid") else None
+    if size is not None and size < p["size"] - 1e-9:
+        return "zmniejsz", size, (f"size {p['size']} -> {size} "
+                                  f"(cel {cel_acc:.0f} {acc_ccy})")
+    if cur_acc is not None and cur_acc <= cel_acc * 1.25:
+        return "zredukowana", p["size"], (f"pozycja {cur_acc:.0f} {acc_ccy} "
+                                          f"przy celu {cel_acc:.0f} {acc_ccy}")
+    return "niewykonalna", None, (
+        f"pozycja {p['size']} (~{(cur_acc or 0):.0f} {acc_ccy}) to najmniejsza "
+        f"możliwa wielkość, cel po redukcji {cel_acc:.0f} {acc_ccy} ({info})")
+
+
 # ----------------------------------------------------------------------------
 # SYNCHRONIZACJA PORTFELA (/run)
 # ----------------------------------------------------------------------------
@@ -1534,6 +1598,11 @@ def sync():
     rep["alloc_pct"] = round(alloc, 4)
 
     stracone = set()
+    # WYKONANIE SYGNAŁÓW - zapisywane do signals.json, żeby rutyny wiedziały,
+    # co naprawdę stało się na rachunku. Rozliczenie W5 (3.10.2026) wpisało
+    # do history wynik taktycznych -1,72 p.p. i reakcji +1,05 p.p., choć VICR
+    # i ACN nigdy nie zostały otwarte, a REDUCE na STX się nie wykonał.
+    wykonanie = {"reakcje": {}, "taktyczne": {}}
     # OKNO WYRÓWNYWANIA. Każde wyrównanie to zamknięcie i ponowne otwarcie,
     # czyli pełny spread; robienie tego dwa razy dziennie podwajało rachunek
     # bez żadnej korzyści, bo cel między biegami prawie się nie zmienia.
@@ -1559,14 +1628,56 @@ def sync():
             f"wyrównywanie wielkości pominięte — ten bieg jest poza oknem "
             f"REBALANCE_HOURS={REBALANCE_HOURS} UTC (otwarcia, zamknięcia, "
             f"reakcje i stopy działają normalnie)")
-    for p in (positions if wyrownuj else []):
+    for p in positions:
         want = book.get(p["epic"])
         # poza koszykiem albo zmiana kierunku = zamknięta w pętli wyżej
         if not want or want["direction"] != p["direction"]:
             continue
+        redukcja = bool(want.get("reduced")) and not want.get("tactical")
+        # Poza oknem wyrównywania obsługujemy wyłącznie REDUKCJE: to reakcje,
+        # a reakcje działają w każdym biegu.
+        if not wyrownuj and not redukcja:
+            continue
         m = rynek(cap, p["epic"], rep, want["ticker"])
         if m is None:
             continue          # rynek zamknięty albo błąd — już opisane
+        if redukcja:
+            cel_red = equity * alloc_docelowy * REDUCE_FACTOR
+            decyzja, size_r, opis = plan_redukcji(cap, p, cel_red, ccy)
+            t = want["ticker"]
+            if decyzja == "zredukowana":
+                wykonanie["reakcje"].setdefault(
+                    t, f"REDUCE: pozycja na poziomie celu po redukcji ({opis})")
+                continue
+            if decyzja == "niewykonalna":
+                if REDUCE_FALLBACK == "close":
+                    do_close(p, f"REDUCE niewykonalny ({opis}) — "
+                                f"REDUCE_FALLBACK=close")
+                    wykonanie["reakcje"][t] = "REDUCE niewykonalny — zamknięta w całości"
+                else:
+                    rep["pominiete"].append(
+                        f"{t}: REDUCE NIEWYKONALNY — {opis}; pozycja zostaje "
+                        f"w pełnej wielkości (REDUCE_FALLBACK=keep)")
+                    rep.setdefault("redukcje_niewykonalne", []).append(t)
+                    wykonanie["reakcje"][t] = "REDUCE niewykonalny — pozycja bez zmian"
+                continue
+            if DRY_RUN:
+                rep["akcje"].append(f"[DRY] ZREDUKUJ {t} {opis}")
+                continue
+            ok, msg = cap.close(p["dealId"])
+            if not ok:
+                rep["błędy"].append(f"redukcja {t}: {msg}")
+                continue
+            ok2, ref, msg2 = cap.open(p["epic"], want["direction"], size_r)
+            rep["akcje"].append(f"ZREDUKOWANO {t}: {opis}" if ok2
+                                else f"BŁĄD redukcji {t}: {msg2}")
+            if ok2:
+                wykonanie["reakcje"][t] = "REDUCE wykonany"
+            else:
+                rep["błędy"].append(msg2)
+                stracone.add(p["epic"])
+            time.sleep(0.4)
+            continue
         fx = cap.fx_rate(ccy, m["currency"])
         cur_acc = p["size"] * m["mid"] / fx
         # Pasmo tolerancji z granulacji: najlepszy osiągalny błąd to pół
@@ -1650,8 +1761,13 @@ def sync():
         "koszyk": round(equity * alloc, 2),
         "koszyk_po_redukcji": round(equity * alloc * REDUCE_FACTOR, 2),
         "taktyczna": round(equity * TACTICAL_ALLOC_PCT, 2)}
+    def _status_takt(want, opis):
+        if want.get("tactical"):
+            wykonanie["taktyczne"][want["ticker"]] = opis
+
     for epic, want in book.items():
         if held.get(epic) == want["direction"]:
+            _status_takt(want, "otwarta")
             continue
         # Nowo otwierane pozycje idą od razu w rozmiarze docelowym
         # (po limicie depozytowym, bez ogranicznika tempa — patrz wyżej).
@@ -1671,6 +1787,7 @@ def sync():
             rep["pominiete"].append(
                 f"{want['ticker']}: brak wyceny rynku — otwarcie odłożone "
                 f"do kolejnego biegu ({e})")
+            _status_takt(want, f"nieotwarta — brak rynku u brokera ({e})")
             continue
         if m["status"] != RYNEK_OTWARTY or not m["mid"]:
             # Rynek zamknięty (weekend, święto, przerwa) to POMINIĘCIE,
@@ -1681,6 +1798,7 @@ def sync():
             continue
         if size is None:
             rep["pominiete"].append(f"{want['ticker']}: {info}")
+            _status_takt(want, f"nieotwarta — {info}")
             continue
         if DRY_RUN:
             rep["akcje"].append(f"[DRY] OTWÓRZ {want['direction']} "
@@ -1691,6 +1809,7 @@ def sync():
         rep["akcje"].append(f"OTWARTO {want['direction']} {want['ticker']} "
                             f"size {size} (ref {ref})" if ok
                             else f"BŁĄD otwarcia {want['ticker']}: {msg}")
+        _status_takt(want, "otwarta" if ok else f"nieotwarta — błąd brokera: {msg}")
         if not ok:
             rep["błędy"].append(msg)
         time.sleep(0.4)
@@ -1732,12 +1851,21 @@ def sync():
             zmiana_szczytu = (KILL_TRAILING
                               and szczyt > max(szczyt_stary * 1.005,
                                                szczyt_stary + 0.01))
-            if nowe != stare or zmiana_szczytu:
+            wyk_stare = sig.get("wykonanie") or {}
+            wyk_nowe = scal_wykonanie(wyk_stare, wykonanie, sig)
+            zmiana_wyk = ({k: wyk_nowe.get(k) for k in ("reakcje", "taktyczne")}
+                          != {k: wyk_stare.get(k) for k in ("reakcje", "taktyczne")})
+            if zmiana_wyk:
+                wyk_nowe["aktualizacja"] = date.today().isoformat()
+                sig["wykonanie"] = wyk_nowe
+                rep["wykonanie"] = wyk_nowe
+            if nowe != stare or zmiana_szczytu or zmiana_wyk:
                 sig["fills"] = nowe
                 if KILL_TRAILING:
                     sig["equity_peak"] = round(szczyt, 2)
                 save_signals(sig, sig_sha,
                              f"bot: ceny wejścia ({len(nowe)} pozycji)"
+                             + (", wykonanie sygnałów" if zmiana_wyk else "")
                              + (f", szczyt kapitału {szczyt:.2f}"
                                 if zmiana_szczytu else ""))
                 rep["zapis_fills"] = {"pozycje": len(nowe),
@@ -1760,6 +1888,13 @@ def sync():
     zlagodzone = [r for r in slad if r.get("wykonane") != r.get("wpis")]
     if zlagodzone:
         ostrzezenia.append(f"↓ bramka x{len(zlagodzone)}")
+    if rep.get("redukcje_niewykonalne"):
+        ostrzezenia.append("⚠ REDUCE niewykonalny: "
+                           + ",".join(rep["redukcje_niewykonalne"]))
+    _tn = [t for t, v in wykonanie["taktyczne"].items()
+           if v.startswith("nieotwarta")]
+    if _tn:
+        ostrzezenia.append("⚠ taktyczne nieotwarte: " + ",".join(_tn))
     if rep.get("wiek_koszyka", {}).get("przeterminowany"):
         ostrzezenia.append(f"⏳ koszyk {rep['wiek_koszyka']['dni']} dni")
     _lim = rep.get("limit_depozytowy") or {}
@@ -1824,7 +1959,37 @@ def sync():
 # ENDPOINTY
 # ----------------------------------------------------------------------------
 def auth_ok():
-    return request.args.get("token") == RUN_TOKEN
+    """Token z nagłówka X-Run-Token (zalecane) albo z ?token= (zgodność wstecz).
+
+    Token w adresie URL trafiał do każdego wiersza logu dostępu na Render.
+    Nagłówek nie jest logowany, a filtr niżej maskuje ?token= w logach dla
+    crona, który jeszcze nie przeszedł na nagłówek.
+    """
+    podany = (request.headers.get("X-Run-Token")
+              or request.args.get("token") or "")
+    return bool(RUN_TOKEN) and hmac.compare_digest(podany.encode(),
+                                                   RUN_TOKEN.encode())
+
+
+class _MaskujToken(logging.Filter):
+    _wzor = re.compile(r"(token=)[^&\s\"]+")
+
+    def filter(self, record):
+        try:
+            if record.args:
+                record.args = tuple(self._wzor.sub(r"\1***", a)
+                                    if isinstance(a, str) else a
+                                    for a in (record.args if isinstance(
+                                        record.args, tuple) else (record.args,)))
+            if isinstance(record.msg, str):
+                record.msg = self._wzor.sub(r"\1***", record.msg)
+        except Exception:
+            pass
+        return True
+
+
+for _nazwa in ("gunicorn.access", "werkzeug"):
+    logging.getLogger(_nazwa).addFilter(_MaskujToken())
 
 
 @app.get("/health")

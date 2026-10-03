@@ -436,10 +436,11 @@ sprawdz("stopa 50% ogranicza cel bardziej niz stopa 20%",
         < limit_depozytowy(1041.61, 0.20, 0.26))
 
 # Wartosci domyslne po podwojeniu.
-sprawdz("ALLOC_PCT podwojony do 0.26", abs(app.ALLOC_PCT - 0.26) < 1e-12,
+# 3.10.2026: wolumen podwojony wobec 0,12 / 0,10 ustawionych w panelu.
+sprawdz("ALLOC_PCT domyslnie 0.24", abs(app.ALLOC_PCT - 0.24) < 1e-12,
         app.ALLOC_PCT)
-sprawdz("TACTICAL_ALLOC_PCT podwojony do 0.10",
-        abs(app.TACTICAL_ALLOC_PCT - 0.10) < 1e-12, app.TACTICAL_ALLOC_PCT)
+sprawdz("TACTICAL_ALLOC_PCT domyslnie 0.20",
+        abs(app.TACTICAL_ALLOC_PCT - 0.20) < 1e-12, app.TACTICAL_ALLOC_PCT)
 sprawdz("ALLOC_PCT_SAFE zostaje zachowawczy",
         app.ALLOC_PCT_SAFE < app.ALLOC_PCT)
 
@@ -640,6 +641,69 @@ sprawdz("bez wpisu w fills obca pozycja NIE jest dotykana",
         "AKAM" not in managed_z(s_brak))
 sprawdz("pozycje z NDX-100 nadal w managed niezaleznie od fills",
         "MU" in managed_z(s_brak))
+
+# ------------------ REDUCE na pozycji z jednym lotem (STX, 2.10.2026) --------
+print("\nREDUKCJA — reakcja nie znika w paśmie tolerancji")
+
+cap = FakeCap({"STX": 849.10}, minimum=0.1)
+stx = {"epic": "STX", "size": 0.1, "direction": "BUY"}
+# cel po redukcji przy kapitale 1088 i ALLOC 0,12: ok. 65 USD
+dec, size, opis = app.plan_redukcji(cap, stx, 1088 * 0.12 * 0.5, "USD")
+sprawdz("STX 0,1 przy celu 65 USD: redukcja NIEWYKONALNA, nie cicha",
+        dec == "niewykonalna" and size is None, (dec, size, opis))
+stx2 = {"epic": "STX", "size": 0.2, "direction": "BUY"}
+dec, size, _ = app.plan_redukcji(cap, stx2, 1092 * 0.24 * 0.5, "USD")
+sprawdz("STX 0,2 po podwojeniu wolumenu: redukcja do 0,1",
+        dec == "zmniejsz" and abs(size - 0.1) < 1e-9, (dec, size))
+dec, size, _ = app.plan_redukcji(cap, {"epic": "STX", "size": 0.1,
+                                       "direction": "BUY"},
+                                 1092 * 0.24 * 0.5, "USD")
+sprawdz("po redukcji kolejny bieg nie redukuje ponownie",
+        dec == "zredukowana", dec)
+cap = FakeCap({"ALAB": 350.0}, minimum=0.1)
+dec, size, _ = app.plan_redukcji(cap, {"epic": "ALAB", "size": 0.4,
+                                       "direction": "BUY"}, 65.0, "USD")
+sprawdz("ALAB 0,4 przy celu 65 USD: redukcja do 0,2",
+        dec == "zmniejsz" and abs(size - 0.2) < 1e-9, (dec, size))
+
+# ------------------ zapis wykonania sygnałów do signals.json ----------------
+print("\nWYKONANIE SYGNAŁÓW — rutyny wiedzą, co naprawdę się stało")
+s_w = sig(exclude=[{"ticker": "MU", "action": "REDUCE", "basis": "news"}],
+          tactical=[{"ticker": "VICR", "direction": "BUY", "epic": "VICR"}])
+w = app.scal_wykonanie({}, {"reakcje": {"MU": "REDUCE wykonany"},
+                            "taktyczne": {"VICR": "nieotwarta — min. wielkość"}},
+                       s_w)
+sprawdz("status reakcji i taktycznej zapisany",
+        w["reakcje"].get("MU") == "REDUCE wykonany"
+        and w["taktyczne"]["VICR"].startswith("nieotwarta"), w)
+w2 = app.scal_wykonanie(w, {"reakcje": {}, "taktyczne": {
+    "VICR": "nieotwarta — VICR: rynek zamknięty"}}, s_w)
+sprawdz("weekendowy 'rynek zamknięty' nie nadpisuje statusu",
+        w2["taktyczne"]["VICR"] == w["taktyczne"]["VICR"], w2)
+w4 = app.scal_wykonanie(w, {"reakcje": {"MU": "REDUCE: pozycja na poziomie celu po redukcji (x)"},
+                            "taktyczne": {}}, s_w)
+sprawdz("raz wykonany REDUCE nie zmienia się w 'na poziomie celu'",
+        w4["reakcje"]["MU"] == "REDUCE wykonany", w4)
+w3 = app.scal_wykonanie(w, {"reakcje": {}, "taktyczne": {}}, sig())
+sprawdz("po rotacji (puste exclude/tactical) wpisy znikają",
+        w3["reakcje"] == {} and w3["taktyczne"] == {}, w3)
+
+# ------------------ token biegu: nagłówek i maskowanie w logach -------------
+print("\nTOKEN — nagłówek zamiast adresu, maskowanie w logach")
+with app.app.test_request_context("/run", headers={"X-Run-Token": "test"}):
+    sprawdz("token z nagłówka X-Run-Token akceptowany", app.auth_ok())
+with app.app.test_request_context("/run?token=test"):
+    sprawdz("token w adresie nadal działa (zgodność z cronem)", app.auth_ok())
+with app.app.test_request_context("/run?token=zly"):
+    sprawdz("zły token odrzucony", not app.auth_ok())
+import logging  # noqa: E402
+rec = logging.LogRecord("gunicorn.access", logging.INFO, "", 0,
+                        '%s "%s"', ("10.0.0.1", "GET /run?token=tajny&x=1 HTTP/1.1"),
+                        None)
+app._MaskujToken().filter(rec)
+sprawdz("token zamaskowany w logu dostępu",
+        "tajny" not in rec.getMessage() and "token=***" in rec.getMessage(),
+        rec.getMessage())
 
 
 print(f"\n{'=' * 52}")
