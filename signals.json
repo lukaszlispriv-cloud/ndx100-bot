@@ -290,5 +290,10 @@
       "cena_brokera": 127.84
     }
   },
-  "equity_peak": 1091.83
+  "equity_peak": 1091.83,
+  "wykonanie": {
+    "reakcje": {},
+    "taktyczne": {},
+    "aktualizacja": "2026-10-04"
+  }
 }
