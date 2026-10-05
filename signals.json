@@ -253,24 +253,6 @@
       "epic": "NFLX",
       "cena_brokera": 69.87
     },
-    "ALAB": {
-      "cena": 362.18,
-      "kierunek": "BUY",
-      "wielkosc": 0.4,
-      "data": "2026-09-29",
-      "wersja": "2026-W6",
-      "epic": "ALAB",
-      "cena_brokera": 362.18
-    },
-    "STX": {
-      "cena": 915.81,
-      "kierunek": "BUY",
-      "wielkosc": 0.1,
-      "data": "2026-09-29",
-      "wersja": "2026-W6",
-      "epic": "STX",
-      "cena_brokera": 915.81
-    },
     "TER": {
       "cena": 406.82,
       "kierunek": "BUY",
@@ -279,15 +261,6 @@
       "wersja": "2026-W6",
       "epic": "TER",
       "cena_brokera": 406.82
-    },
-    "PEP": {
-      "cena": 127.84,
-      "kierunek": "SELL",
-      "wielkosc": 1.0,
-      "data": "2026-09-29",
-      "wersja": "2026-W6",
-      "epic": "PEP",
-      "cena_brokera": 127.84
     }
   },
   "equity_peak": 1091.83,
