@@ -210,65 +210,65 @@
     "SBUX": {
       "cena": 95.28,
       "kierunek": "SELL",
-      "wielkosc": 1.6,
+      "wielkosc": 2.2,
       "data": "2026-09-28",
       "wersja": "2026-W6",
       "epic": "SBUX",
-      "cena_brokera": 94.21
+      "cena_brokera": 95.99
     },
     "APP": {
       "cena": 308.51,
       "kierunek": "SELL",
-      "wielkosc": 0.5,
+      "wielkosc": 0.8,
       "data": "2026-09-28",
       "wersja": "2026-W6",
       "epic": "APP",
-      "cena_brokera": 281.72
+      "cena_brokera": 277.22
     },
     "CMCSA": {
       "cena": 21.71,
       "kierunek": "SELL",
-      "wielkosc": 7.0,
+      "wielkosc": 10.0,
       "data": "2026-09-28",
       "wersja": "2026-W6",
       "epic": "CMCSA",
-      "cena_brokera": 21.47
+      "cena_brokera": 21.46
     },
     "AMD": {
       "cena": 612.82,
       "kierunek": "BUY",
-      "wielkosc": 0.2,
+      "wielkosc": 0.3,
       "data": "2026-09-28",
       "wersja": "2026-W6",
       "epic": "AMD",
-      "cena_brokera": 612.82
+      "cena_brokera": 655.75
     },
     "MU": {
       "cena": 913.35,
       "kierunek": "BUY",
-      "wielkosc": 0.1,
+      "wielkosc": 0.2,
       "data": "2026-08-27",
       "wersja": "2026-W6",
       "epic": "MU",
-      "cena_brokera": 913.35
+      "cena_brokera": 1063.7
     },
     "NFLX": {
       "cena": 69.87,
       "kierunek": "SELL",
-      "wielkosc": 2.23,
+      "wielkosc": 3.15,
       "data": "2026-09-29",
       "wersja": "2026-W6",
       "epic": "NFLX",
-      "cena_brokera": 66.58
+      "cena_brokera": 67.93
     },
     "TER": {
       "cena": 406.82,
       "kierunek": "BUY",
-      "wielkosc": 0.3,
+      "wielkosc": 0.5,
       "data": "2026-09-29",
       "wersja": "2026-W6",
       "epic": "TER",
-      "cena_brokera": 406.82
+      "cena_brokera": 430.65
     },
     "PAYX": {
       "cena": 98.87,
@@ -296,12 +296,23 @@
       "wersja": "2026-W6",
       "epic": "AMAT",
       "cena_brokera": 535.82
+    },
+    "APOG": {
+      "cena": 42.64,
+      "kierunek": "BUY",
+      "wielkosc": 5.0,
+      "data": "2026-10-06",
+      "wersja": "2026-W6",
+      "epic": "APOG",
+      "cena_brokera": 42.64
     }
   },
   "equity_peak": 1091.83,
   "wykonanie": {
     "reakcje": {},
-    "taktyczne": {},
-    "aktualizacja": "2026-10-04"
+    "taktyczne": {
+      "APOG": "otwarta"
+    },
+    "aktualizacja": "2026-10-06"
   }
 }
