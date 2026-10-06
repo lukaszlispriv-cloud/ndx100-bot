@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puls NDX100 — 06.10.2026</title>
+<style>
+  :root{--bg:#F6F7F4;--navy:#10243E;--ink:#1B1F24;--muted:#5C6672;--line:#D9DDD6;--card:#FFFFFF;--green:#0E7C4A;--red:#C4372E;--amber:#B9770E;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{background:var(--navy);color:#fff;padding:18px 16px 20px}
+  header h1{margin:0 0 2px;font-size:20px;letter-spacing:.3px}
+  header .sub{font-size:12.5px;opacity:.85}
+  .hero{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;margin-top:14px}
+  .ndx{flex:1 1 220px}
+  .ndx .big{font:600 32px/1.1 var(--mono)}
+  .ndx .chg{font:600 15px var(--mono);color:#7FD9A5}
+  .ndx .src{font-size:11.5px;opacity:.8;margin-top:4px}
+  .badge{flex:1 1 240px;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.4;background:#0E7C4A;color:#fff}
+  .badge b{display:block;font-size:16px;letter-spacing:1px;margin-bottom:4px}
+  .badge .mono{font-family:var(--mono)}
+  .stampwrap{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:6px 10px}
+  .stamp{border:3px solid #7FD9A5;color:#7FD9A5;text-transform:uppercase;font-weight:800;letter-spacing:2px;font-size:20px;padding:6px 14px;transform:rotate(-2.5deg);border-radius:4px}
+  main{padding:14px 16px 28px;max-width:1080px;margin:0 auto}
+  section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 12px;margin:0 0 14px}
+  h2{margin:0 0 10px;font-size:16px;color:var(--navy)}
+  h3{margin:14px 0 6px;font-size:14px}
+  p{margin:6px 0}
+  .lbl{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.8px;padding:2px 7px;border-radius:4px;color:#fff;margin-right:6px;vertical-align:middle}
+  .WYNIKI{background:#2E6FBE}.SEC{background:#6A4FB3}.SHORT{background:#7A5230}.REKOM{background:#1F8A70}.MAKRO{background:#5C6672}.REZIM{background:#B9770E}.NEWS{background:#C4372E}.SPOLKI{background:#3C5A78}.TAKT{background:#8A5A1F}
+  .item{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:10px 0}
+  .item .t{font-weight:700}
+  .src{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}
+  th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  td:first-child,th:first-child,td:nth-child(2),th:nth-child(2){text-align:left}
+  .mono{font-family:var(--mono)}
+  .pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}.zero{color:var(--muted);font-weight:600}
+  tr.hl td{background:#FFF7E6}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .spread{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .sp{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#FAFBF8}
+  .sp .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .sp .v{font:700 26px/1.2 var(--mono)}
+  .sp .d{font-size:12.5px;color:var(--muted)}
+  ul{margin:6px 0;padding-left:20px}
+  li{margin:3px 0}
+  .warn{background:#FFF7E6;border:1px solid #F0D9A8;border-radius:8px;padding:8px 10px}
+  .ok{background:#EAF6EF;border:1px solid #BFE3CC;border-radius:8px;padding:8px 10px}
+  code{font-family:var(--mono);font-size:12.5px;background:#EEF0EC;padding:1px 4px;border-radius:3px}
+  footer{font-size:12px;color:var(--muted);padding:0 16px 28px;max-width:1080px;margin:0 auto}
+  @media (max-width:520px){.stamp{font-size:16px}.ndx .big{font-size:28px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Puls NDX100 · bieg dzienny · wtorek 06.10.2026</h1>
+  <div class="sub">Ostatnia zakończona sesja: poniedziałek 05.10.2026 (dzień D+1 koszyków 2026-W6, D0 = 02.10.2026) · bieg przed otwarciem (08:32 Nowy Jork)</div>
+  <div class="hero">
+    <div class="ndx">
+      <div class="big">31 076,44</div>
+      <div class="chg">+0,87% d/d · nowy szczyt wszech czasów (drawdown 0,0 %)</div>
+      <div class="src">^NDX, zamknięcie 05.10.2026 · źródło: Yahoo chart/spark API przez scripts/kursy.py (02.10: 30 807,93) · kontrakty NQ=F 06.10 08:25 ET: 31 513,25 (+0,62 % vs rozliczenie 05.10: 31 317,75; Yahoo)</div>
+    </div>
+    <div class="badge">
+      <b>REŻIM P0</b>
+      <span class="mono">^NDX 31 076,4 vs MA200 27 508,2 → +12,97 %</span><br>
+      <span class="mono">^NDX vs MA50 29 516,9 → +5,28 %</span><br>
+      <span class="mono">drawdown od 52-tyg. szczytu: 0,00 % · sesja +0,87 %</span><br>
+      <span class="mono">VIX 15,52 (05.10, Yahoo; FMP: 15,52)</span><br>
+      <span>Progi: P1 = NDX&lt;MA200 lub DD&gt;10 % lub VIX&gt;28; P2 = DD&gt;20 % lub VIX&gt;40 lub sesja ≤−5 %. Żaden nie jest spełniony. Źródło: sekcja REŻIM skryptu kursy.py, 06.10.2026 08:32 ET.</span>
+    </div>
+    <div class="stampwrap"><div class="stamp">Aktualna</div></div>
+  </div>
+</header>
+<main>
+
+<section>
+<h2>Werdykt dnia</h2>
+<p class="ok"><b>status = AKTUALNA · exclude = [] (pusta) · tactical = [APOG BUY, nowa] · reżim P0 bez eskalacji.</b></p>
+<ul>
+<li><b>Brak wyzwalaczy twardych</b> (basis news) ani miękkich (rekom/short) dla żadnej z 10 spółek koszykowych w oknie 24–48 h. Jedyna „licząca się” zmiana od elity — Atif Malik (Citi) podniósł cel AMD do 800 USD z 575 USD — działa <i>za</i> tezą (AMD = long), więc nie jest wyzwalaczem.</li>
+<li><b>Wyzwalacze cenowe:</b> liczone od cen wejścia z <code>fills</code> (wszystkie 10 spółek ma wpis). Żadna pozycja nie jest pod wodą o więcej niż 0,92 % bezwzględnie (PAYX), więc bramka bota (4 % / 8 %) jest daleka; ruch względny vs ^NDX przeciw tezie nigdzie nie sięga 4 p.p. Sekcja OBSERWOWANE: tylko nota o APP (odbicie +5,13 % 05.10 liczone od D0, ale od wejścia pozycja short jest +8,60 %).</li>
+<li><b>Blokada sektorowa:</b> nie zadziałała — żaden sektor nie stracił &gt;3 % (SOX +0,27 % 05.10: 13 172,74 vs 13 136,67; Yahoo).</li>
+<li><b>Moduł taktyczny (P0 → aktywny):</b> nowa pozycja BUY <b>APOG</b> (Apogee Enterprises, Nasdaq) — wynik FQ2'27 06.10 przed sesją: skorygowany EPS 1,17 USD vs konsensus 0,64 USD, sprzedaż +9,2 % r/r do 391,1 mln USD, podniesiona prognoza roczna (EPS 3,00–3,40 USD z 2,70–3,25; sprzedaż 1,46–1,50 mld USD z 1,38–1,43), reakcja pre-market ok. +18–21 % (ok. 43 USD vs zamknięcie 05.10: 35,66 USD, Yahoo). Kurs mieści się w limicie wykonalności (1 akcja ≪ 350 USD). Pole <code>wykonanie.taktyczne</code> jest puste — żadnej pozycji do usunięcia.</li>
+<li><b>Pierwszy pełny bieg z kompletnym <code>fills</code> po rotacji W6:</b> bot zapisał ceny wejścia dla wszystkich 10 pozycji (commity 514dcec i 7a1ed7a z 05.10). 7 pozycji odziedziczonych z W5 ma ceny wejścia z 27.08–29.09, trzy nowe (PAYX, LITE, AMAT) z 05.10 — stąd duża rozbieżność „od wejścia” vs „od D0” (wyjaśnienie pod tabelami).</li>
+</ul>
+</section>
+
+<section>
+<h2>Najważniejsze zmiany (24–48 h)</h2>
+
+<div class="item"><span class="lbl REKOM">REKOM.-ELITA</span><span class="t">AMD (long): Citi / Atif Malik podnosi cel do 800 USD z 575 USD, Buy</span><br>
+Teza: rynek CPU rośnie z 29 mld USD (2025) do 300 mld USD (2030) dzięki agentom AI (Meta „Muse”), AMD głównym beneficjentem „renesansu CPU”. Reakcja pre-market +1–1,7 %. Malik jest na liście elity — sygnał <b>zgodny z tezą</b>, bez reakcji. Dodatkowo Stifel podniósł cel AMD do 700 USD z 635 USD (Buy, spoza elity).<br>
+<span class="src">Źródła: Seeking Alpha / Yahoo Finance (doniesienie z 5–6.10.2026, dokładna godzina publikacji nie potwierdzona z pierwotnego źródła — strony agencyjne zablokowane w tym środowisku); Stifel wg MarketBeat/StockAnalysis 05.10.2026.</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">APP (short): odbicie +5,13 % do 281,97 USD po 9 sesjach spadków</span><br>
+Doniesienia (24/7 Wall St., 05.10.2026) mówią o kupowaniu dołka po przecenie (spółka −58 % YTD) i skalowaniu silnika AXON na e-commerce; w ad-techu dzień mieszany (Digital Turbine lekko w górę, Trade Desk w dół). Brak nowego komunikatu spółki, brak 8-K, brak zmian rekomendacji od elity. Od ceny wejścia 308,51 USD pozycja short jest nadal +8,60 % (relatywnie +9,47 p.p.). Jedna sesja — bez wpisu.<br>
+<span class="src">Źródła: kursy Yahoo (kursy.py) 05.10.2026; 24/7 Wall St. 05.10.2026; FMP EOD (APP: dostęp odmówiony w tej sesji).</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">TER (long): −1,00 % do 444,53 USD po piątkowym +8,0 %</span><br>
+Realizacja zysków po najlepszym wyniku w S&amp;P 500 z 02.10 (+8,0 %, +31,5 % w miesiąc); w tle inwestycja w Bright Machines (kwota nieujawniona) i premiera Magnum E2. Brak downgrade’u od elity; nagłówek o obniżce Baird do Neutral jest starszy (data niepotwierdzona). Od wejścia 406,82 USD: +9,27 %.<br>
+<span class="src">Źródła: Trefis „S&amp;P 500 Movers” 05.10.2026; MarketBeat 05.10.2026; Yahoo (kursy.py).</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">MU (long): −1,02 % do 1 063,96 USD — realizacja zysków, bez zmiany tezy</span><br>
+Po rekordowym Q4 FY26 (przychody 54 mld USD, marża brutto 87 %; raport 30.09) kurs oddaje część zysków; komentarze FX Leaders o „ryzyku cyklu” to opinia, nie dane. Susquehanna podtrzymuje Buy (spoza elity). <b>Ceny kontraktowe DRAM/NAND: TrendForce (30.09.2026) prognozuje 4Q26 +10–15 % kw/kw dla konwencjonalnego DRAM (+15–20 % z HBM) i +15–20 % dla NAND — brak pierwszej obniżki, warunek CLOSE dla bloku pamięci nie zachodzi.</b> Od wejścia 913,35 USD: +16,49 %.<br>
+<span class="src">Źródła: TrendForce press 20260930-13258; HeyGoTrade/FX Leaders 05.10.2026; Yahoo (kursy.py).</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">AMAT (long): na liście „tactical positive” Goldman Sachs przed SEMICON West (13.10)</span><br>
+Goldman (Buy) oczekuje podniesienia celów marżowych i mocnego outlooku WFE (rynek docelowo ok. 300 mld USD); kurs +0,41 % do 542,28 USD. Spoza elity, zgodne z tezą.<br>
+<span class="src">Źródła: Investing.com / BigGo Finance (doniesienia z 05.10.2026); Yahoo (kursy.py).</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">LITE (long): termin wyników FQ1'27 ustalony na 05.11.2026 po sesji</span><br>
+Komunikat spółki; kurs +0,58 % do 1 091,67 USD; Stifel podniósł cel do 1 232 USD (spoza elity). Bez wpływu na tezę.<br>
+<span class="src">Źródła: komunikat Lumentum (Yahoo Finance / StockTitan, 05.10.2026); ad-hoc-news 05.10.2026.</span></div>
+
+<div class="item"><span class="lbl SEC">SEC</span><span class="t">SBUX (short): Form 144 — Brady Brewer zgłasza sprzedaż 1 641 akcji (ok. 155,5 tys. USD), 05.10.2026</span><br>
+Drobna, rutynowa sprzedaż z vestingu RSU; nie jest sygnałem. Bez innych komunikatów. Upgrade Melius do Hold (z Sell, cel 110 USD), który pojawia się w wynikach wyszukiwania, jest z 03.08.2026 — stary, nie z tego okna.<br>
+<span class="src">Źródła: Investing.com / StockTitan (Form 144, 05.10.2026); TipRanks/The Fly (data upgrade’u Melius: 03.08.2026).</span></div>
+
+<div class="item"><span class="lbl SPOLKI">SPÓŁKI</span><span class="t">NFLX, CMCSA, PAYX (short): bez nowych komunikatów; kalendarz wyników</span><br>
+NFLX: wyniki Q3 20.10.2026; CMCSA: Q3 22.10.2026 (konsensus EPS 0,98 USD, −12,5 % r/r; presja w broadbandzie); PAYX: po wynikach FQ1'27 (23.09: EPS skoryg. 1,34 USD, przychody 1,63 mld USD, +6 %; prognoza roczna podtrzymana; reakcja ok. −7 %) kurs odbudowuje się — +0,85 % do 99,78 USD, pozycja short −0,92 % od wejścia z 05.10. Nagłówki o downgrade Seaport dla CMCSA i HSBC dla NFLX są archiwalne (Seaport: 31.10.2025) — nie z tego okna.<br>
+<span class="src">Źródła: Yahoo Finance (news NFLX/CMCSA, 05–06.10.2026); Investing.com / StockTitan (PAYX, 23.09.2026); kursy Yahoo (kursy.py).</span></div>
+
+<div class="item"><span class="lbl SHORT">SHORT</span><span class="t">FINRA short interest: brak nowej publikacji w oknie</span><br>
+Dane za rozliczenie 30.09.2026 FINRA publikuje w piątek 09.10.2026 — do tego czasu basis="short" nie ma nowych danych (b.d.).<br>
+<span class="src">Źródło: kalendarz FINRA (MarketBeat/Equibles, 2026).</span></div>
+
+<div class="item"><span class="lbl MAKRO">MAKRO</span><span class="t">Sesja 05.10: Nasdaq Composite rekord 27 477,31 (+1,05 %), S&amp;P 500 7 773,95 (+0,66 %), Dow 51 267,90 (+0,18 %)</span><br>
+Rajd mega-capów AI (SpaceX +7,6 %, NVDA +2,1 %, META +1,9 %, MSFT +1,5 %, TSLA +2,2 %) mimo wzrostu rentowności: 10Y 5,31 % (05.10, szczyt 52-tyg., najwyżej od 2002 r.), 30Y chwilowo &gt;5,7 %; dziś rano 10Y 5,27 % (Yahoo ^TNX, 08:20 ET). Krótki koniec krzywej lekko w dół po słabszym piątkowym raporcie z rynku pracy. FedWatch: ok. 20 % szans na <i>podwyżkę</i> na październikowym FOMC (27–28.10). Ropa: Brent ok. 100,8 USD (+0,5 %), WTI ok. 87,3 USD (−2,4 %) — Iran utrzymuje warunki otwarcia cieśniny Ormuz (Trading Economics / Benzinga, 06.10.2026). VIX 15,52.<br>
+<span class="src">Źródła: CNBC / AP (KTVB) 05.10.2026; Yahoo (^GSPC, ^TNX, NQ=F) 06.10.2026; Barchart / Sunday Guardian (FedWatch, 06.10.2026); Trading Economics (ropa, 06.10.2026).</span></div>
+
+<div class="item"><span class="lbl TAKT">TAKTYCZNE</span><span class="t">APOG (Apogee Enterprises): beat-and-raise FQ2'27, pre-market ok. +18–21 %</span><br>
+Szczegóły w sekcji „Pozycje taktyczne”.<br>
+<span class="src">Źródła: komunikat spółki 06.10.2026 (Stockhouse / Business Wire), Chartmill 06.10.2026 (pre-market), Yahoo (zamknięcie 05.10: 35,66 USD).</span></div>
+
+<p class="warn"><b>Uwaga o źródłach:</b> konektor FMP w tej sesji zwrócił dane EOD tylko dla AMD, NFLX, SBUX i ^VIX (pozostałe: „plan niższy” — dostęp odmówiony); kursy w tabelach pochodzą z Yahoo (scripts/kursy.py, 105/105 symboli, walidacja D0 = OK dla wszystkich 10 spółek). Kontrola krzyżowa FMP vs Yahoo na 05.10: AMD 631,75 = 631,75; NFLX 67,50 = 67,50; SBUX 94,43 = 94,43; VIX 15,52 = 15,52 — zgodność 100 %. Bezpośredni odczyt stron agencyjnych (CNBC, Yahoo, Benzinga, Barchart, Investing) jest w tym środowisku zablokowany — newsy pochodzą z podsumowań wyszukiwarki, z datami jak podano.</p>
+</section>
+
+<section>
+<h2>Tabele według koszyków</h2>
+<p class="src">Kolejność stała z signals.json (bez sortowania). Kurs wejścia = pole <code>fills.cena</code> (data wejścia w nawiasie w opisie pod tabelą). ^NDX od D0: +0,87 % (30 807,93 → 31 076,44). Zwrot od wejścia = wynik rachunku (rządzi decyzjami); zwrot od D0 = jakość prognozy tygodniowej. Relatywnie = zwrot od wejścia minus zwrot ^NDX od D0 (znak dla shortów odwrócony). Wiersze wyróżnione: różnica obu zwrotów &gt; 2 p.p.</p>
+<h3>KOSZYK LONG (BUY)</h3><div class="tw"><table><thead><tr><th>Spółka</th><th>Kierunek</th><th>Kurs wejścia</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot od wejścia</th><th>Zwrot od D0</th><th>Relatywnie vs ^NDX</th></tr></thead><tbody>
+<tr class="hl"><td><b>MU</b></td><td>BUY</td><td class="mono">913,35</td><td class="mono">1 074,89</td><td class="mono">1 063,96</td><td class="mono pos">+16,49 %</td><td class="mono neg">-1,02 %</td><td class="mono pos">+15,62 p.p.</td></tr>
+<tr><td><b>LITE</b></td><td>BUY</td><td class="mono">1 088,08</td><td class="mono">1 085,42</td><td class="mono">1 091,67</td><td class="mono pos">+0,33 %</td><td class="mono pos">+0,58 %</td><td class="mono neg">-0,54 p.p.</td></tr>
+<tr class="hl"><td><b>TER</b></td><td>BUY</td><td class="mono">406,82</td><td class="mono">449,04</td><td class="mono">444,53</td><td class="mono pos">+9,27 %</td><td class="mono neg">-1,00 %</td><td class="mono pos">+8,40 p.p.</td></tr>
+<tr><td><b>AMAT</b></td><td>BUY</td><td class="mono">535,82</td><td class="mono">540,04</td><td class="mono">542,28</td><td class="mono pos">+1,21 %</td><td class="mono pos">+0,41 %</td><td class="mono pos">+0,33 p.p.</td></tr>
+<tr class="hl"><td><b>AMD</b></td><td>BUY</td><td class="mono">612,82</td><td class="mono">633,91</td><td class="mono">631,75</td><td class="mono pos">+3,09 %</td><td class="mono neg">-0,34 %</td><td class="mono pos">+2,22 p.p.</td></tr>
+</tbody></table></div>
+<h3>KOSZYK SHORT (SELL)</h3><div class="tw"><table><thead><tr><th>Spółka</th><th>Kierunek</th><th>Kurs wejścia</th><th>Kurs D0</th><th>Kurs ostatni</th><th>Zwrot od wejścia</th><th>Zwrot od D0</th><th>Relatywnie vs ^NDX</th></tr></thead><tbody>
+<tr class="hl"><td><b>APP</b></td><td>SELL</td><td class="mono">308,51</td><td class="mono">268,22</td><td class="mono">281,97</td><td class="mono pos">+8,60 %</td><td class="mono neg">-5,13 %</td><td class="mono pos">+9,47 p.p.</td></tr>
+<tr class="hl"><td><b>NFLX</b></td><td>SELL</td><td class="mono">69,87</td><td class="mono">67,06</td><td class="mono">67,50</td><td class="mono pos">+3,39 %</td><td class="mono neg">-0,66 %</td><td class="mono pos">+4,26 p.p.</td></tr>
+<tr><td><b>PAYX</b></td><td>SELL</td><td class="mono">98,87</td><td class="mono">98,94</td><td class="mono">99,78</td><td class="mono neg">-0,92 %</td><td class="mono neg">-0,85 %</td><td class="mono neg">-0,05 p.p.</td></tr>
+<tr><td><b>CMCSA</b></td><td>SELL</td><td class="mono">21,71</td><td class="mono">21,57</td><td class="mono">21,57</td><td class="mono pos">+0,64 %</td><td class="mono zero">-0,00 %</td><td class="mono pos">+1,52 p.p.</td></tr>
+<tr><td><b>SBUX</b></td><td>SELL</td><td class="mono">95,28</td><td class="mono">94,71</td><td class="mono">94,43</td><td class="mono pos">+0,89 %</td><td class="mono pos">+0,30 %</td><td class="mono pos">+1,76 p.p.</td></tr>
+</tbody></table></div>
+<p class="warn"><b>Dlaczego „od wejścia” i „od D0” tak się różnią (MU, TER, AMD, APP, NFLX):</b> siedem pozycji przeszło z koszyka W5 do W6 bez zamknięcia, więc bot zachował ich pierwotne ceny wejścia (MU 27.08, AMD/APP/CMCSA/SBUX 28.09, NFLX/TER 29.09), a D0 zresetowało się do 02.10 przy sobotniej rotacji. Dla MU (+16,49 % vs −1,02 %), TER (+9,27 % vs −1,00 %), APP (+8,60 % vs −5,13 %), NFLX (+3,39 % vs −0,66 %) i AMD (+3,09 % vs −0,34 %) wynik rachunku jest o 3–17 p.p. lepszy niż wynik prognozy W6. Trzy nowe pozycje (PAYX, LITE, AMAT) weszły 05.10 — różnice &lt;1 p.p. Wszystkie wpisy <code>fills</code> są z wersji 2026-W6, żadna spółka nie jest liczona od D0.</p>
+</section>
+
+<section>
+<h2>Spread koszyków</h2>
+<div class="spread">
+  <div class="sp"><div class="k">Spread od cen wejścia (wynik rachunku)</div><div class="v pos">+8,60 p.p.</div><div class="d">LONG śr. +6,08 % · SHORT śr. +2,52 % · wczoraj +9,97 p.p.</div></div>
+  <div class="sp"><div class="k">Spread od D0 (jakość prognozy W6, D+1)</div><div class="v neg">-1,54 p.p.</div><div class="d">LONG śr. -0,27 % · SHORT śr. -1,27 % · wczoraj 0,00 p.p. (D+0)</div></div>
+  <div class="sp"><div class="k">Różnica (wejście − D0)</div><div class="v">+10,14 p.p.</div><div class="d">rutyna sobotnia zapisze obie serie: spread_fills_pp i spread_pp</div></div>
+</div>
+<p class="src">Spread = średni zwrot LONG + średni zwrot SHORT (z odwróconym znakiem). Źródło kursów: Yahoo (kursy.py), zamknięcia 05.10.2026; D0 z signals.json (02.10.2026). Pierwsza sesja W6 była dla prognozy ujemna: longi −0,27 % przy ^NDX +0,87 %, shorty odbiły średnio +1,27 % (głównie APP +5,13 %).</p>
+</section>
+
+<section>
+<h2>Kontrola bramki bota</h2>
+<p><b>Wpisy exclude o basis="cena": brak (lista pusta).</b> Sekcja obowiązkowa — bramka (REACT_REDUCE_PCT = 4 %, REACT_CLOSE_PCT = 8 %, ruch bezwzględny od ceny wejścia) nie ma dziś nic do wykonania.</p>
+<p><b>Wczorajsze REDUCE do rozliczenia: brak</b> (exclude z 05.10 = []). Pole <code>wykonanie.reakcje</code> = {} (puste), <code>wykonanie.taktyczne</code> = {}, <code>wykonanie.aktualizacja</code> = 2026-10-04 — pole istnieje (wersja bota ≥ 1.11.0), nic nie czeka na potwierdzenie.</p>
+<p class="src">Kontrola pomocnicza — ruch bezwzględny od wejścia (znak w kierunku tezy): MU +16,49 %; LITE +0,33 %; TER +9,27 %; AMAT +1,21 %; AMD +3,09 %; APP -8,60 %; NFLX -3,39 %; PAYX +0,92 %; CMCSA -0,64 %; SBUX -0,89 %. Największy ruch przeciw tezie: PAYX +0,92 % (short) — do progu REDUCE brakuje 3,08 p.p.</p>
+</section>
+
+<section>
+<h2>Obserwowane</h2>
+<ul>
+<li><b>APP (short)</b> — sesja 05.10: +5,13 % (od D0 −5,13 % przeciw tezie, relatywnie −4,25 p.p. w jednej sesji). <b>To nie jest sygnał w rozumieniu protokołu</b>, bo wyzwalacze liczymy od ceny wejścia 308,51 USD, gdzie pozycja jest +8,60 % (relatywnie +9,47 p.p. za tezą). Do pierwszej sesji za progiem REDUCE (−4 p.p. relatywnie i −4 % bezwzględnie od wejścia) APP musiałby zamknąć się powyżej ok. 320,9 USD (+13,8 % od 281,97). Odnotowane wyłącznie jako ostrzeżenie o jakości prognozy W6.</li>
+<li>Pozostałe 9 spółek: ruch względny vs ^NDX w paśmie od −0,54 p.p. (LITE) do +15,62 p.p. (MU) — nic poniżej progu −4 p.p.</li>
+</ul>
+</section>
+
+<section>
+<h2>Licznik histerezy</h2>
+<p>Reżim P0 — licznik nieaktywny. Dziennik na wypadek eskalacji: sesja 05.10.2026: VIX 15,52 (&lt;22 ✓), ^NDX 31 076,44 &gt; MA200 27 508,2 ✓ i &gt; MA50 29 516,9 ✓. Progi powrotu (gdyby były potrzebne): P2→handel = 5 kolejnych sesji VIX&lt;25 i ^NDX&gt;MA50; P1→P0 = 3 sesje VIX&lt;22 i ^NDX&gt;MA200. Decyzję o cofnięciu reżimu podejmuje wyłącznie rutyna sobotnia.</p>
+</section>
+
+<section>
+<h2>Kill switch</h2>
+<p>Szczyt kapitału (<code>equity_peak</code>, pisze bot): <b>1 091,83 USD</b> · próg kill switch = 0,75 × szczyt = <b>818,87 USD</b>. Kill switch jest <b>kroczący</b>: próg rośnie wraz z nowym szczytem kapitału i nigdy nie spada. Pulsu nie dotyczy zapis tego pola.</p>
+</section>
+
+<section>
+<h2>Pozycje taktyczne</h2>
+<p><b>Nowa (06.10.2026): APOG — BUY — epic „APOG”</b> (Apogee Enterprises, Nasdaq: APOG; spółka spoza mapy epics i spoza S&amp;P 500, kwalifikuje się jako składnik Nasdaq Composite).</p>
+<ul>
+<li><b>Wyzwalacz (24 h, twardy):</b> wyniki FQ2'27 opublikowane 06.10.2026 przed sesją — skorygowany EPS 1,17 USD vs konsensus 0,64 USD (+19,4 % r/r vs 0,98 USD), sprzedaż 391,1 mln USD (+9,2 % r/r); prognoza FY27 podniesiona: skoryg. EPS 3,00–3,40 USD (z 2,70–3,25), sprzedaż 1,46–1,50 mld USD (z 1,38–1,43). Przejęcia Kalwall i Groglass.</li>
+<li><b>Reakcja:</b> pre-market ok. +17,8 % (Chartmill) / 43,05 USD, +20,7 % (inne źródło) vs zamknięcie 05.10: 35,66 USD (Yahoo). Przy kapitale ok. 1 090 USD i alokacji 20 % (ok. 218 USD) 1 akcja (ok. 43 USD) mieści się z zapasem w limicie 1,6 × 20 % ≈ 350 USD — pozycja wykonalna, o ile Capital.com ma instrument APOG (bot zapisze to w <code>wykonanie.taktyczne</code>).</li>
+<li><b>Ryzyka:</b> wejście po luce +20 % (część ruchu już zrealizowana), mała kapitalizacja (ok. 0,8 mld USD) — możliwa niska płynność u brokera. Teza upada przy oddaniu luki (zamknięcie poniżej 35,66 USD) — wtedy wpis do usunięcia.</li>
+</ul>
+<p>Sloty: 1/2 zajęte. Inni kandydaci dnia odrzuceni: RPM i Lamb Weston (wyniki przed sesją, brak potwierdzonej reakcji w chwili biegu), ChipMOS (ADR, słabe pokrycie), Workiva (wejście do S&amp;P SmallCap 600 — nie jest wyzwalaczem wynikowym). Stan <code>wykonanie.taktyczne</code>: {} — nic do usunięcia.</p>
+</section>
+
+<section>
+<h2>Kalendarz dnia — wtorek 06.10.2026</h2>
+<ul>
+<li><b>Wyniki spółek z uniwersum NDX-100: brak</b> (kalendarz FMP na 06.10: pusta lista; Earnings Whispers). Najbliższe: PEP czwartek 08.10 przed sesją (konsensus EPS 2,32 USD); NFLX 20.10; CMCSA 22.10; LITE 05.11.</li>
+<li><b>Wyniki poza uniwersum:</b> przed sesją — Apogee (APOG, opublikowane), RPM International (RPM, konsensus 1,97 USD), Lamb Weston (LW, 0,61 USD); po sesji — Constellation Brands (STZ, 3,60 USD), Penguin Solutions (PENG), Neogen (NEOG), Worthington Steel (WS).</li>
+<li><b>Makro USA:</b> bilans handlowy za sierpień (prognoza −95,2 mld USD, poprzednio −88,6 mld), ADP tygodniowy, GDPNow Atlanta Fed, zapasy ropy API; wystąpienia Fed: Williams, Bowman, Schmid, Logan. W tygodniu: minutes FOMC (środa), ISM usług. FOMC 27–28.10.</li>
+<li><b>Sektor:</b> SEMICON West 13.10 (AMAT, LRCX, KLAC, TER) — Goldman oczekuje podniesienia celów marżowych AMAT.</li>
+</ul>
+<p class="src">Źródła: FMP earnings-calendar (06.10.2026), Earnings Whispers / Kiplinger (tydzień 5–9.10.2026), Investing.com / XTB (kalendarz makro 06.10.2026).</p>
+</section>
+
+</main>
+<footer>
+<p>Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej. Wygenerowane automatycznie przez AI (rutyna „Puls NDX100”), 06.10.2026, przed otwarciem sesji w USA.</p>
+<p>Kontekst wielkości pozycji: od 05.10.2026 pozycja koszykowa to 24 % kapitału (ALLOC_PCT = 0,24), a taktyczna 20 % (TACTICAL_ALLOC_PCT = 0,20; do 02.10.2026: 12 % i 10 %) — wartości ustawia właściciel w panelu bota; 1 p.p. zwrotu pozycji koszykowej ≈ 0,24 % kapitału, taktycznej ≈ 0,20 %. Zwroty w tabelach są zwrotami pozycji od ceny wejścia, nie zmianą kapitału — dla pozycji odziedziczonych z W5 część wyniku powstała przy wielkości 12 %.</p>
+<p>Zapis: signals.json — status AKTUALNA, exclude [], tactical [APOG BUY], last_daily 2026-10-06; pola fills, equity_peak, wykonanie, d0, epics, long, short, history i version nietknięte.</p>
+</footer>
+</body>
+</html>

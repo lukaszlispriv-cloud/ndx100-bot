@@ -17,8 +17,16 @@
     "SBUX"
   ],
   "exclude": [],
-  "tactical": [],
-  "last_daily": "2026-10-05",
+  "tactical": [
+    {
+      "ticker": "APOG",
+      "direction": "BUY",
+      "epic": "APOG",
+      "entry_date": "2026-10-06",
+      "reason": "FQ2'27 (06.10.2026, przed sesją): skoryg. EPS 1,17 USD vs konsensus 0,64 USD, sprzedaż +9,2% r/r, prognoza FY27 podniesiona (EPS 3,00-3,40 z 2,70-3,25; sprzedaż 1,46-1,50 mld z 1,38-1,43 mld USD); pre-market ok. +18-21% vs 35,66 USD (05.10). Spółka Nasdaq Composite spoza NDX-100; 1 akcja ok. 43 USD mieści się w limicie wykonalności."
+    }
+  ],
+  "last_daily": "2026-10-06",
   "history": [
     {
       "week": "2026-W1",
