@@ -312,14 +312,24 @@
       "wersja": "2026-W6",
       "epic": "APOG",
       "cena_brokera": 42.64
+    },
+    "PENG": {
+      "cena": 73.78,
+      "kierunek": "BUY",
+      "wielkosc": 3.0,
+      "data": "2026-10-07",
+      "wersja": "2026-W6",
+      "epic": "PENG",
+      "cena_brokera": 73.78
     }
   },
   "equity_peak": 1091.83,
   "wykonanie": {
     "reakcje": {},
     "taktyczne": {
+      "PENG": "otwarta",
       "APOG": "otwarta"
     },
-    "aktualizacja": "2026-10-06"
+    "aktualizacja": "2026-10-07"
   }
 }
