@@ -211,65 +211,65 @@
   },
   "fills": {
     "SBUX": {
-      "cena": 95.28,
+      "cena": 95.99,
       "kierunek": "SELL",
       "wielkosc": 2.2,
-      "data": "2026-09-28",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "SBUX",
       "cena_brokera": 95.99
     },
     "APP": {
-      "cena": 308.51,
+      "cena": 277.22,
       "kierunek": "SELL",
       "wielkosc": 0.8,
-      "data": "2026-09-28",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "APP",
       "cena_brokera": 277.22
     },
     "CMCSA": {
-      "cena": 21.71,
+      "cena": 21.46,
       "kierunek": "SELL",
       "wielkosc": 10.0,
-      "data": "2026-09-28",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "CMCSA",
       "cena_brokera": 21.46
     },
     "AMD": {
-      "cena": 612.82,
+      "cena": 655.75,
       "kierunek": "BUY",
       "wielkosc": 0.3,
-      "data": "2026-09-28",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "AMD",
       "cena_brokera": 655.75
     },
     "MU": {
-      "cena": 913.35,
+      "cena": 1063.7,
       "kierunek": "BUY",
       "wielkosc": 0.2,
-      "data": "2026-08-27",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "MU",
       "cena_brokera": 1063.7
     },
     "NFLX": {
-      "cena": 69.87,
+      "cena": 67.93,
       "kierunek": "SELL",
       "wielkosc": 3.15,
-      "data": "2026-09-29",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "NFLX",
       "cena_brokera": 67.93
     },
     "TER": {
-      "cena": 406.82,
+      "cena": 430.65,
       "kierunek": "BUY",
       "wielkosc": 0.5,
-      "data": "2026-09-29",
-      "wersja": "2026-W6",
+      "data": "2026-10-06",
+      "wersja": "2026-W7",
       "epic": "TER",
       "cena_brokera": 430.65
     },
@@ -278,7 +278,7 @@
       "kierunek": "SELL",
       "wielkosc": 2.6,
       "data": "2026-10-05",
-      "wersja": "2026-W6",
+      "wersja": "2026-W7",
       "epic": "PAYX",
       "cena_brokera": 98.87
     },
@@ -287,7 +287,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.2,
       "data": "2026-10-05",
-      "wersja": "2026-W6",
+      "wersja": "2026-W7",
       "epic": "LITE",
       "cena_brokera": 1088.08
     },
@@ -296,7 +296,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.5,
       "data": "2026-10-05",
-      "wersja": "2026-W6",
+      "wersja": "2026-W7",
       "epic": "AMAT",
       "cena_brokera": 535.82
     },
@@ -305,7 +305,7 @@
       "kierunek": "BUY",
       "wielkosc": 5.0,
       "data": "2026-10-06",
-      "wersja": "2026-W6",
+      "wersja": "2026-W7",
       "epic": "APOG",
       "cena_brokera": 42.64
     },
@@ -314,7 +314,7 @@
       "kierunek": "BUY",
       "wielkosc": 3.0,
       "data": "2026-10-07",
-      "wersja": "2026-W6",
+      "wersja": "2026-W7",
       "epic": "PENG",
       "cena_brokera": 73.78
     }
@@ -322,10 +322,7 @@
   "equity_peak": 1091.83,
   "wykonanie": {
     "reakcje": {},
-    "taktyczne": {
-      "PENG": "otwarta",
-      "APOG": "otwarta"
-    },
-    "aktualizacja": "2026-10-07"
+    "taktyczne": {},
+    "aktualizacja": "2026-10-10"
   }
 }
