@@ -1,38 +1,23 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W6",
+  "version": "2026-W7",
   "status": "AKTUALNA",
   "long": [
     "MU",
     "LITE",
-    "TER",
-    "AMAT",
-    "AMD"
+    "MRVL",
+    "PANW",
+    "CSCO"
   ],
   "short": [
-    "APP",
-    "NFLX",
-    "PAYX",
     "CMCSA",
-    "SBUX"
+    "SBUX",
+    "PEP",
+    "TMUS",
+    "APP"
   ],
   "exclude": [],
-  "tactical": [
-    {
-      "ticker": "APOG",
-      "direction": "BUY",
-      "epic": "APOG",
-      "entry_date": "2026-10-06",
-      "reason": "FQ2'27 (06.10.2026, przed sesją): skoryg. EPS 1,17 USD vs konsensus 0,64 USD, sprzedaż +9,2% r/r, prognoza FY27 podniesiona (EPS 3,00-3,40 z 2,70-3,25; sprzedaż 1,46-1,50 mld z 1,38-1,43 mld USD); pre-market ok. +18-21% vs 35,66 USD (05.10). Spółka Nasdaq Composite spoza NDX-100; 1 akcja ok. 43 USD mieści się w limicie wykonalności."
-    },
-    {
-      "ticker": "PENG",
-      "direction": "BUY",
-      "epic": "PENG",
-      "entry_date": "2026-10-07",
-      "reason": "Q4 FY26 (06.10.2026, po sesji): skoryg. EPS 1,00 USD vs konsensus 0,77 USD, przychody 567 mln USD vs 519,9 mln (+68% r/r), prognoza FY27 podniesiona (przychody ok. 2,43 mld USD, +40% w środku widełek; EPS ok. 4,45 USD); +5,77% w sesji do 64,21 USD i +5,12% after-hours do 67,50 USD. Spółka Nasdaq Composite spoza NDX-100; 1 akcja ok. 65-68 USD mieści się w limicie wykonalności."
-    }
-  ],
+  "tactical": [],
   "last_daily": "2026-10-09",
   "history": [
     {
@@ -89,25 +74,36 @@
       "rezim": "P0",
       "sesje": 4,
       "korekta": "3.10.2026: tactical_pp i reaction_pp z rozliczenia były na papierze — VICR i ACN nie zostały otwarte, REDUCE STX niewykonany; wartości zastąpione wykonaniem rzeczywistym"
+    },
+    {
+      "week": "2026-W6",
+      "spread_pp": -5.89,
+      "spread_fills_pp": 3.88,
+      "hit_top": "1/5",
+      "hit_bottom": "2/5",
+      "tactical_pp": 0.29,
+      "managed_pp": -5.89,
+      "reaction_pp": 0.0,
+      "rezim": "P0"
     }
   ],
   "d0": {
-    "date": "2026-10-02",
-    "ndx": 30807.93,
+    "date": "2026-10-09",
+    "ndx": 30883.15,
     "prices": {
-      "MU": 1074.89,
-      "LITE": 1085.42,
-      "TER": 449.04,
-      "AMAT": 540.04,
-      "AMD": 633.91,
-      "APP": 268.22,
-      "NFLX": 67.06,
-      "PAYX": 98.94,
-      "CMCSA": 21.57,
-      "SBUX": 94.71
+      "MU": 1029.0,
+      "LITE": 1103.36,
+      "MRVL": 275.28,
+      "PANW": 418.78,
+      "CSCO": 118.39,
+      "CMCSA": 20.66,
+      "SBUX": 90.75,
+      "PEP": 125.97,
+      "TMUS": 148.58,
+      "APP": 277.04
     }
   },
-  "generated": "2026-10-03",
+  "generated": "2026-10-10",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
