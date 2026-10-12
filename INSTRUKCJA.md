@@ -525,3 +525,17 @@ ok. 4 sesje. Po zmianie sprawdź w odpowiedzi `/run`, czy
 **Token w nagłówku.** W cron-job.org w zadaniu `/run` dodaj nagłówek
 `X-Run-Token: <token>` i usuń `?token=` z adresu. Przed tym wygeneruj nowy
 `RUN_TOKEN` w Renderze — stary trafił do logów.
+
+**Odczyt `/status` przez rutyny (od 12.10.2026).** Rutyny „Puls NDX100" i
+„Raport NDX100" kontrolują rachunek same: w środowisku rutyn na
+claude.ai/code jest zmienna `NDX_BOT_URL=https://<nazwa-ndx>.onrender.com`,
+a *network secret* dokłada nagłówek `X-Run-Token` wyłącznie do żądań na ten
+host (Edit environment → Environment variables: `NDX_BOT_URL=…`; Network
+secrets → Add secret: Allowed websites `<nazwa-ndx>.onrender.com`, Custom
+headers: Name `X-Run-Token`, Prefix pusty, Value = `RUN_TOKEN` z Rendera).
+Tokena nie ma w zmiennych sesji i nie wolno go wypisywać. Rutyny wołają
+WYŁĄCZNIE `/status` (tylko odczyt; `/health` nie wymaga tokena) — nigdy
+`/run`, `/generate`, `/close_all` ani `/search`. Co czytają i jak to
+interpretują: `CLAUDE.md`, sekcja „Kontrola rachunku przez `/status`".
+Odpowiedź `/status` ma od tej wersji pola `pokrycie_koszyka` i `hedge_mode`
+(tylko odczyt, bez wpływu na `/run`).

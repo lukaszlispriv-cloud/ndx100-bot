@@ -74,3 +74,14 @@ Nie zmieniono: Model 3.0 (B1/B2), panel fundamentów (B0b), reżim i histereza
    raportu dziennego zawyża przeliczenie punktów na dolary ponad dwukrotnie.
 
 Poza tymi dwoma miejscami treść jest identyczna z zadaniem w schedulerze.
+
+## Zmiany wprowadzone 12.10.2026 — kontrola rachunku przez `/status`
+
+- `dzienna.md`: nowy **KROK 1b — KONTROLA RACHUNKU** (przed KROK 2) i
+  **SEKCJA KONTROLA RACHUNKU** w KROK 3.
+- `tygodniowa.md`: akapit **KONTROLA POKRYCIA RACHUNKU** na końcu KROK A.
+- Obie rutyny czytają `curl -sS -m 120 "$NDX_BOT_URL/status"` (tylko
+  odczyt; nagłówek `X-Run-Token` dokłada network secret środowiska). Zasady
+  i znaczenie pól: `CLAUDE.md`. Po wklejeniu promptów do zadań sprawdź, że
+  oba zadania wskazują środowisko, w którym jest `NDX_BOT_URL` i sekret
+  (ikona chmury pod polem Instructions).

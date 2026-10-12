@@ -706,6 +706,40 @@ sprawdz("token zamaskowany w logu dostępu",
         rec.getMessage())
 
 
+# ------------------ /status: pokrycie koszyka (tylko odczyt) ----------------
+print("\nPOKRYCIE KOSZYKA — pole /status dla rutyn (12.10.2026)")
+s_pk = sig(version="2026-W7", exclude=[{"ticker": "AVGO", "action": "CLOSE"},
+                                        {"ticker": "MRVL", "action": "REDUCE"}],
+           tactical=[{"ticker": "APOG", "direction": "BUY", "epic": "APOG"}])
+poz_pk = [{"epic": "MU", "direction": "BUY", "size": 0.2},
+          {"epic": "AMD", "direction": "BUY", "size": 0.3},
+          {"epic": "MRVL", "direction": "BUY", "size": 0.5},
+          {"epic": "SBUX", "direction": "SELL", "size": 2.2},
+          {"epic": "APP", "direction": "SELL", "size": 0.8},
+          {"epic": "APOG", "direction": "BUY", "size": 5.0},
+          {"epic": "TER", "direction": "BUY", "size": 0.5},
+          {"epic": "LITE", "direction": "SELL", "size": 0.2}]
+pk = app.pokrycie_koszyka(s_pk, poz_pk)
+sprawdz("nogi LONG: AVGO wykluczony nie liczy się, LITE SELL to nie noga BUY",
+        pk["nogi_koszyka"] == 4 and pk["nogi_na_rachunku"] == 3
+        and pk["brakujace"] == ["LITE"], pk)
+sprawdz("wykluczone i zredukowane raportowane osobno",
+        pk["wykluczone_przez_puls"] == ["AVGO"]
+        and pk["zredukowane_przez_puls"] == ["MRVL"], pk)
+sprawdz("koszyk SHORT w trybie classic: 2 z 5 nóg na rachunku",
+        (pk["short"] or {}).get("nogi_koszyka") == 5
+        and pk["short"]["nogi_na_rachunku"] == 2
+        and set(pk["short"]["brakujace"]) == {"INTU", "CMCSA", "ADSK"}, pk)
+sprawdz("taktyczna osobno, pozycja po rotacji jako spoza koszyka",
+        pk["pozycje_taktyczne"] == ["APOG BUY 5.0"]
+        and pk["pozycje_spoza_koszyka"] == ["TER BUY 0.5"], pk)
+sprawdz("ticker bez epic liczony jako brakujący, nie wywala funkcji",
+        "XYZ (brak epic)" in app.pokrycie_koszyka(
+            sig(long=["MU", "XYZ"]), poz_pk)["brakujace"])
+sprawdz("pusty rachunek: wszystkie nogi brakujące, bez wyjątku",
+        app.pokrycie_koszyka(sig(), [])["nogi_na_rachunku"] == 0)
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)

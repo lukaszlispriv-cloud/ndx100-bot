@@ -13,12 +13,16 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`reports/`** — raporty dzienne, tygodniowe i rozliczenia okresów.
 - **`INSTRUKCJA.md`** — co zmieniono, jak skonfigurować Render, poprawiony
   prompt rutyny dziennej.
+- **`CLAUDE.md`** — zasady dla rutyn Claude, m.in. kontrola rachunku przez
+  endpoint tylko do odczytu `/status`.
+- **`rutyny/`** — źródło prawdy dla treści zadań „Puls NDX100" i „Raport
+  NDX100".
 
 ## Szybki start
 
 ```bash
 pip install -r requirements.txt
-python3 scripts/test_app.py     # musi przejść 46/46
+python3 scripts/test_app.py     # musi przejść 119/119
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 

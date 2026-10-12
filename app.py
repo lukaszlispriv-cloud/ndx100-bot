@@ -1100,6 +1100,71 @@ def kontrola_kapitalu(snap, positions, managed, rep):
     return wynik
 
 
+def pokrycie_koszyka(sig, positions):
+    """Które nogi koszyków faktycznie są na rachunku — WYŁĄCZNIE odczyt.
+
+    Wprowadzone 12.10.2026 dla rutyn „Puls NDX100" i „Raport NDX100", które
+    czytają /status przez network secret i mają same zauważyć, że rachunek
+    gra czymś innym niż koszyk (W5: VICR i ACN nigdy nie weszły, REDUCE STX
+    niewykonany — rozliczenie dowiedziało się o tym po fakcie). Funkcja nie
+    składa zleceń i nie jest wołana z /run.
+
+    Noga wykluczona przez puls (exclude CLOSE) nie jest „brakująca" — to
+    decyzja protokołu. Noga po REDUCE jest nogą obecną o mniejszym celu.
+    Pozycje spoza koszyka to m.in. nazwy poprzedniego tygodnia widoczne
+    między sobotnią rotacją sygnałów a poniedziałkowym biegiem /run.
+    """
+    epics = sig.get("epics", {}) or {}
+    zamkniete = {e.get("ticker") for e in sig.get("exclude", [])
+                 if e.get("action", "CLOSE") == "CLOSE"}
+    zredukowane = {e.get("ticker") for e in sig.get("exclude", [])
+                   if e.get("action") == "REDUCE"}
+    na_rachunku = {}
+    for p in positions:
+        na_rachunku.setdefault(p.get("epic"), []).append(p)
+
+    def noga(tickery, kierunek):
+        nogi, brak = [], []
+        for t in tickery:
+            if t in zamkniete:
+                continue
+            epic = (epics.get(t) or "").strip()
+            if not epic or epic.upper().startswith("UZUP"):
+                brak.append(f"{t} (brak epic)")
+                nogi.append(t)
+                continue
+            nogi.append(t)
+            if not [p for p in na_rachunku.get(epic, [])
+                    if p.get("direction") == kierunek]:
+                brak.append(t)
+        return {"nogi_koszyka": len(nogi),
+                "nogi_na_rachunku": len(nogi) - len(brak),
+                "brakujace": brak,
+                "wykluczone_przez_puls": sorted(t for t in tickery
+                                                if t in zamkniete),
+                "zredukowane_przez_puls": sorted(t for t in tickery
+                                                 if t in zredukowane)}
+
+    wynik = noga(sig.get("long", []), "BUY")
+    wynik["short"] = (noga(sig.get("short", []), "SELL")
+                      if HEDGE_MODE == "classic" else None)
+    koszyk = {(epics.get(t) or "").strip()
+              for t in list(sig.get("long", [])) + list(sig.get("short", []))}
+    taktyczne = {(t.get("epic") or epics.get(t.get("ticker"), "") or "").strip()
+                 for t in sig.get("tactical", [])}
+    taktyczne.discard("")
+    opis = lambda p: f"{p.get('epic')} {p.get('direction')} {p.get('size')}"
+    wynik["pozycje_taktyczne"] = [opis(p) for p in positions
+                                  if p.get("epic") in taktyczne]
+    wynik["pozycje_spoza_koszyka"] = [opis(p) for p in positions
+                                      if p.get("epic") not in koszyk
+                                      and p.get("epic") not in taktyczne
+                                      and p.get("epic") != (HEDGE_EPIC or None)]
+    wynik["hedge_mode"] = HEDGE_MODE
+    wynik["wersja_sygnalow"] = sig.get("version")
+    return wynik
+
+
 def _kierunek_tickera(sig, ticker):
     if ticker in sig.get("long", []):
         return "BUY"
@@ -2047,6 +2112,7 @@ def status_ep():
                    if e and not e.upper().startswith("UZUP")}
         if HEDGE_MODE == "index" and HEDGE_EPIC:
             managed.add(HEDGE_EPIC)
+        wszystkie = cap.positions()   # jedno pobranie dla wszystkich pól
         return jsonify(blad_przelaczenia_rachunku=cap.switch_error,
                        konta_wszystkie=konta,
                        sygnaly={k: sig[k] for k in
@@ -2059,8 +2125,10 @@ def status_ep():
                               "depozyt_zabezpieczajacy": snap.get("depozyt"),
                               "dostepne_do_handlu": snap.get("dostepne")},
                        kontrola_kapitalu=kontrola_kapitalu(
-                           snap, cap.positions(), managed,
+                           snap, wszystkie, managed,
                            {"błędy": [], "pominiete": []}),
+                       pokrycie_koszyka=pokrycie_koszyka(sig, wszystkie),
+                       hedge_mode=HEDGE_MODE,
                        ceny_wejscia=sig.get("fills", {}),
                        equity_peak=sig.get("equity_peak"),
                        ustawienia={"alloc_pct": ALLOC_PCT,
@@ -2078,7 +2146,7 @@ def status_ep():
                                    "margin_budget": MARGIN_BUDGET,
                                    "rebalance_tol": REBALANCE_TOL,
                                    "rebalance_tol_min": REBALANCE_TOL_MIN},
-                       pozycje=[p for p in cap.positions()
+                       pozycje=[p for p in wszystkie
                                 if p["epic"] in managed],
                        dry_run=DRY_RUN)
     except Exception as e:
