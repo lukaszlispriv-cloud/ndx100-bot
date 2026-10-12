@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Puls NDX100 — 12.10.2026</title>
+<style>
+:root{--bg:#F6F7F4;--navy:#10243E;--g:#0E7C4A;--r:#C4372E;--amb:#B7791F;--ink:#1d2430;--mut:#5b6472;--card:#fff;--line:#dde1e6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+header{background:var(--navy);color:#fff;padding:18px 16px 20px}header h1{margin:0 0 2px;font-size:20px}header .sub{font-size:13px;opacity:.85}
+.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;margin-top:14px}
+.ndx{flex:1 1 220px}.ndx .big{font-size:34px;font-weight:700;line-height:1.1}.ndx .chg{font-size:16px}.ndx small{display:block;opacity:.8;font-size:12px;margin-top:4px}
+.badge{flex:1 1 260px;border-radius:10px;padding:10px 12px;background:#0E7C4A;color:#fff;font-size:13px}.badge b{font-size:17px;display:block;margin-bottom:4px}.badge .mono{font-size:12.5px}
+.stamp{display:inline-block;border:3px solid var(--g);color:var(--g);font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;transform:rotate(-2.5deg);font-size:18px;background:rgba(255,255,255,.9);margin:16px 0 4px}
+main{padding:0 16px 32px;max-width:980px;margin:0 auto}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 14px;margin:14px 0}
+h2{font-size:16px;margin:0 0 10px;color:var(--navy)}h3{font-size:14.5px;margin:14px 0 6px}
+.lab{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;background:#e8ecf2;color:var(--navy);margin-right:6px;vertical-align:middle}
+.lab.w{background:#fde8d8;color:#8a3b00}.lab.s{background:#e2ebfa;color:#1a3f8a}.lab.m{background:#ece6fa;color:#4b2a8a}.lab.r{background:#e3f4ea;color:#0E7C4A}.lab.sh{background:#f9e3e1;color:#8c1d14}.lab.rez{background:#fff3cd;color:#7a5200}.lab.bot{background:#e6f0ff;color:#0b3a8a}
+.item{border-top:1px dashed var(--line);padding:10px 0}.item:first-of-type{border-top:0}.item p{margin:4px 0}.src{font-size:12px;color:var(--mut)}
+.pos{color:var(--g)}.neg{color:var(--r)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}table{border-collapse:collapse;width:100%;font-size:13px;min-width:720px}th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}th{background:#eef1f5;font-weight:600;font-size:12px}td.tk{font-weight:700}tr.hi td{background:#fff8e6}small{font-size:11px;color:var(--mut)}
+.spread{display:flex;flex-wrap:wrap;gap:10px}.spread div{flex:1 1 150px;background:#eef1f5;border-radius:10px;padding:10px 12px}.spread .v{font-size:24px;font-weight:700}.spread .l{font-size:12px;color:var(--mut)}
+ul{padding-left:20px;margin:6px 0}li{margin:4px 0}
+.kill{background:#fff3cd;border-color:#f0d58c}.warn{background:#fff8e6;border-color:#f0d58c}
+footer{font-size:12px;color:var(--mut);padding:10px 16px 30px;max-width:980px;margin:0 auto}
+</style></head><body>
+<header>
+<h1>Puls NDX100 · bieg dzienny · poniedziałek 12.10.2026</h1>
+<div class="sub">Ostatnia zakończona sesja: piątek 09.10.2026 = <b>D0 nowych koszyków 2026-W7</b> (dzień D+0) · bieg przed otwarciem NYSE (ok. 04:30 Nowy Jork, Columbus Day: akcje handlowane, rynek obligacji zamknięty) · <b>stan rachunku SPRZED rotacji</b> (rotacja w biegu bota 13:45 UTC)</div>
+<div class="top">
+<div class="ndx"><div class="big mono">30 883,15</div><div class="chg mono">+0,51 % d/d · 341,32 pkt pod szczytem z 06.10 (drawdown 1,09 %)</div>
+<small>^NDX, zamknięcie 09.10.2026 · źródło: Yahoo chart/spark API przez scripts/kursy.py (12.10.2026 04:21 ET; 08.10: 30 725,81) · walidacja D0: 30 883,15 = d0.ndx w signals.json (OK) · konektor FMP: historia ^NDX i batch-quote niedostępne w planie konta (ACCESS DENIED), VIX z FMP = 14,84 zgodny z Yahoo</small></div>
+<div class="badge"><b>REŻIM P0</b>
+<div class="mono">^NDX 30 883,2 vs MA200 27 625,8 → +11,79 %<br>^NDX vs MA50 29 774,7 → +3,72 %<br>drawdown od 52-tyg. szczytu (31 224,47; 06.10): 1,09 % · sesja +0,51 %<br>VIX 14,84 (09.10; Yahoo 14,84 = FMP 14,84)</div>
+<div style="font-size:12px;margin-top:6px;opacity:.95">Progi: P1 = NDX&lt;MA200 lub DD&gt;10 % lub VIX&gt;28; P2 = DD&gt;20 % lub VIX&gt;40 lub sesja ≤−5 %. Żaden nie jest spełniony. Źródło: sekcja REŻIM skryptu kursy.py (12.10.2026 04:21 ET: poziom 0, MA200 27 625,8, MA50 29 774,7, DD −1,09 %, sesja +0,51 %, VIX 14,84) oraz niezależne przeliczenie z rocznej serii Yahoo (251 sesji, v8/finance/chart) — identyczne wartości. Twarde sygnały systemowe z prognoz niedźwiedzich (drugi ujemny FCF ≥2 hyperscalerów, obniżka cen kontraktowych DRAM/NAND, anulacje GPU/optyki, chmura &lt;15 % r/r): żaden nie wystąpił (TrendForce 30.09: 4Q26 DRAM +10–15 %, NAND +15–20 % kw/kw — obowiązuje) → bez eskalacji.</div></div>
+</div>
+</header>
+<main>
+<div class="stamp">Aktualna</div>
+
+<section>
+<h2>Werdykt dnia</h2>
+<p><b>status = AKTUALNA · exclude = [] (pusta) · tactical = [] (pusta; sloty 0/2) · reżim P0 bez eskalacji · last_daily = 2026-10-12.</b></p>
+<p><b>Pierwszy bieg po sobotniej rotacji (W6 → W7).</b> Ostatnia zakończona sesja (piątek 09.10) jest dniem D0 nowych koszyków, więc <b>zwroty od D0 wynoszą dziś 0,00 % dla wszystkich dziesięciu spółek</b> — z definicji, nie z braku ruchu. Na rachunku są jeszcze pozycje poprzedniego tygodnia (AMD, TER, AMAT long; NFLX, PAYX short oraz taktyczne APOG, PENG) — bot wymieni je na nowy koszyk w biegu 13:45 UTC. Pięć spółek nowego koszyka (<b>MRVL, PANW, CSCO</b> long; <b>PEP, TMUS</b> short) nie ma ceny wejścia w <code>fills</code> — dla nich zwrot od wejścia liczony jest od D0 i oznaczony „b.d." w kolumnie ceny wejścia. To normalny stan poniedziałkowy, nie usterka.</p>
+<p><b>Pięć nóg kontynuowanych (MU, LITE long; CMCSA, SBUX, APP short) ma wpisy w <code>fills</code>, ale ledger został przepisany przez bota 10.10</b> (commit „bot: ceny wejścia (12 pozycji)", 15:45 CEST): wszystkie dwanaście cen odniesienia równa się poziomom otwarcia u brokera z wyrównania 5–6.10 i nosi wersję 2026-W7, choć rotacja na rachunku jeszcze się nie wykonała. Przyczyna jest w kodzie (<code>app.py</code>, funkcja składająca <code>fills</code>): zmiana <code>version</code> w signals.json jest rozpoznawana jako rotacja i wpis z inną wersją zastępuje się poziomem brokera. Skutek dla pulsu: MU liczony od 1 063,70 (zamiast 913,35 z 27.08) pokazuje −3,26 % zamiast +13 %; APP od 277,22 (zamiast 308,51) pokazuje +0,06 % zamiast +11 %. Puls pracuje na ledgerze takim, jaki jest — bramka bota mierzy od tych samych liczb — i odnotowuje sprawę w sekcji problemów. Zgodnie z protokołem puls nie dotyka pola <code>fills</code>.</p>
+<p><b>Brak wyzwalaczy twardych (basis news)</b>: w oknie 09–12.10 żadnego raportu, 8-K, przejęcia, zawieszenia ani pierwszej obniżki cen kontraktowych DRAM/NAND. Micron: związek w Taoyuan ma mandat strajkowy, ale <b>bez daty strajku</b> (wiec 19.10 „to nie strajk" wg związku; mediacja Taichung 22.10). <b>Brak miękkich (rekom/short)</b>: żadnej zmiany oceny od elity (Arcuri, Malik, Rakers, Schafer, Sur, Mahaney) ani sygnału niedźwiedziego (Rasgon, Curtis, Malik-watch) przeciw tezie dla 10 spółek koszyka; cięcia celów dla TMUS (Scotiabank, Barclays, 09.10) i APP (agregatory: BofA/Jefferies, niepotwierdzone u źródła) działają ZA tezą short. FINRA short interest (rozliczenie 30.09) opublikowane 09.10 po sesji — brak dostępu do pliku z tego środowiska, bez zmian do odnotowania.</p>
+<p><b>Wyzwalacze cenowe</b> (od cen wejścia z <code>fills</code>, a przy ich braku od D0): żadna spółka nie spełnia warunku 1 (pasmo ≥ 4 p.p. względnie przeciw tezie). Najbliżej jest <b>MU</b>: −3,26 % bezwzględnie (do bramki 4 % brakuje 0,74 p.p.), −2,17 p.p. względnie (do pasma 1,83 p.p.) — trafia do OBSERWOWANYCH, bez sesji za progiem. <b>APP</b> −1,03 p.p. względnie przy +0,06 % bezwzględnie — poza progami. LITE (+2,03 p.p.), CMCSA (+2,63 p.p.) i SBUX (+4,37 p.p.) pracują za tezą.</p>
+<p><b>Blokada sektorowa (sesja 09.10):</b> telekomy −10 % (T −10,82 %, VZ −10,14 %, TMUS −13,27 % po zakupie pasma 800 MHz przez SpaceX) i kabel (CHTR −5,74 %, CMCSA −2,59 %) — przecena sektorowa, która działa ZA shortami TMUS i CMCSA; dla wpisów przeciw tezie bez znaczenia (nie ma kandydatów). Półprzewodniki SOX −0,41 %, optyka COHR +3,40 %, cyber CRWD +4,57 %, sieci ANET +2,73 % — bez blokady.</p>
+<p><b>Pole wykonanie</b> (bot 1.7.2, aktualizacja 2026-10-10): reakcje = {} (w piątek nie było wpisów REDUCE/CLOSE), taktyczne = {} — bot wyczyścił statusy po tym, jak rutyna tygodniowa opróżniła <code>tactical</code>. Nic do rozliczenia, nic do usunięcia.</p>
+</section>
+
+<section>
+<h2>Najważniejsze zmiany (24–72 h, od zamknięcia 08.10)</h2>
+
+<div class="item"><span class="lab bot">BOT</span><span class="lab s">LEDGER</span><b>Ledger cen wejścia przepisany 10.10 (sobota, 15:45 CEST) — 12 pozycji dostało cenę odniesienia równą poziomowi brokera z 5–6.10 i wersję 2026-W7</b>
+<p>Przed: MU 913,35 (27.08), APP 308,51 (28.09), CMCSA 21,71, SBUX 95,28, NFLX 69,87, TER 406,82, AMD 612,82 (wersja 2026-W6). Po: MU 1 063,70, APP 277,22, CMCSA 21,46, SBUX 95,99, NFLX 67,93, TER 430,65, AMD 655,75 (daty 5–6.10, wersja 2026-W7). Mechanizm: bot uznaje zmianę <code>version</code> za rotację i resetuje wpis do poziomu brokera (<code>app.py</code>, docstring „rotacja koszyka — poznajemy ją po zmianie sig["version"]"). Ponieważ rutyna tygodniowa zmienia <code>version</code> w sobotę, a rotacja pozycji następuje w poniedziałek, każdy bieg bota w tym oknie (tu: sobotni bieg o 13:45 UTC) kasuje ceny tezy nóg kontynuowanych. Dla rachunku nic się nie zmienia (P/L u brokera liczy się od jego poziomu), ale <b>bramka reakcji i stop-loss 10 % liczą od nowych, wyższych/niższych cen</b> — np. MU jest teraz 3,26 % „pod wodą" w oczach bramki, a stop-loss 10 % przypada na 957,33 USD zamiast 822,02 USD. Puls odnotowuje; decyzja o ewentualnej poprawce kodu (reset dopiero po faktycznej rotacji pozycji) należy do właściciela.</p>
+<p class="src">Źródła: git log signals.json (commit 6cd0194, 10.10.2026 15:45 +0200, diff pól fills); /status bota 12.10.2026 (ceny_wejscia = fills; pozycje[].otwarta 2026-10-05/06 17:05 UTC); app.py (sekcja składania fills).</p></div>
+
+<div class="item"><span class="lab s">SPÓŁKI</span><span class="lab sh">SHORT</span><b>TMUS (short, nowa noga): −13,27 % do 148,58 USD w piątek — najgorsza sesja od 2013 r. po ogłoszeniu, że SpaceX kupuje od Grain Management ogólnokrajowe pasmo 800 MHz pod Starlink Mobile (cena nieujawniona; TipRanks podaje ok. 8 mld USD; wymagana zgoda FCC); T −10,82 %, VZ −10,14 %</b>
+<p>D0 koszyka W7 = ten właśnie dzień, więc teza short startuje PO przecenie — ryzykiem jest odbicie techniczne (Yahoo: TMUS +0,39 % w handlu nocnym w niedzielę; „retail kupuje dołek"). Cięcia celów: Scotiabank, Barclays (09.10); KeyBanc (Nispel): pasmo low-band czyni Starlink „wiarygodnym operatorem". Bez zmiany oceny od elity. Pozycja zostanie otwarta dopiero w biegu 13:45 UTC — bez ceny wejścia.</p>
+<p class="src">Źródła: Motley Fool 09.10.2026 („Why T-Mobile Stock Just Crashed"); Benzinga 09.10.2026 („worst day since 2013"); TipRanks 09.10.2026 (8 mld USD); Yahoo Finance 11.10.2026 (handel nocny +0,39 %); TradersUnion 09.10.2026 (cele Scotiabank/Barclays); kursy: Yahoo (kursy.py; T, VZ, CHTR z Yahoo v8/finance/chart).</p></div>
+
+<div class="item"><span class="lab s">SPÓŁKI</span><b>LITE (long): +5,22 % do 1 103,36 USD (rekord intraday ok. 1 143 USD) po wypowiedzi CEO Hurlstona dla Bloomberga: komponenty optyczne „całkowicie wyprzedane" do początku 2029 r.; PANW (long, nowa noga): +5,09 % do 418,78 USD, nowy szczyt — rajd cyberbezpieczeństwa (CRWD +4,57 %); CSCO (long, nowa noga): +3,05 % do 118,39 USD</b>
+<p>Wszystkie trzy to ruchy z dnia D0 — wchodzą do punktu odniesienia prognozy, nie do zwrotu. LITE od wejścia 1 088,08 (05.10): <b>+1,40 %</b>, względnie +2,03 p.p. — za tezą. Dla PANW i CSCO brak nowych komunikatów ani zmian ocen elity w oknie 24–72 h (Cisco: konsensus 25 analityków, cel śr. ok. 136 USD wg agregatora z 08.10; Marvell: Curtis/Jefferies Buy 325 USD z 29.09 — za tezą long). Wyniki: LITE 05.11, PANW ok. 18–19.11, CSCO ok. 12.11, MRVL ok. początek grudnia.</p>
+<p class="src">Źródła: Bloomberg 09.10.2026 (podcast „Stock Movers: Humana, Lumentum, and T-Mobile"; wideo z CEO); Simply Wall St 10.10.2026 (LITE rekord ok. 1 143 USD); CNBC 06.10.2026 (PANW/ZS/CRWD); Bullstory (CSCO, 08.10.2026); Yahoo Finance/TipRanks (MRVL, Curtis 29.09.2026); kursy: Yahoo (kursy.py).</p></div>
+
+<div class="item"><span class="lab s">SPÓŁKI</span><span class="lab w">DRAM/NAND</span><b>MU (long): −0,66 % do 1 029,00 USD w piątek; związek z Taoyuan (mandat strajkowy ok. 99 % głosujących) wzywa pracowników do wzięcia wolnego 19.10 na wiec pod Pałacem Prezydenckim — „to nie strajk"; mediacja Taichung 22.10; ceny kontraktowe DRAM/NAND bez obniżki</b>
+<p>Teza nienaruszona: TrendForce (30.09) utrzymuje 4Q26 DRAM +10–15 % kw/kw (z HBM 15–20 %), NAND +15–20 %, PC DRAM +13–18 %; brak nowszej prognozy w oknie. Ryzyko pozacenowe: ogłoszenie daty strajku (komunikat/8-K) = istotny negatyw (REDUCE, basis news); pierwsza obniżka cen kontraktowych = CLOSE. Od wejścia 1 063,70 (06.10, po resecie ledgera): <b>−3,26 %</b>; względnie vs ^NDX −2,17 p.p. Dywidenda 0,15 USD, ex-date 14.10. Form 4 insiderów z 11.10 (Investing.com) — rutynowe.</p>
+<p class="src">Źródła: 24/7 Wall St. 08.10.2026; Yahoo Finance/Reuters 08–09.10.2026 („Micron Workers Authorize Strike…", wiec 19.10, mediacja 22.10); TrendForce 30.09.2026 (4Q26 Memory Price Forecast); Investing.com 11.10.2026 (Form 4); kursy: Yahoo (kursy.py).</p></div>
+
+<div class="item"><span class="lab s">SPÓŁKI</span><span class="lab sh">SHORT</span><b>SBUX (short): −2,64 % do 90,75 USD — FT: Starbucks miesiącami konsultował z doradcami ofertę na Chipotle; DA Davidson ocenia szansę transakcji na ok. 20 %, TD Cowen również nisko; wyniki FQ4 29.10. CMCSA (short): −2,59 % do 20,66 USD (kabel w dół razem z telekomami: CHTR −5,74 %; Barclays już 05.10 wskazywał Starlink jako presję na broadband). APP (short): −1,10 % do 277,04 USD; cięcia celów wg agregatorów (BofA 400→325, Jefferies 550→375, 08–09.10) — niepotwierdzone u źródła, oznaczone jako b.d. jakościowe. PEP (short, nowa noga): −1,85 % do 125,97 USD po cięciu prognozy core EPS FY26 (08.10)</b>
+<p>Od wejścia (ledger po resecie): SBUX 95,99 → 90,75 = <b>+5,46 %</b> w ujęciu tezy (względnie +4,37 p.p.); CMCSA 21,46 → 20,66 = <b>+3,73 %</b> (+2,63 p.p.); APP 277,22 → 277,04 = <b>+0,06 %</b> (−1,03 p.p.). PEP i TMUS bez ceny wejścia (od D0: 0,00 %).</p>
+<p class="src">Źródła: Benzinga 09.10.2026 („What's Going On With Starbucks Stock Friday?"; DA Davidson, TD Cowen); Big Moves 09.10.2026; CNBC 08.10.2026 (PepsiCo Q3); agregatory ocen (APP, 09.10.2026 — rozbieżne, nieużyte do werdyktu); kursy: Yahoo (kursy.py).</p></div>
+
+<div class="item"><span class="lab m">MAKRO</span><b>Tydzień 12–16.10: dziś Columbus Day (akcje otwarte, obligacje i banki zamknięte, płytsza płynność); wtorek 13.10 wyniki JPM, GS, C, WFC (śr. 14.10 BAC, MS); <b>środa 14.10 CPI za wrzesień</b> — konsensus 3,6 % r/r (XTB: 3,7 %) wobec 3,4 %, +0,6 % m/m, bazowy ok. 2,5 % r/r; czwartek 15.10 PPI, sprzedaż detaliczna, wnioski; piątek wystąpienie Warsha. Fed po wrześniowej podwyżce 3,75–4,00 %, szansa na kolejną 27–28.10 ok. 1/5; 10-latka najwyżej od ponad 20 lat (5,2–5,3 %); kontrakty na Nasdaq w niedzielę/poniedziałek rano wyżej (FX Leaders 11.10, Stocktwits 12.10 — serwisy nieosiągalne z tego środowiska, tytuły bez liczb)</b>
+<p>Dla reżimu bez znaczenia (VIX 14,84). Gorący CPI = ryzyko dla wysoko wycenionego wzrostu (LITE, PANW, MRVL) i wsparcie dla defensyw (PEP short). Bieg bota o 13:45 UTC przypada na pierwsze 15 minut sesji o obniżonej płynności (rynek obligacji zamknięty).</p>
+<p class="src">Źródła: HeyGoTrade „Week Ahead" 12.10.2026; XTB „The Week Ahead" (CPI 3,7 %); FXEmpire 11.10.2026; Babypips „Fundies Cheat Sheet: Oct. 12"; TradingKey 11.10.2026; Live Trading News (10Y); FMP earnings-calendar (13.10: C, GS, JNJ, JPM, UNH, WFC; 12.10: brak raportów spółek z uniwersum).</p></div>
+
+<div class="item"><span class="lab w">WYNIKI</span><b>Poza koszykami (piątek 09.10): Humana +11,56 % do 431,87 USD (ratingi CMS, upgrade; nie wynik); Delta −po cięciu prognozy; Penguin Solutions +6,58 % do 76,28 USD (kontynuacja po Q4 FY26). Dziś (12.10) brak raportów spółek z uniwersum NDX-100 i S&amp;P 500; sezon zaczyna się jutro od banków</b>
+<p class="src">Źródła: Motley Fool 09.10.2026 (midday); FMP earnings-calendar 12–13.10.2026; kursy HUM/PENG/APOG: Yahoo v8/finance/chart (12.10.2026 04:2x ET).</p></div>
+</section>
+
+<section>
+<h2>Koszyk LONG (2026-W7, D0 = 09.10.2026)</h2>
+<div class="tw"><table>
+<tr><th>spółka</th><th>kierunek</th><th>kurs wejścia (fills)</th><th>kurs D0 (09.10)</th><th>kurs ostatni (09.10)</th><th>zwrot od wejścia</th><th>zwrot od D0</th><th>relatywnie vs ^NDX (od wejścia)</th></tr>
+<tr class="hi"><td class="tk">MU</td><td>LONG</td><td class="mono">1 063,70<br><small>06.10 (reset 10.10)</small></td><td class="mono">1 029,00</td><td class="mono">1 029,00<br><small class="neg">-0,66 % d/d</small></td><td class="mono neg"><b>-3,26 %</b></td><td class="mono">0,00 %</td><td class="mono neg">-2,17 p.p.<br><small>od D0: 0,00 p.p.</small></td></tr>
+<tr><td class="tk">LITE</td><td>LONG</td><td class="mono">1 088,08<br><small>05.10</small></td><td class="mono">1 103,36</td><td class="mono">1 103,36<br><small class="pos">+5,22 % d/d</small></td><td class="mono pos"><b>+1,40 %</b></td><td class="mono">0,00 %</td><td class="mono pos">+2,03 p.p.<br><small>od D0: 0,00 p.p.</small></td></tr>
+<tr><td class="tk">MRVL</td><td>LONG</td><td class="mono">b.d.<br><small>od D0</small></td><td class="mono">275,28</td><td class="mono">275,28<br><small class="pos">+0,23 % d/d</small></td><td class="mono"><b>0,00 %</b><br><small>od D0</small></td><td class="mono">0,00 %</td><td class="mono">0,00 p.p.</td></tr>
+<tr><td class="tk">PANW</td><td>LONG</td><td class="mono">b.d.<br><small>od D0</small></td><td class="mono">418,78</td><td class="mono">418,78<br><small class="pos">+5,09 % d/d</small></td><td class="mono"><b>0,00 %</b><br><small>od D0</small></td><td class="mono">0,00 %</td><td class="mono">0,00 p.p.</td></tr>
+<tr><td class="tk">CSCO</td><td>LONG</td><td class="mono">b.d.<br><small>od D0</small></td><td class="mono">118,39</td><td class="mono">118,39<br><small class="pos">+3,05 % d/d</small></td><td class="mono"><b>0,00 %</b><br><small>od D0</small></td><td class="mono">0,00 %</td><td class="mono">0,00 p.p.</td></tr>
+</table></div>
+<p class="src">Kursy: Yahoo chart/spark API (scripts/kursy.py, 12.10.2026 04:21 ET; 105/105 symboli, budżet czasu nie wyczerpany, lista problemów pusta; walidacja D0 OK dla wszystkich 10 spółek i ^NDX, tolerancja 0,5 %). ^NDX w oknie od wejścia: 05.10 (31 076,44) → 09.10 −0,62 %; 06.10 (31 224,47) → −1,09 %. Zwrot od D0 = 0,00 % z definicji (ostatnia sesja = D0).</p>
+<p><b>Wiersz wyróżniony (różnica zwrotu od wejścia i od D0 &gt; 2 p.p.):</b> <b>MU</b> — cena odniesienia 1 063,70 USD to poziom otwarcia u brokera z wyrównania 06.10, wpisany do ledgera 10.10 (przed resetem: 913,35 z 27.08); D0 = 1 029,00 → 3,26 p.p. różnicy. Rachunek jest na tej pozycji 3,26 % pod poziomem brokera, prognoza tygodniowa startuje od zera.</p>
+</section>
+
+<section>
+<h2>Koszyk SHORT (2026-W7, D0 = 09.10.2026)</h2>
+<div class="tw"><table>
+<tr><th>spółka</th><th>kierunek</th><th>kurs wejścia (fills)</th><th>kurs D0 (09.10)</th><th>kurs ostatni (09.10)</th><th>zwrot od wejścia</th><th>zwrot od D0</th><th>relatywnie vs ^NDX (od wejścia)</th></tr>
+<tr class="hi"><td class="tk">CMCSA</td><td>SHORT</td><td class="mono">21,46<br><small>06.10 (reset 10.10)</small></td><td class="mono">20,66</td><td class="mono">20,66<br><small class="neg">-2,59 % d/d</small></td><td class="mono pos"><b>+3,73 %</b></td><td class="mono">0,00 %</td><td class="mono pos">+2,63 p.p.<br><small>od D0: 0,00 p.p.</small></td></tr>
+<tr class="hi"><td class="tk">SBUX</td><td>SHORT</td><td class="mono">95,99<br><small>06.10 (reset 10.10)</small></td><td class="mono">90,75</td><td class="mono">90,75<br><small class="neg">-2,64 % d/d</small></td><td class="mono pos"><b>+5,46 %</b></td><td class="mono">0,00 %</td><td class="mono pos">+4,37 p.p.<br><small>od D0: 0,00 p.p.</small></td></tr>
+<tr><td class="tk">PEP</td><td>SHORT</td><td class="mono">b.d.<br><small>od D0</small></td><td class="mono">125,97</td><td class="mono">125,97<br><small class="neg">-1,85 % d/d</small></td><td class="mono"><b>0,00 %</b><br><small>od D0</small></td><td class="mono">0,00 %</td><td class="mono">0,00 p.p.</td></tr>
+<tr><td class="tk">TMUS</td><td>SHORT</td><td class="mono">b.d.<br><small>od D0</small></td><td class="mono">148,58</td><td class="mono">148,58<br><small class="neg">-13,27 % d/d</small></td><td class="mono"><b>0,00 %</b><br><small>od D0</small></td><td class="mono">0,00 %</td><td class="mono">0,00 p.p.</td></tr>
+<tr><td class="tk">APP</td><td>SHORT</td><td class="mono">277,22<br><small>06.10 (reset 10.10)</small></td><td class="mono">277,04</td><td class="mono">277,04<br><small class="neg">-1,10 % d/d</small></td><td class="mono pos"><b>+0,06 %</b></td><td class="mono">0,00 %</td><td class="mono neg">-1,03 p.p.<br><small>od D0: 0,00 p.p.</small></td></tr>
+</table></div>
+<p class="src">Zwroty dla SHORT podane w ujęciu tezy (spadek kursu = zysk). Relatywnie = −(zmiana kursu − zmiana ^NDX w tym samym oknie). CMCSA: ex-dywidenda 0,33 USD 07.10 — kurs bez korekty (u brokera CFD korekta dywidendowa obciąża shorta w dniu ex-date).</p>
+<p><b>Wiersze wyróżnione:</b> <b>CMCSA</b> (3,73 p.p. różnicy) i <b>SBUX</b> (5,46 p.p.) — pozycje short kontynuowane z W6, cena odniesienia z resetu ledgera 10.10 (06.10: 21,46 / 95,99; przed resetem 28.09: 21,71 / 95,28), D0 = 09.10. Rachunek ma na nich zysk z poprzedniego tygodnia; prognoza W7 startuje od zera.</p>
+</section>
+
+<section>
+<h2>Spread koszyków (D+0, W7)</h2>
+<div class="spread">
+<div><div class="l">od CEN WEJŚCIA (wynik rachunku) → history.spread_fills_pp</div><div class="v mono pos">+1,48 p.p.</div><div class="l">LONG śr. −0,37 % · SHORT śr. (teza) +1,85 % · 5 nóg bez ceny wejścia liczone od D0 (0,00 %)</div></div>
+<div><div class="l">od D0 (jakość prognozy) → history.spread_pp</div><div class="v mono">0,00 p.p.</div><div class="l">LONG śr. 0,00 % · SHORT śr. (teza) 0,00 % — ostatnia sesja = D0</div></div>
+<div><div class="l">różnica (wejście − D0)</div><div class="v mono">+1,48 p.p.</div><div class="l">piątek (W6, D+4): +1,95 / −7,89 p.p.; rozliczenie W6 (sobota): +3,88 / −5,89 p.p.</div></div>
+</div>
+<p class="src">Spread = średni zwrot LONG minus średnia zmiana kursu SHORT (równoważnie: suma średnich zwrotów w ujęciu tezy). Spread od wejścia jest dziś hybrydą: MU −3,26 %, LITE +1,40 %, CMCSA +3,73 %, SBUX +5,46 %, APP +0,06 % od cen z ledgera (po resecie 10.10) oraz MRVL, PANW, CSCO, PEP, TMUS od D0 (0,00 %). Pełne porównanie od jutra, gdy bot zapisze ceny wejścia nowych nóg.</p>
+</section>
+
+<section>
+<h2>Kontrola bramki</h2>
+<p><b>Wpisy exclude o basis="cena": brak.</b> Lista exclude jest pusta (rutyna tygodniowa wyzerowała ją w sobotę, puls nie dodaje nic nowego) — nic do wykonania przez bramkę (REACT_REDUCE_PCT = 0,04, REACT_CLOSE_PCT = 0,08, REDUCE_FACTOR = 0,5 wg <code>ustawienia</code> z /status).</p>
+<p><b>Wczorajsze REDUCE do rozliczenia z pola wykonanie.reakcje: brak</b> (wykonanie.reakcje = {}, aktualizacja 2026-10-10; piątkowy puls nie wystawił wpisów).</p>
+<p class="src">Dla porządku — symulacja bramki dla nóg bez wpisu (od cen z ledgera): <span class="mono">MU</span> 1 063,70 → 1 029,00: bezwzględnie −3,26 %, względnie −2,17 p.p. → bramka odrzuciłaby (poniżej 4 %); <span class="mono">APP</span> 277,22 → 277,04: +0,06 % za tezą → nic; LITE, CMCSA, SBUX za tezą. Pozycje poprzedniego tygodnia, które bot zamknie dziś przy rotacji (nie są nogami koszyka W7, bez wpisów): PAYX short 98,87 → 103,98 (−5,17 % bezwzgl., −5,79 p.p. względnie — <b>druga sesja za progiem REDUCE</b>, ale spółka wyszła z koszyka w sobotę, więc wpis nie powstaje), AMD −7,27 % / −6,17 p.p., TER −6,49 % / −5,40 p.p., AMAT −5,37 % / −4,75 p.p., NFLX −3,49 % / −4,58 p.p. — wszystkie do zamknięcia przez rotację.</p>
+</section>
+
+<section>
+<h2>Obserwowane</h2>
+<ul>
+<li><b>MU (long)</b> — wejście (ledger) 1 063,70 → 1 029,00 USD: bezwzględnie −3,26 % (do bramki 4 % brakuje 0,74 p.p., czyli zamknięcie ≤ 1 021,15 USD), względnie −2,17 p.p. (do pasma 4 p.p. brakuje 1,83 p.p.). Bez sesji za progiem. Ryzyko pozacenowe: data strajku Taoyuan (REDUCE, news) / obniżka cen kontraktowych (CLOSE). Wiec 19.10, mediacja 22.10, ex-dywidenda 14.10.</li>
+<li><b>APP (short)</b> — wejście 277,22 → 277,04 USD: +0,06 % za tezą, względnie −1,03 p.p. (indeks spadł mocniej niż spółka). Poza progami. Wyniki Q3 na początku listopada.</li>
+<li><b>TMUS (short, bez ceny wejścia)</b> — pozycja otworzy się dziś po −13,27 % sesji; odbicie techniczne (handel nocny +0,39 %) to pierwsze ryzyko tygodnia. Od jutra liczony od ceny wejścia bota.</li>
+<li><b>PEP (short, bez ceny wejścia)</b> — po cięciu prognozy (08.10) kurs oddał w piątek −1,85 %; przy gorącym CPI defensywy mogą dostać wsparcie — obserwacja relatywna od jutra.</li>
+<li><b>Sygnały wyłącznie względne, poniżej progu bramki:</b> brak.</li>
+</ul>
+</section>
+
+<section class="kill">
+<h2>Kill switch (kroczący)</h2>
+<p>Szczyt kapitału <b>equity_peak = 1 091,83 USD</b> (signals.json = /status bota; bez zmiany wobec piątku) · próg = 0,75 × szczyt = <b>818,87 USD</b> (<code>kill_level</code> 0,75, <code>kill_trailing</code> true). Kill switch jest kroczący: próg podąża za nowym szczytem kapitału i nigdy nie spada. Puls nie modyfikuje equity_peak. Kapitał z /status (1 016,92 USD) jest 6,86 % pod szczytem i 24,2 % nad progiem.</p>
+</section>
+
+<section>
+<h2>Moduł taktyczny (P0 → aktywny; sloty 0/2 wolne po rotacji)</h2>
+<p><b>tactical = []</b> — rutyna tygodniowa (10.10) opróżniła listę zgodnie z zasadą rotacji; raport W7 zapowiedział: „bot zamknie obie przy pierwszym biegu". Na rachunku do zamknięcia w biegu 13:45 UTC: <b>APOG BUY</b> (wejście 42,64 → 40,59 USD w piątek, −0,44 % d/d, <b>−4,81 %</b> od wejścia; Yahoo) i <b>PENG BUY</b> (73,78 → 76,28 USD, +6,58 % d/d, <b>+3,39 %</b> od wejścia; Yahoo). Puls nie wpisuje ich ponownie: ich wyzwalacze (wyniki z 06.10) nie są „świeżymi 24 h", a limit to 1 nowa dziennie.</p>
+<p><b>Nowe kandydatury: brak.</b> Skan S&amp;P 500 / Nasdaq Composite za 24–72 h: Humana +11,56 % (431,87 USD) — ratingi CMS i upgrade, nie wynik/kontrakt/wezwanie, a 1 akcja przekracza limit wykonalności ok. 325 USD; Delta — miss i cięcie prognozy, SELL bez wsparcia Rasgona/Curtisa/Malika; Penguin Solutions — kontynuacja ruchu po wynikach z 06.10 (nie nowy wyzwalacz); PTC — wezwanie Schneidera (205 USD/akcję) z tygodnia 5.10, nieświeże. Dziś (poniedziałek) brak raportów spółek z uniwersum; Columbus Day sprzyja niskiej płynności. Nic nie wpisano.</p>
+<p class="src">Wykonalność: limit 1,6 × 20 % × 1 016,92 USD ≈ 325 USD na minimalną transakcję (1 akcja). Źródła: raport tygodniowy W7 (10.10.2026); Yahoo v8/finance/chart (APOG, PENG, HUM; 12.10.2026 04:2x ET); Motley Fool 09.10.2026; FMP earnings-calendar; Investing.com „Street Calls of the Week".</p>
+</section>
+
+<section>
+<h2>Kalendarz dnia — poniedziałek 12.10.2026</h2>
+<p><b>Wyniki, przed sesją:</b> brak raportów spółek z uniwersum NDX-100 i S&amp;P 500 (FMP earnings-calendar: pusty dla 12.10). <b>Po sesji:</b> brak. Jutro przed sesją: JPM, GS, C, WFC, JNJ, UNH (13.10).</p>
+<p><b>Makro USA:</b> Columbus Day — NYSE/Nasdaq otwarte, rynek obligacji (SIFMA) i banki zamknięte, brak publikacji makro; wystąpienia Fed: brak potwierdzonych. Tydzień: CPI 14.10 (08:30 ET), PPI + sprzedaż detaliczna + wnioski 15.10, Warsh 16.10, FOMC 27–28.10.</p>
+<p><b>Spółki koszykowe — najbliższe daty:</b> MU ex-dywidenda 14.10, wiec związku Taoyuan 19.10, mediacja Taichung 22.10; CMCSA wyniki 22.10; SBUX wyniki 29.10; LITE wyniki 05.11; PEP — brak zdarzeń (po wynikach 08.10); TMUS — oczekiwanie na szczegóły transakcji SpaceX/FCC, wyniki ok. 23.10; APP, PANW, MRVL, CSCO — wyniki w listopadzie/grudniu. <b>Bot:</b> rotacja koszyka W7 w biegu 13:45 UTC (zamknięcie AMD, TER, AMAT, NFLX, PAYX, APOG, PENG; otwarcie MRVL, PANW, CSCO, PEP, TMUS), wyrównanie wielkości 17:05 UTC.</p>
+<p class="src">Źródła: FMP earnings-calendar 12–13.10.2026; HeyGoTrade / XTB / FXEmpire / Babypips (tydzień 12–16.10); raport tygodniowy W7; CLAUDE.md (harmonogram /run).</p>
+</section>
+
+<section>
+<h2>Kontrola rachunku (/status, 12.10.2026 ok. 08:25 UTC) — stan SPRZED rotacji</h2>
+<p><b>Dostęp:</b> NDX_BOT_URL ustawione, /health OK (bot 1.7.2, tryb LIVE, dry_run = false, live_odblokowany = true), /status z nagłówkiem przez sekret — odpowiedź pełna, z polem <code>pokrycie_koszyka</code> (bot ≥ 12.10). Rachunek aktywny dla bota: „BOT - Nasdaq 100" (aktywne_dla_bota = true, blad_przelaczenia_rachunku = null).</p>
+<p><b>Konto:</b> kapitał <b>1 016,92 USD</b> · gotówka 1 080,80 USD · wycena pozycji −63,88 USD · depozyt zabezpieczający 1 080,80 USD · dostępne do handlu 493,91 USD · waluta USD · equity_peak 1 091,83 = signals.json (zgodne).</p>
+<p><b>kontrola_kapitalu:</b> zgodne = <b>false</b>, powód: „2 pozycji spoza książki bota (APOG BUY 5.0, PENG BUY 3.0)"; roznica −3,49 USD wobec tolerancji 20,34 USD (mieści się); pozycje_bez_wyceny = []; suma_upl_pozycji_bota −60,39 USD, wycena_z_api −63,88 USD. <b>Ocena: to NIE jest alarm</b> — APOG i PENG to pozycje taktyczne z W6, obecne w <code>ceny_wejscia</code> (= fills); /status zawęża książkę do uniwersum epics. Po ich zamknięciu przy rotacji kontrola powinna wrócić do zgodne = true.</p>
+<p><b>Pokrycie koszyka (pole pokrycie_koszyka, wersja_sygnalow 2026-W7, hedge_mode = classic):</b></p>
+<ul>
+<li>LONG: nogi 5, na rachunku 2 (MU BUY 0,2; LITE BUY 0,2), brakujące: <b>MRVL, PANW, CSCO</b>; wykluczone przez puls: brak; zredukowane: brak.</li>
+<li>SHORT: nogi 5, na rachunku 3 (CMCSA SELL 10,0; SBUX SELL 2,2; APP SELL 0,8), brakujące: <b>PEP, TMUS</b>; wykluczone/zredukowane: brak.</li>
+<li>Pozycje spoza koszyka (7): AMD BUY 0,3; TER BUY 0,5; AMAT BUY 0,5; NFLX SELL 3,15; PAYX SELL 2,6 (koszyk W6) oraz APOG BUY 5,0; PENG BUY 3,0 (taktyczne W6). Pozycje taktyczne wg bota: [] (tactical puste).</li>
+</ul>
+<p><b>Interpretacja:</b> widzę stan <b>SPRZED rotacji</b> — koszyk W6 na rachunku przy sygnałach W7 (fills noszą wersję 2026-W7 wyłącznie przez reset ledgera z 10.10; daty otwarcia pozycji u brokera 05–06.10 i skład pozycji odpowiadają W6). Pięć brakujących nóg i siedem pozycji spoza koszyka to oczekiwany obraz poniedziałku przed biegiem 13:45 UTC, dlatego <b>kod EKSPOZYCJA_NIEPELNA nie jest dziś nadawany</b>. Jeżeli jutro (po biegach 13:45 i 17:05 UTC) którakolwiek z nóg MRVL, PANW, CSCO, PEP, TMUS nadal będzie brakująca, a pozycje W6 pozostaną otwarte — kod zostanie nadany.</p>
+<p><b>Pozycje na rachunku (epic · kierunek · wielkość · upl USD · poziom brokera) vs ledger fills:</b> APP SELL 0,8 · −0,46 · 277,22 (= fills) · AMD BUY 0,3 · −14,89 · 655,75 (= fills) · CMCSA SELL 10,0 · +6,30 · 21,46 (= fills) · NFLX SELL 3,15 · −9,29 · 67,93 (= fills) · TER BUY 0,5 · −14,99 · 430,65 (= fills) · SBUX SELL 2,2 · +10,10 · 95,99 (= fills) · MU BUY 0,2 · −9,76 · 1 063,70 (= fills) · PAYX SELL 2,6 · −14,38 · 98,87 (= fills) · AMAT BUY 0,5 · −15,89 · 535,82 (= fills) · LITE BUY 0,2 · +2,87 · 1 088,08 (= fills). Ceny_wejscia w /status = fills w signals.json (12 wpisów, identyczne) — ten sam ledger; po resecie 10.10 „cena" = „cena_brokera" dla wszystkich.</p>
+<p><b>Ustawienia bota (z /status):</b> alloc_pct 0,24 · tactical_alloc_pct 0,20 · alloc_pct_safe 0,10 · reduce_factor 0,5 · react_reduce_pct 0,04 · react_close_pct 0,08 · react_gate true · stop_loss_pct 0,10 · kill_level 0,75 (trailing) · margin_budget 0,6 · max_exposure_step 0,25 · rebalance_tol 0,35.</p>
+<p><b>Uwaga do bramki i stop-lossa po resecie ledgera:</b> bot mierzy od nowych cen odniesienia; przy rotacji dzisiejszej nogi kontynuowane (MU, LITE, CMCSA, SBUX, APP) zachowają wpisy W7 (ta sama wersja i kierunek), nowe nogi dostaną poziomy brokera z 13:45 UTC.</p>
+</section>
+
+<section>
+<h2>Źródła kursów, walidacja i problemy</h2>
+<p><b>Konektor MCP FMP:</b> batch-quote, chart (akcje i ^NDX), indexes i news zwróciły ACCESS DENIED (plan konta); dostępne: ^VIX EOD (14,84 na 09.10) i kalendarz wyników. Zgodnie z priorytetem źródeł podstawą jest skrypt <code>scripts/kursy.py</code> (Yahoo chart/spark, 105/105 symboli, lista problemów pusta); APOG, PENG, ^SOX, T, VZ, KO, COHR, CHTR, CRWD, ANET, HUM oraz roczna seria ^NDX (251 sesji) pobrane osobno z Yahoo v8/finance/chart (12.10.2026 04:2x ET).</p>
+<p><b>Walidacja D0 (09.10.2026)</b> z d0.prices: OK dla MU, LITE, MRVL, PANW, CSCO, CMCSA, SBUX, PEP, TMUS, APP oraz ^NDX (30 883,15) — tolerancja 0,5 %; LITE 1 103,355 (Yahoo) vs 1 103,36 (d0) — różnica zaokrąglenia.</p>
+<p><b>Kontrola wyrywkowa dwóch źródeł (09.10):</b> VIX 14,84 (Yahoo) = 14,84 (FMP); ^NDX 30 883,15 (Yahoo) = 30 883,15 (d0.ndx zapisane w sobotę z niezależnego biegu kursy.py); TMUS 148,58 (Yahoo) = 148,58 (Motley Fool/TradersUnion: „closed at 148.58, −13.27 %"); PENG 76,28 (Yahoo) zgodny z opisem +6,6 % (Investing.com 09.10). Serwisy Stocktwits i FX Leaders (kontrakty terminowe z 11–12.10) nieosiągalne z tego środowiska (DNS) — poziomy futures pominięte. Profile analityków na TipRanks nieosiągalne — bez wpływu na werdykt (żaden sygnał elity nie jest dziś podstawą reakcji).</p>
+<p><b>Problemy / do wiadomości właściciela:</b> (1) <b>reset ledgera fills 10.10</b> — opis w sekcji „Najważniejsze zmiany"; puls nie koryguje pola fills; ewentualna poprawka w bocie: traktować zmianę <code>version</code> jako rotację dopiero wtedy, gdy pozycje na rachunku odpowiadają nowemu koszykowi (albo przenosić wpis, gdy ticker i kierunek są w nowym koszyku); (2) bot biegł w sobotę 10.10 o 13:45 UTC (commit 15:45 CEST) — harmonogram w CLAUDE.md mówi o dniach roboczych; warto sprawdzić cron-job.org; (3) kontrola_kapitalu zgodne = false wynika tylko z taktycznych APOG/PENG — bez alarmu.</p>
+<p><b>Licznik histerezy:</b> nie dotyczy (reżim P0). Dla dziennika: 09.10 VIX 14,84 &lt; 22 i ^NDX 30 883,2 &gt; MA200 27 625,8 — spełnione; VIX &lt; 25 i ^NDX &gt; MA50 29 774,7 — spełnione.</p>
+<p><b>Kontekst wielkości pozycji:</b> od 05.10.2026 pozycja koszykowa to 24 % kapitału (ALLOC_PCT = 0,24), pozycja taktyczna 20 % (TACTICAL_ALLOC_PCT = 0,20); do 02.10.2026 było to 12 % i 10 %. Wartości ustawia właściciel w panelu bota (potwierdzone w /status) — nie są polami signals.json. Przy kapitale ok. 1 017 USD 1 p.p. ruchu pozycji koszykowej ≈ 2,4 USD, taktycznej ≈ 2,0 USD.</p>
+</section>
+</main>
+<footer>Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej. Wygenerowany automatycznie przez AI (rutyna „Puls NDX100", Claude Code) 12.10.2026 przed otwarciem sesji w Nowym Jorku. Dane: Yahoo Finance (kursy.py, v8/finance/chart), FMP (VIX, kalendarz), /status bota NDX100, TrendForce, Bloomberg, CNBC, Reuters/Yahoo Finance, Motley Fool, Benzinga, TipRanks, Investing.com, HeyGoTrade, XTB, FXEmpire, Babypips i inne wymienione przy każdej pozycji.</footer>
+</body></html>
