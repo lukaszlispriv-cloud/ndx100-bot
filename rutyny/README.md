@@ -85,3 +85,68 @@ Poza tymi dwoma miejscami treść jest identyczna z zadaniem w schedulerze.
   i znaczenie pól: `CLAUDE.md`. Po wklejeniu promptów do zadań sprawdź, że
   oba zadania wskazują środowisko, w którym jest `NDX_BOT_URL` i sekret
   (ikona chmury pod polem Instructions).
+
+## Zmiany wprowadzone 12.10.2026 — konektor TradingView MCP, faza 1 (cień)
+
+Plan: `WDROZENIE-TRADINGVIEW-2026-10-12.md`; zasady dla rutyn:
+`rutyny/tradingview.md` (rutyny czytają go na starcie). Zgoda właściciela
+12.10.2026. Po wklejeniu promptów włącz konektor TradingView w formularzu
+KAŻDEGO zadania (ikona konektorów) — bez grantu sesja go nie widzi (lekcja FMP).
+
+### `dzienna.md`
+
+1. **Nagłówek** — harmonogram dni robocze ok. 12:30 UTC, blok TV do 13:15 UTC.
+2. **KROK 0** — guard podwójnego biegu (precedens 12.10.2026).
+3. **KROK 0b — KONEKTOR TRADINGVIEW MCP** — ładowanie narzędzi przez
+   `select:`, allowlista, zakaz zapisu, budżet i twarda granica czasowa,
+   429/401, symbole i kolumny tylko z plików, log, zasada cienia.
+4. **ŹRÓDŁO KURSÓW** — martwy punkt „KONEKTOR MCP (FMP) = źródło nr 1"
+   usunięty; `kursy.py` podstawowe; FMP tylko tam, gdzie działa; TV jako
+   kontrola krzyżowa skryptem `tv_porownaj.py` i rezerwa poza sesją;
+   kontrola wyceny brokera z `upl/size`.
+5. **REŻIM** — usunięte zdanie o liczeniu reżimu z konektora; dodana rezerwa i
+   kontrola serii 260 świec (`NASDAQ:NDX`, `CBOE:VIX`); licznik histerezy jako
+   tabela 5 sesji.
+6. **KROK 2, BLOKADA SEKTOROWA** — pomiar równoległy medianą branży TV
+   (tylko cień; werdykt nadal z peers).
+7. **KROK 3** — sekcja ŹRÓDŁA I PROBLEMY z linią STAN ŹRÓDEŁ i tabelą ZGODNOŚĆ.
+8. **KROK 4** — walidator `waliduj_signals.py` przed commitem, zakaz nowych
+   pól, lista plików dopuszczonych w commicie, bieg powtórny.
+
+### `tygodniowa.md`
+
+1. **Nagłówek** — wersja 12.10.
+2. **KROK 0** — guard podwójnego biegu; **KROK 0b** jak w dziennej (budżet
+   sobotni, snapshot do repo).
+3. **ŹRÓDŁO KURSÓW** — `kursy.py` nr 1, FMP EOD-light dla 10 nóg, TV jako
+   kontrola 21 kursów bez blokowania rotacji; `d0.prices` z TV tylko dla
+   spółki bez kursu z Yahoo i FMP.
+4. **KROK A** — dywidendy z `get-dividends-calendar` (korekta symetryczna),
+   wariant „bez nóg EVENT" na papierze.
+5. **KROK B0** — rezerwa i kontrola reżimu z serii TV.
+6. **B1** — snapshot screenera (`rutyny/tv-zestaw-b1.json`) commitowany przed
+   scoringiem, benchmark „sort po samym momentum", kontrola rang, konsensus
+   przez `get-forecasts` jako kontekst (nie punktacja).
+7. **B4** — lista „skład indeksu do weryfikacji", daty wyników z kolumny i
+   kalendarza TV (pora dnia, `next_date_confirmed`), makro okna.
+8. **KROK C** — sekcja PROBLEMY ze STAN ŹRÓDEŁ, tabelą ZGODNOŚĆ, kontrolą rang.
+9. **KROK D** — walidator `--rutyna sobota`, pliki dopuszczone w commicie.
+
+Nie zmieniono: Model 3.0 (wagi, limity bloków, kara event-risk, p=38–62%),
+panel fundamentów (B0b), histereza, zasady koszyków, `tactical=[]` przy
+rotacji. Pozycje N-P4, N-P5, N-R4 (newsy, pre-market, panel fundamentów ze
+źródła) czekają na krok 8 planu — teksty w pliku PROPOZYCJA.
+
+### 12.10.2026 (b) — faza 2 od startu (pełne użycie TV, decyzja właściciela)
+
+- `data/tv-config.json`: `faza: 2`, budżety Puls ≤40 / 10 min, sobota ≤50 /
+  20 min; flagi `b1_z_tv`, `rezim_surowszy`, `kryterium_event_remis`,
+  `event_blokada_taktycznej` = `true`.
+- `dzienna.md`: KROK 0b bez „fazy cienia"; REŻIM z poziomem surowszym; nowe
+  KROK 1a (newsy, dokumenty, kalendarze z TV) i KROK 1c (pre-market, NQ,
+  flaga EVENT, blokada taktycznej przy EVENT).
+- `tygodniowa.md`: B0 poziom surowszy; B0b panel fundamentów ze źródła
+  (`get-financial-history`, dokumenty, US10Y); B1 pkt (5) czynniki ilościowe
+  z TV w scoringu, rewizje z `get-forecasts`, reguła D2; B4 kryterium remisu
+  EVENT; KROK D pole `dane_b1` we wpisie `history`.
+- Bramka licencyjna usunięta z planu (ryzyko przyjął właściciel).

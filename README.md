@@ -16,13 +16,19 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`CLAUDE.md`** — zasady dla rutyn Claude, m.in. kontrola rachunku przez
   endpoint tylko do odczytu `/status`.
 - **`rutyny/`** — źródło prawdy dla treści zadań „Puls NDX100" i „Raport
-  NDX100".
+  NDX100"; `rutyny/tradingview.md` — zasady konektora TradingView MCP.
+- **`data/`** — konfiguracja i log konektora TradingView (`tv-config.json`,
+  `tv-symbole.json`, `tv-kolumny.json`, `tv-log.jsonl`, snapshoty
+  `tv-screen-<version>.json`); bez liczb z rachunku.
+- **`scripts/waliduj_signals.py`** — bramka przed commitem `signals.json`
+  (obce klucze, pola bota, zmiany poza rutyną); **`scripts/tv_porownaj.py`**
+  — porównanie kursów TradingView vs Yahoo vs FMP.
 
 ## Szybki start
 
 ```bash
 pip install -r requirements.txt
-python3 scripts/test_app.py     # musi przejść 119/119
+python3 scripts/test_app.py     # musi przejść 151/151
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 

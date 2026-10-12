@@ -791,6 +791,160 @@ sprawdz("pusty rachunek: wszystkie nogi brakujące, bez wyjątku",
         app.pokrycie_koszyka(sig(), [])["nogi_na_rachunku"] == 0)
 
 
+# -------------------------------------------- walidator i tv_porownaj -------
+print("\nWALIDATOR signals.json I SKRYPT PORÓWNAWCZY TV (bez sieci)")
+import copy
+import json
+import subprocess
+import tempfile
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PY = [sys.executable, "-I"]
+
+
+def _pelny(**kw):
+    """Pełny plik signals.json (15 kluczy) do testów walidatora."""
+    s = sig()
+    s.update({"_instrukcja": "test", "d0": {"date": "2026-10-09", "ndx": 30000.0,
+                                             "prices": {t: 100.0 for t in s["long"] + s["short"]}},
+              "equity_peak": 1000.0, "exclude": [], "fills": {"MU": {"cena": 913.35}},
+              "generated": "2026-10-10", "history": [{"week": "2026-W6", "spread_pp": 1.0,
+                                                      "spread_fills_pp": 0.5, "hit_top": "3/5",
+                                                      "hit_bottom": "2/5", "tactical_pp": None,
+                                                      "managed_pp": 1.0, "reaction_pp": 0.0,
+                                                      "rezim": "P0"}],
+              "last_daily": "2026-10-09", "status": "AKTUALNA", "tactical": [],
+              "version": "2026-W7", "wykonanie": {"reakcje": {}, "taktyczne": {}}})
+    s.update(kw)
+    return s
+
+
+def waliduj(baza, nowy, rutyna):
+    with tempfile.TemporaryDirectory() as d:
+        pb, pn = os.path.join(d, "baza.json"), os.path.join(d, "nowy.json")
+        json.dump(baza, open(pb, "w")); json.dump(nowy, open(pn, "w"))
+        out = subprocess.run(PY + [os.path.join(REPO, "scripts", "waliduj_signals.py"),
+                                   "--base", pb, "--plik", pn, "--rutyna", rutyna],
+                             capture_output=True, text=True)
+        return out.returncode, out.stdout
+
+
+baza = _pelny()
+kod, _ = waliduj(baza, baza, "puls")
+sprawdz("walidator: plik bez zmian przechodzi", kod == 0)
+n = copy.deepcopy(baza); n["status"] = "NIEAKTUALNA"; n["last_daily"] = "2026-10-12"
+n["exclude"] = [{"ticker": "MU", "action": "REDUCE", "basis": "news",
+                 "reason": "x", "date": "2026-10-12"}]
+kod, _ = waliduj(baza, n, "puls")
+sprawdz("walidator: puls zmienia status/exclude/last_daily — OK", kod == 0)
+n = copy.deepcopy(baza); n["fills"]["MU"]["cena"] = 1.0
+kod, out = waliduj(baza, n, "puls")
+sprawdz("walidator: zmiana fills jest odrzucana", kod == 1 and "fills" in out)
+n = copy.deepcopy(baza); n["data_quality"] = ["X"]
+kod, out = waliduj(baza, n, "puls")
+sprawdz("walidator: obcy klucz top-level jest odrzucany", kod == 1 and "OBCE" in out)
+n = copy.deepcopy(baza); n["long"] = ["AVGO", "LITE", "MRVL", "PANW", "CSCO"]
+kod, _ = waliduj(baza, n, "puls")
+sprawdz("walidator: puls nie może zmienić koszyka", kod == 1)
+n = copy.deepcopy(baza); n["exclude"] = [{"ticker": "MU", "action": "REDUCE", "basis": "news"}]
+kod, out = waliduj(baza, n, "puls")
+sprawdz("walidator: wpis exclude bez reason/date jest odrzucany", kod == 1 and "reason" in out)
+sob = copy.deepcopy(baza)
+nowy_long = [t for t in sob["epics"] if t not in sob["short"]][:5]
+sob.update({"version": "2026-W8", "status": "AKTUALNA", "generated": "2026-10-17",
+            "long": nowy_long, "short": sob["short"],
+            "d0": {"date": "2026-10-16", "ndx": 30500.0,
+                   "prices": {t: 100.0 for t in nowy_long + sob["short"]}}})
+sob["history"] = baza["history"] + [{"week": "2026-W7", "spread_pp": 0.2, "spread_fills_pp": 0.1,
+                                     "hit_top": "2/5", "hit_bottom": "3/5", "tactical_pp": None,
+                                     "managed_pp": 0.2, "reaction_pp": 0.0, "rezim": "P0"}]
+kod, out = waliduj(baza, sob, "sobota")
+sprawdz("walidator: rotacja sobotnia z nowym d0 i wpisem history — OK", kod == 0, out)
+kod, _ = waliduj(baza, sob, "puls")
+sprawdz("walidator: ta sama rotacja jako puls jest odrzucana", kod == 1)
+n = copy.deepcopy(sob); n["history"][-1].pop("spread_fills_pp")
+kod, out = waliduj(baza, n, "sobota")
+sprawdz("walidator: wpis history bez spread_fills_pp jest odrzucany", kod == 1 and "spread_fills_pp" in out)
+n = copy.deepcopy(sob); n["history"] = baza["history"]
+kod, out = waliduj(baza, n, "sobota")
+sprawdz("walidator: rotacja bez wpisu history przechodzi (bieg przy NIEAKTUALNA bez d0)",
+        kod == 0, out)
+n = copy.deepcopy(sob); n["d0"] = baza["d0"]
+kod, out = waliduj(baza, n, "sobota")
+sprawdz("walidator: nowa version bez nowego d0 jest odrzucana", kod == 1 and "d0" in out)
+n = copy.deepcopy(sob); n["epics"] = {k: v for k, v in sob["epics"].items() if k != "MU"}
+kod, out = waliduj(baza, n, "sobota")
+sprawdz("walidator: usunięcie spółki z epics jest odrzucane", kod == 1 and "epics" in out)
+n = copy.deepcopy(sob); n["equity_peak"] = 1.0
+kod, out = waliduj(baza, n, "sobota")
+sprawdz("walidator: equity_peak nie wolno ruszać sobocie", kod == 1 and "equity_peak" in out)
+
+# tv_porownaj — fixture z kształtami odpowiedzi narzędzi z 12.10.2026
+with tempfile.TemporaryDirectory() as d:
+    def zapisz(nazwa, obj):
+        p = os.path.join(d, nazwa); json.dump(obj, open(p, "w")); return p
+    sygn = zapisz("signals.json", _pelny())
+    kursy = zapisz("kursy.json", {"kursy": {
+        "MU": {"data": "2026-10-09", "close": 1029.0}, "LITE": {"data": "2026-10-09", "close": 200.0},
+        "NDX100": {"data": "2026-10-09", "close": 30863.68}, "AAPL": {"data": "2026-10-09", "close": 336.6}}})
+    batch = zapisz("batch.json", {"success": True, "count": 3, "data": {
+        "NASDAQ:MU": {"name": "MU", "close": 1029.5, "change": 1.2, "industry": "Semiconductors",
+                      "sector": "Electronic Technology", "update_mode": "streaming"},
+        "NASDAQ:LITE": {"name": "LITE", "close": 202.0, "change": -3.0, "industry": "Telecommunications Equipment",
+                        "sector": "Electronic Technology", "update_mode": "streaming"},
+        "NASDAQ:AAPL": {"name": "AAPL", "close": 336.6, "change": 0.0, "industry": "Telecommunications Equipment",
+                        "sector": "Electronic Technology", "update_mode": "delayed_streaming_900"}},
+        "missing": [{"symbol": "NASDAQ:XYZ", "reason": "Quote data not found"}], "missing_count": 1})
+    # świece: 9.10 (piątek, 13:30 UTC) i 12.10 (poniedziałek, niedokończona)
+    ohlcv = zapisz("ndx.json", {"symbol": "NASDAQ:NDX", "bars": [
+        {"t": 1791466200, "c": 30500.0}, {"t": 1791552600, "c": 30863.68}, {"t": 1791811800, "c": 30600.0}]})
+    scr = zapisz("spx.json", {"data": {"rows": [
+        {"symbol": f"NYSE:S{i}", "name": f"S{i}", "industry": "Telecommunications Equipment", "change": -4.0 - i}
+        for i in range(5)] + [{"symbol": "NASDAQ:MU", "name": "MU", "industry": "Semiconductors", "change": 1.2}],
+        "totalCount": 6}})
+    sym = zapisz("tv-symbole.json", {"koszyk": {"MU": "NASDAQ:MU", "LITE": "NASDAQ:LITE", "AAPL": "NASDAQ:AAPL"},
+                                     "taktyczne": {}, "_indeks": "NASDAQ:NDX", "_vix": "CBOE:VIX"})
+    log = os.path.join(d, "tv-log.jsonl")
+    out = subprocess.run(PY + [os.path.join(REPO, "scripts", "tv_porownaj.py"), "--tv", batch,
+                               "--ohlcv", ohlcv, "--kursy", kursy, "--screener", scr, "--d0", sygn,
+                               "--symbole", sym, "--teraz-utc", "2026-10-12T12:30", "--log", log,
+                               "--rutyna", "puls-ndx", "--wywolania", "5", "--czas-s", "60"],
+                         capture_output=True, text=True)
+    t = out.stdout
+    sprawdz("tv_porownaj: kończy się kodem 0", out.returncode == 0, out.stderr[-300:])
+    sprawdz("tv_porownaj: MU zgodne (0,05% = bez adnotacji), LITE rozjazd 1% oznaczony",
+            "LITE" in t.split("|Δ| > 0,5% (ROZJAZD): ")[1].splitlines()[0]
+            and "MU" not in t.split("|Δ| > 0,1%: ")[1].splitlines()[0], t)
+    sprawdz("tv_porownaj: niedokończona świeca 12.10 odrzucona, NDX z 9.10 zgodny co do grosza",
+            "NDX100" in t and "+0.00" in t, t)
+    sprawdz("tv_porownaj: missing z odpowiedzi trafia do raportu", "NASDAQ:XYZ" in t)
+    sprawdz("tv_porownaj: mediana branży LITE n=5 < −3% → TV dałby blokadę; MU n<4",
+            "n=5" in t and "BLOKADĘ" in t and "za mało spółek" in t, t)
+    wiersz = json.loads(open(log).read().strip().splitlines()[-1])
+    sprawdz("tv_porownaj: wiersz logu bez liczb z rachunku, z rozjazdami i stanem",
+            wiersz["rozjazdy_gt_0_5"] == ["LITE"] and wiersz["stan"] == "OK"
+            and not any(k in wiersz for k in ("kapital", "equity", "upl")), wiersz)
+
+# konfiguracja TV w repo musi być poprawnym JSON i spójna z epics
+for plik in ("data/tv-config.json", "data/tv-symbole.json", "data/tv-kolumny.json", "rutyny/tv-zestaw-b1.json"):
+    try:
+        json.load(open(os.path.join(REPO, plik), encoding="utf-8"))
+        sprawdz(f"{plik} to poprawny JSON", True)
+    except (OSError, ValueError) as e:
+        sprawdz(f"{plik} to poprawny JSON", False, str(e))
+try:
+    _sym = json.load(open(os.path.join(REPO, "data", "tv-symbole.json"), encoding="utf-8"))
+    _sig = json.load(open(os.path.join(REPO, "signals.json"), encoding="utf-8"))
+    _kol = json.load(open(os.path.join(REPO, "data", "tv-kolumny.json"), encoding="utf-8"))["kolumny"]
+    _b1 = json.load(open(os.path.join(REPO, "rutyny", "tv-zestaw-b1.json"), encoding="utf-8"))["kolumny"]
+    sprawdz("tv-symbole.json pokrywa wszystkie klucze epics",
+            set(_sig["epics"]) <= set(_sym["koszyk"]), sorted(set(_sig["epics"]) - set(_sym["koszyk"])))
+    sprawdz("tv-zestaw-b1.json używa tylko kolumn z tv-kolumny.json",
+            set(_b1) <= set(_kol), sorted(set(_b1) - set(_kol)))
+except (OSError, ValueError, KeyError) as e:
+    sprawdz("pliki TV spójne", False, str(e))
+
+
 print(f"\n{'=' * 52}")
 print(f"przeszło: {_wynik['ok']}   nie przeszło: {_wynik['zle']}")
 print("=" * 52)
