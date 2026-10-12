@@ -119,3 +119,47 @@ ograniczenie wielkości rachunku, nie awarię.
   tygodnia — porównuj je z koszykiem rozliczanym, nie z nowym.
 - Stan rachunku nie opuszcza raportów: kapitał i wynik w USD tylko w sekcji
   kontroli rachunku / problemów, nigdy w powiadomieniu push ani w commicie.
+
+## TradingView MCP (od 12.10.2026 — faza 1, CIEŃ)
+
+Właściciel 12.10.2026 wyraził zgodę na wdrożenie wg
+`WDROZENIE-TRADINGVIEW-2026-10-12.md` (plan po inwentaryzacji na żywo;
+propozycja wyjściowa: `WDROZENIE-TRADINGVIEW-2026-10-12-PROPOZYCJA.md`).
+Pełne zasady dla rutyn: **`rutyny/tradingview.md`** — rutyny czytają go na
+starcie. Skrót:
+
+- Konektor: narzędzia `mcp__TradingView__mcp-tv-*` (27, odczyt + alerty) i
+  `mcp__TradingView__mcp-watchlist-*` (8). Schematy ładuje `ToolSearch`
+  zapytaniem `select:<pełna nazwa>`. W rutynach WYŁĄCZNIE allowlista odczytu;
+  ZAKAZ wszystkich narzędzi zapisu (alerty, watchlisty) i
+  `get-active-watchlist` — rutyna nie dostaje pytania o zgodę.
+- Pliki: `data/tv-config.json` (`enabled`, `faza`, budżety, flagi — brak pliku
+  lub `enabled:false` wyłącza TV), `data/tv-symbole.json` (jedyne źródło
+  symboli), `data/tv-kolumny.json` (jedyne źródło nazw kolumn),
+  `rutyny/tv-zestaw-b1.json` (zamrożony zestaw snapshotu), `data/tv-log.jsonl`
+  (wiersz na bieg), `data/tv-screen-<version>.json` (snapshot sobotni).
+  Żaden z nich nie zawiera liczb z rachunku.
+- Skrypty: `scripts/waliduj_signals.py --diff HEAD --rutyna puls|sobota`
+  (obowiązkowy PRZED każdym commitem `signals.json` — `app.py::_sanity` NIE
+  odrzuca obcych kluczy ani zmian w `fills`/`equity_peak`/`wykonanie`, ten
+  walidator jest jedyną ochroną), `scripts/tv_porownaj.py` (porównanie
+  TV vs Yahoo vs FMP, mediana branży, wiersz logu). Testy obu w
+  `scripts/test_app.py`.
+- Faza 1 (cień, do raportu `reports/tv-cien-2026-10.html` ok. 31.10): TV jest
+  drugim źródłem (kontrola krzyżowa), rezerwą poza sesją, kontrolą reżimu
+  (serie 260 świec) i źródłem snapshotu B1 / kalendarzy / dywidend. ŻADEN
+  werdykt (status, exclude, tactical, koszyki, d0.prices, reżim) nie zależy
+  od TV. Kryteria awansu i wycofania: `rutyny/tradingview.md` §9.
+- Decyzje właściciela z 12.10.2026 (zgoda na plan i jego rekomendacje):
+  faza 2 dla NDX = **wariant A** (`kursy.py` nr 1, TV kontrola i rezerwa);
+  flagi w configu wszystkie `false`, każda włączana osobno z datą tutaj;
+  `fpe_z_tv` usunięta (brak kolumny forward P/E). **Licencja (regulamin TV
+  §3, użycie danych w sygnałach bota)** — decyzja otwarta, termin 31.10.2026;
+  do tego czasu `b1_z_tv` pozostaje `false`, a TV nie zasila scoringu.
+- Konektor FMP wg stanu: na obecnym planie działa `^VIX` EOD,
+  earnings-calendar i historical-price-eod-light (wyrywkowo); quote, chart,
+  indexes, news odmawiają — nie wołać. Nie jest już „źródłem nr 1”.
+- Czego nie robić: `rutyny/tradingview.md` §10 (w szczególności: nie zmieniać
+  progów ani pól `signals.json` na podstawie TV, nie blokować rotacji przy
+  rozjeździe źródeł, nie uśredniać kursów, nie wołać narzędzi zapisu, nie
+  robić inwentaryzacji w rutynie ani w oknach biegów).

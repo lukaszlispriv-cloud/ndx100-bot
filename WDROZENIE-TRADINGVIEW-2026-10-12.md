@@ -143,11 +143,13 @@ MBANK `GPW:MBK`, MODIVO `GPW:MDV`, PEKAO `GPW:PEO`, PEPCO `GPW:PCO`, PGE
 `GPW:TPE`, ZABKA `GPW:ZAB`; indeks `GPW:WIG20`. (Wszystkie 20 potwierdzone
 screenerem i batchem.)
 
-NIEROZSTRZYGNIĘTE (dopełnienie inwentaryzacji, ~10 wywołań, krok 3 planu):
-`NQ1!` (futures), SOX, US10Y, miedź/srebro/Brent (futures ciągłe), USDPLN,
-EURPLN, `GPW:WIG_BANKI` / `WIG_ENERG` / `WIG_PALIWA`, seria FW20, tickery
-`ECONOMICS:PL*` (`get_economic_symbols(country='PL')`). Do czasu
-rozstrzygnięcia: b.d.
+ROZSTRZYGNIĘTE w dopełnieniu inwentaryzacji 12.10, 14:35–14:50 UTC (16
+wywołań, tylko odczyt, 0 × 429/401; szczegóły w sekcji 11): `CME_MINI:NQ1!`
+(1h i 1D), `NASDAQ:SOX`, `TVC:US10Y` (rentowność w %), `COMEX:HG1!` (miedź),
+`COMEX:SI1!` (srebro), `ICEEUR:BRN1!` (Brent), `FX_IDC:USDPLN`,
+`FX_IDC:EURPLN`, `GPW:WIG_BANKI` / `GPW:WIG_ENERG` / `GPW:WIG_PALIWA`,
+`GPW:FW201!` (seria ciągła; `GPW:FW20` zwraca invalid symbol), tickery
+`ECONOMICS:PL*` (np. `ECONOMICS:PLIRYY` inflacja r/r, `PLCIR` bazowa).
 
 ### 2.3 Kolumny (`data/tv-kolumny.json`)
 
@@ -571,3 +573,70 @@ Wszystkie punkty §9 PROPOZYCJI obowiązują. Dodatkowo:
 7. **Limit dzienny bety** — nieznany; log sumuje wywołania dzienne 4 rutyn
    (szczyt: sobota, Raport WIG20 ~06:30 + Raport NDX ~07:30 UTC ≤ 45 łącznie
    w F1).
+
+
+---
+
+## 11. Dopełnienie inwentaryzacji (12.10.2026, 14:35–14:50 UTC) i stan wdrożenia
+
+### 11.1 Nowe fakty (16 wywołań tylko do odczytu, sekwencyjnie, 0 × 429, 0 × 401)
+
+| Test | Wynik | Skutek |
+|---|---|---|
+| `search_symbols('NQ1!', futures)` → `CME:NQ`; `get_ohlcv('CME_MINI:NQ1!','1h',3)` | działa (świece 1h z wolumenem) | N-P5: `_nq_futures = CME_MINI:NQ1!` w mapie |
+| `get_ohlcv('NASDAQ:SOX','1D',3)` | działa (bez wolumenu; `t` = 13:30 UTC) | N-P3: `_sox` w mapie |
+| `get_ohlcv('TVC:US10Y','1D',3)` | działa, wartości w % (np. 5,24), `t` = 23:00 UTC dnia poprzedniego | N-R4: `_us10y`; data sesji = data UTC `t` + reguła bonds (sesja kończy się następnego dnia) |
+| `get_ohlcv` dla `COMEX:HG1!`, `COMEX:SI1!`, `ICEEUR:BRN1!` | działają (`t` = 22:00 / 00:00 UTC) | W-R2 pkt 4: surowce przez `get_ohlcv`, zwrot tygodniowy lokalnie |
+| `get_ohlcv('FX_IDC:USDPLN' / 'FX_IDC:EURPLN','1D',2)` | działają, `v = 0` | W-R2: FX z `FX_IDC:` |
+| `search_symbols('WIG_BANKI', index)` → `GPW:WIG_BANKI`; `get_ohlcv` `GPW:WIG_ENERG`, `GPW:WIG_PALIWA` | działają (`t` = 07:00 UTC) | W-R2: subindeksy GPW w mapie wig20 |
+| `search_symbols('FW20', futures)` → `GPW:FW20`; `get_ohlcv('GPW:FW20')` = invalid symbol; `get_ohlcv('GPW:FW201!')` | seria ciągła `FW201!` działa (`t` = 06:45 UTC) | W-R: baza FW20 z `GPW:FW201!` (odłożone do okna oceny) |
+| `get_economic_symbols(country='PL', search='inflation')` | 22 tickery, m.in. `ECONOMICS:PLIRYY`, `PLCIR`, `PLPPIMM` | W-R2 pkt 5: rozliczenie deklaracji makro z `get_economic_data` |
+| `get_screener_columns(search='yoy', market='stock')` | `earnings_per_share_diluted_YoYTTM`, `total_revenue_YoYTTM`, `capital_expenditures_YoYTTM` (warianty `YoYAnnual`, `YoYQuaterly` — literówka TV, `QoQQuaterly`, `FiveYCAGR`) | kolumny r/r w `tv-zestaw-b1.json`; capex growth JEST w screenerze |
+| `run_screener(symbolset=['SYML:SP;SPX'], limit=5)` | `totalCount = 503`, `sector`/`industry` zwrócone | N-P3: ścieżka 1 potwierdzona, fallback `filters={'index':'S&P 500'}` niepotrzebny |
+| `get_technicals_rating('NASDAQ:NDX')` | działa; `sma200` z bieżącą świecą (27 651 = jak kolumna SMA200) | tylko rating techniczny; nie do reżimu |
+| `get_documents('NASDAQ:MU', transcripts, limit=2)` → `get_document_view(summary)` | 111 dokumentów; widok `summary` transkryptu ≈ 3 kB (AST z sekcjami: executive summary, guidance, segmenty, capex) | N-P4(b)/N-R4(2): widok `summary` jako pierwszy, `transcript` tylko gdy potrzebny cytat |
+| `get_symbol_data_batch(['NASDAQ:MU','NASDAQ:NDX','NASDAQ:XYZXYZ'])` | kształt: `{"data": {"NASDAQ:MU": {...}}, "missing": [{"symbol","reason"}], "missing_count"}`; `update_mode = delayed_streaming_900` w sesji | parser w `tv_porownaj.py` zgodny z tym kształtem (test w `test_app.py`) |
+
+### 11.2 Co zostało zrobione w repo ndx100-bot (12.10.2026, po zgodzie właściciela)
+
+- `data/tv-config.json` (enabled, faza 1, budżety, flagi `false`), `data/tv-symbole.json`
+  (103 klucze `epics` → `NASDAQ:*`, indeks, VIX, SOX, NQ, US10Y, symbolsety),
+  `data/tv-kolumny.json` (50 kolumn potwierdzonych + lista braków),
+  `data/tv-log.jsonl` (pusty), `rutyny/tv-zestaw-b1.json` (zamrożony zestaw).
+- `rutyny/tradingview.md` — pełne zasady (allowlista, budżet, semantyka świec,
+  procedury N-P1/N-P2/N-P3, N-R1/N-R2/N-R3, log, walidator, guard, fazy, zakazy).
+- `scripts/waliduj_signals.py` (15 kluczy, pola per rutyna, pola bota,
+  spójność, history +1, epics tylko dopisanie), `scripts/tv_porownaj.py`
+  (batch/screener/ohlcv vs `kursy.py --json` vs FMP, mediana branży, wiersz
+  logu); 32 nowe testy bez sieci w `scripts/test_app.py` (151/151).
+- Prompty: `rutyny/dzienna.md` (KROK 0b, ŹRÓDŁO KURSÓW, REŻIM, blokada
+  sektorowa, sekcja ŹRÓDŁA I PROBLEMY, KROK 4) i `rutyny/tygodniowa.md`
+  (KROK 0b, ŹRÓDŁO KURSÓW, KROK A, B0, B1, B4, KROK C, KROK D); changelog w
+  `rutyny/README.md`; sekcja TradingView w `CLAUDE.md`; `README.md`.
+- Kopia PROPOZYCJI: `WDROZENIE-TRADINGVIEW-2026-10-12-PROPOZYCJA.md` (teksty
+  N-P4, N-P5, N-R4, W-* do kroku 8 i do wig20-bot).
+
+### 11.3 Co pozostaje do zrobienia przez właściciela (nie da się z sesji)
+
+1. Wkleić treść `rutyny/dzienna.md` i `rutyny/tygodniowa.md` (poniżej linii
+   `---`) do zadań na claude.ai/code/routines; w formularzu KAŻDEGO zadania
+   włączyć konektor TradingView; usunąć Google Drive z grantów; sprawdzić, że
+   zadania wskazują środowisko z `NDX_BOT_URL` i sekretem.
+2. Decyzja licencyjna (regulamin TV §3) do 31.10.2026 — zapytać support TV;
+   do tego czasu `b1_z_tv = false`.
+3. cron-job.org: podwójny bieg Pulsu 12.10 i bieg bota NDX w sobotę 10.10.
+4. Raz w tygodniu: status konektora w claude.ai i wpisy `brak`/`401` w
+   `data/tv-log.jsonl` (dwa kolejne = ponowna autoryzacja OAuth).
+5. wig20-bot: osobna sesja z prawem zapisu (sekcje 6.3, 6.4, 7 tego planu);
+   jeżeli repo zostanie dodane do tej sesji, zrobię to w niej.
+
+### 11.4 Pierwszy bieg z konektorem — na co patrzeć
+
+- Puls (dzień roboczy ok. 12:30 UTC): w problemach raportu linia STAN ŹRÓDEŁ
+  ze `stan: OK`, tabela ZGODNOŚĆ 10 nóg + ^NDX z medianą |Δ| ≤0,1%, wiersz w
+  `data/tv-log.jsonl`, blok TV zakończony przed 13:15 UTC, `signals.json`
+  scommitowany przed 13:45 UTC. Gdy `stan: brak` — grant konektora w zadaniu.
+- Sobota (ok. 07:30 UTC): `data/tv-screen-<version>.json` scommitowany przed
+  scoringiem, `totalCount` 100–102, tabela ZGODNOŚĆ 21/21, benchmark momentum
+  i wariant „bez nóg EVENT" w raporcie (nie w history), walidator `--rutyna
+  sobota` przeszedł.

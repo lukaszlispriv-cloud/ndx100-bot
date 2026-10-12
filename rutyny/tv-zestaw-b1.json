@@ -1,0 +1,26 @@
+{
+  "_opis": "ZAMROŻONY zestaw kolumn snapshotu B1 (run_screener symbolset SYML:NASDAQ;NDX). Zmiana zestawu = edycja tego pliku z datą i adnotacją w raporcie. Wszystkie nazwy z data/tv-kolumny.json.",
+  "zamrozono": "2026-10-12",
+  "symbolset": ["SYML:NASDAQ;NDX"],
+  "market": "america",
+  "limit": 120,
+  "sort_by": "market_cap_basic",
+  "sort_order": "desc",
+  "totalCount_oczekiwany": [100, 102],
+  "kolumny": [
+    "name", "exchange", "close", "change", "update_mode",
+    "Perf.W", "Perf.1M", "Perf.3M", "Perf.6M", "Perf.YTD", "Perf.Y",
+    "SMA50", "SMA200", "price_52_week_high", "High.3M",
+    "market_cap_basic", "sector", "industry",
+    "earnings_release_next_date", "days_to_earnings",
+    "average_volume_10d_calc", "vol_ratio_10d",
+    "price_earnings_ttm", "price_free_cash_flow_ttm", "earnings_yield",
+    "earnings_per_share_forecast_next_fq", "revenue_forecast_next_fq",
+    "earnings_per_share_diluted_YoYTTM", "total_revenue_YoYTTM", "capital_expenditures_YoYTTM"
+  ],
+  "konsensus": "NIE w screenerze — get_forecasts(symbol) per spółka, ≤20/sobotę, sekwencyjnie",
+  "skala_recommendation_potwierdzona": null,
+  "_historia": [
+    {"data": "2026-10-12", "zmiana": "zestaw początkowy po inwentaryzacji; bez recommendation_*, price_target_*, Recommend.All (brak w katalogu)"}
+  ]
+}

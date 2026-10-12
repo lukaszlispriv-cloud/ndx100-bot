@@ -1,0 +1,29 @@
+{
+  "_opis": "Konfiguracja konektora TradingView MCP dla rutyn ndx100-bot. Brak pliku lub enabled=false = rutyny pomijają wszystkie kroki TV. Zasady: rutyny/tradingview.md. Bez liczb z rachunku.",
+  "enabled": true,
+  "faza": 1,
+  "wersja_konfiguracji": "2026-10-12",
+  "narzedzia_prefix": "mcp__TradingView__mcp-tv-",
+  "budzet": {
+    "puls": {"wywolania": 20, "czas_s": 480, "twarda_granica_utc": "13:15"},
+    "sobota": {"wywolania": 20, "czas_s": 1200, "twarda_granica_utc": null}
+  },
+  "flagi": {
+    "_opis": "Każda flaga = osobna decyzja właściciela z datą w CLAUDE.md. Faza 1: wszystkie false.",
+    "sektor_tv": false,
+    "kryterium_event_remis": false,
+    "event_blokada_taktycznej": false,
+    "wstrzymanie_przy_rozjezdzie": false,
+    "rezim_surowszy": false,
+    "b1_z_tv": false
+  },
+  "tolerancje": {
+    "kurs_pct": 0.5,
+    "rozjazd_adnotacja_pct": 0.1,
+    "ma_pct": 0.5,
+    "vix_pkt": 0.2,
+    "wycena_brokera_pct": 1.0
+  },
+  "kolejnosc_ciec": ["newsy", "skan", "kalendarze"],
+  "nigdy_nie_tnij": "kursy koszyka"
+}
