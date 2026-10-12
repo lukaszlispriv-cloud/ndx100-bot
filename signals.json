@@ -258,29 +258,47 @@
     "PANW": {
       "cena": 411.82,
       "kierunek": "BUY",
-      "wielkosc": 0.3,
+      "wielkosc": 0.5,
       "data": "2026-10-12",
       "wersja": "2026-W7",
       "epic": "PANW",
-      "cena_brokera": 411.82
+      "cena_brokera": 400.95
     },
     "CSCO": {
       "cena": 116.47,
       "kierunek": "BUY",
-      "wielkosc": 1.0,
+      "wielkosc": 1.8,
       "data": "2026-10-12",
       "wersja": "2026-W7",
       "epic": "CSCO",
-      "cena_brokera": 116.47
+      "cena_brokera": 115.53
     },
     "MRVL": {
       "cena": 273.8,
       "kierunek": "BUY",
-      "wielkosc": 0.4,
+      "wielkosc": 0.8,
       "data": "2026-10-12",
       "wersja": "2026-W7",
       "epic": "MRVL",
-      "cena_brokera": 273.8
+      "cena_brokera": 267.53
+    },
+    "PEP": {
+      "cena": 126.91,
+      "kierunek": "SELL",
+      "wielkosc": 1.8,
+      "data": "2026-10-12",
+      "wersja": "2026-W7",
+      "epic": "PEP",
+      "cena_brokera": 126.91
+    },
+    "TMUS": {
+      "cena": 152.79,
+      "kierunek": "SELL",
+      "wielkosc": 1.5,
+      "data": "2026-10-12",
+      "wersja": "2026-W7",
+      "epic": "TMUS",
+      "cena_brokera": 152.79
     }
   },
   "equity_peak": 1091.83,
