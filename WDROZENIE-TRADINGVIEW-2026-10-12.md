@@ -627,8 +627,13 @@ Wszystkie punkty §9 PROPOZYCJI obowiązują. Dodatkowo:
 3. cron-job.org: podwójny bieg Pulsu 12.10 i bieg bota NDX w sobotę 10.10.
 4. Raz w tygodniu: status konektora w claude.ai i wpisy `brak`/`401` w
    `data/tv-log.jsonl` (dwa kolejne = ponowna autoryzacja OAuth).
-5. wig20-bot: osobna sesja z prawem zapisu (sekcje 6.3, 6.4, 7 tego planu);
-   jeżeli repo zostanie dodane do tej sesji, zrobię to w niej.
+5. wig20-bot: ZROBIONE w tej samej sesji (repo dodane 12.10 ok. 15:00 UTC)
+   na gałęzi `claude/tradingview-faza1` (commit be46d18): `data/tv-*.json`,
+   `docs/tradingview.md`, `scripts/waliduj_signals.py`, `scripts/tv_porownaj.py`,
+   `scripts/tv_merge.py`, `tests/test_tv.py` (21/21), oba prompty,
+   `docs/metoda.md` §1/§4/§7b/§8/§9, `CLAUDE.md`. Rutyny WIG20 czytają `main`
+   — gałąź wymaga scalenia do `main` (PR albo polecenie w sesji) PRZED
+   wklejeniem promptów.
 
 ### 11.4 Pierwszy bieg z konektorem — na co patrzeć
 
