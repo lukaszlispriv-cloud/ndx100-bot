@@ -519,14 +519,65 @@ closed, reduced, slad = app.bramka_reakcji(
 sprawdz("bramka widzi strate liczona od odniesienia, nie od wyrownania",
         "MU" in closed, f"c={closed} r={reduced}")
 
-# 3. Rotacja koszyka (zmiana version) kasuje odniesienie — nowy tydzien to
-#    nowa teza i nowa cena wejscia.
-s3 = sig(version="2026-W5",
+# 3. Rotacja koszyka (zmiana version) kasuje odniesienie spolki, ktora
+#    WYPADLA z koszyka — nowy tydzien to nowa teza i nowa cena wejscia.
+s3 = sig(version="2026-W5", long=["AMD", "AVGO", "MRVL", "LITE", "NVDA"],
+         epics=dict(BAZA["epics"], NVDA="NVDA"),
          fills={"MU": {"cena": 913.35, "kierunek": "BUY",
                        "wersja": "2026-W4"}})
 f3 = app.ceny_wejscia(s3, [poz("MU", 1082.28)], E2T)
-sprawdz("rotacja koszyka resetuje cene odniesienia",
+sprawdz("rotacja koszyka resetuje cene odniesienia spolki spoza koszyka",
         f3["MU"]["cena"] == 1082.28 and f3["MU"]["wersja"] == "2026-W5", f3)
+
+# 3a. Przypadek z 10.10.2026: rutyna tygodniowa zmienila version w sobote,
+#     a MU zostal w koszyku LONG na W7. Bieg bota przed poniedzialkowa
+#     rotacja NIE moze skasowac ceny tezy — noga jest kontynuowana.
+s3a = sig(version="2026-W5",
+          fills={"MU": {"cena": 913.35, "kierunek": "BUY", "data": "2026-08-27",
+                        "wersja": "2026-W4"}})
+f3a = app.ceny_wejscia(s3a, [poz("MU", 1082.28)], E2T)
+sprawdz("noga kontynuowana po rotacji zachowuje cene i date tezy",
+        f3a["MU"]["cena"] == 913.35 and f3a["MU"]["data"] == "2026-08-27", f3a)
+sprawdz("noga kontynuowana dostaje nowa wersje i poziom brokera",
+        f3a["MU"]["wersja"] == "2026-W5" and f3a["MU"]["cena_brokera"] == 1082.28,
+        f3a)
+sprawdz("zrodlo opisuje kontynuacje",
+        "kontynuowana" in f3a["MU"]["zrodlo"], f3a["MU"]["zrodlo"])
+
+# 3b. Ta sama spolka, ale po rotacji w PRZECIWNYM koszyku (long -> short):
+#     to nowa teza, odniesienie musi sie zresetowac.
+s3b = sig(version="2026-W5", long=["AMD", "AVGO", "MRVL", "LITE", "INTU"],
+          short=["MU", "SBUX", "CMCSA", "APP", "ADSK"],
+          fills={"MU": {"cena": 913.35, "kierunek": "BUY",
+                        "wersja": "2026-W4"}})
+f3b = app.ceny_wejscia(s3b, [poz("MU", 1082.28, kier="SELL")], E2T)
+sprawdz("zmiana koszyka long->short resetuje odniesienie",
+        f3b["MU"]["cena"] == 1082.28, f3b)
+
+# 3c. Pozycja short, ktora po rotacji nadal jest w koszyku SHORT.
+s3c = sig(version="2026-W5",
+          fills={"APP": {"cena": 308.51, "kierunek": "SELL",
+                         "wersja": "2026-W4"}})
+f3c = app.ceny_wejscia(s3c, [poz("APP", 277.22, kier="SELL")], E2T)
+sprawdz("short kontynuowany po rotacji zachowuje cene tezy",
+        f3c["APP"]["cena"] == 308.51 and f3c["APP"]["wersja"] == "2026-W5", f3c)
+
+# 3d. Taktyczna z wlasnym epic kontynuowana w tactical po zmianie wersji.
+s3d = sig(version="2026-W5",
+          tactical=[{"ticker": "APOG", "direction": "BUY", "epic": "APOG"}],
+          fills={"APOG": {"cena": 42.64, "kierunek": "BUY",
+                          "wersja": "2026-W4"}})
+f3d = app.ceny_wejscia(s3d, [poz("APOG", 40.59)], dict(E2T, APOG="APOG"))
+sprawdz("taktyczna kontynuowana w tactical zachowuje cene tezy",
+        f3d["APOG"]["cena"] == 42.64, f3d)
+
+# 3e. Wywolanie bez long/short (stary styl) zachowuje dawne zachowanie.
+f3e = app.ceny_wejscia({"version": "2026-W5",
+                        "fills": {"MU": {"cena": 913.35, "kierunek": "BUY",
+                                         "wersja": "2026-W4"}}},
+                       [poz("MU", 1082.28)], E2T)
+sprawdz("bez listy koszykow zmiana wersji nadal resetuje",
+        f3e["MU"]["cena"] == 1082.28, f3e)
 
 # 4. Odwrocenie kierunku tez kasuje odniesienie.
 s4 = sig(fills={"MU": {"cena": 913.35, "kierunek": "SELL",

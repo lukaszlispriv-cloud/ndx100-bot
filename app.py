@@ -1010,13 +1010,33 @@ def ceny_wejscia(sig, positions, epic2tic):
       * zmiana kierunku pozycji,
       * rotacja koszyka - poznajemy ją po zmianie sig["version"], którą
         zapisujemy razem z ceną (wpis bez pola "wersja" pochodzi sprzed tej
-        zmiany i uznajemy go za ważny, żeby migracja nic nie zgubiła),
+        zmiany i uznajemy go za ważny, żeby migracja nic nie zgubiła).
+        WYJĄTEK (od 12.10.2026): noga KONTYNUOWANA, czyli ticker, który po
+        zmianie wersji nadal jest w sig["long"] (BUY) / sig["short"] (SELL)
+        albo w sig["tactical"] w tym samym kierunku, ZACHOWUJE cenę i datę
+        tezy, a dostaje tylko nową wersję i bieżący poziom brokera. Rutyna
+        tygodniowa zmienia "version" w sobotę, a pozycje rotują dopiero
+        w poniedziałek - bieg między tymi momentami (10.10.2026, sobota)
+        skasował odniesienia wszystkich dwunastu pozycji (MU 913,35 ->
+        1 063,70; APP 308,51 -> 277,22), choć pięć z nich zostawało
+        w koszyku W7 w tym samym kierunku. Bramka i stop-loss mierzyły
+        potem od poziomów wyrównania, nie od tezy,
       * brak wcześniejszego wpisu, czyli pozycja otwarta po raz pierwszy.
 
     Pole "cena_brokera" niesie bieżący poziom otwarcia - do rachunku P/L
     i do diagnostyki; bramka i stopy czytają "cena".
     """
     wersja = str(sig.get("version") or "")
+    # Nogi nowego koszyka wg sygnałów: ticker -> kierunek. Wpis z inną
+    # wersją, ale zgodny z tym słownikiem, to teza kontynuowana - nie reset.
+    nowy_koszyk = {}
+    for t in (sig.get("long") or []):
+        nowy_koszyk[t] = "BUY"
+    for t in (sig.get("short") or []):
+        nowy_koszyk[t] = "SELL"
+    for tk in (sig.get("tactical") or []):
+        if isinstance(tk, dict) and tk.get("ticker") and tk.get("direction"):
+            nowy_koszyk.setdefault(tk["ticker"], tk["direction"])
     fills = {}
     for t, f in (sig.get("fills") or {}).items():
         try:
@@ -1040,13 +1060,21 @@ def ceny_wejscia(sig, positions, epic2tic):
                           or str(stary["wersja"]) == wersja)
         ten_sam_kierunek = (not stary or not stary.get("kierunek")
                             or stary["kierunek"] == p.get("direction"))
-        if stary and stary.get("cena") and ta_sama_wersja and ten_sam_kierunek:
+        # Zmiana wersji, ale ta sama spółka w tym samym kierunku w nowym
+        # koszyku = noga kontynuowana: teza trwa, cena odniesienia zostaje.
+        kontynuacja = (bool(stary) and not ta_sama_wersja and ten_sam_kierunek
+                       and nowy_koszyk.get(t) == p.get("direction"))
+        if (stary and stary.get("cena") and ten_sam_kierunek
+                and (ta_sama_wersja or kontynuacja)):
             fills[t] = {"cena": float(stary["cena"]),
                         "data": stary.get("data") or data_b,
                         "kierunek": p.get("direction"),
-                        "wersja": stary.get("wersja") or wersja,
+                        "wersja": (wersja if kontynuacja
+                                   else stary.get("wersja") or wersja),
                         "cena_brokera": poziom,
-                        "zrodlo": "teza (przeniesiona przez wyrównania)"}
+                        "zrodlo": ("teza (noga kontynuowana po rotacji)"
+                                   if kontynuacja else
+                                   "teza (przeniesiona przez wyrównania)")}
         else:
             fills[t] = {"cena": poziom, "data": data_b,
                         "kierunek": p.get("direction"), "wersja": wersja,
@@ -1890,6 +1918,9 @@ def sync():
             # Karmimy ją stanem z początku biegu, żeby pozycja zamknięta
             # i otwarta na nowo w TYM biegu też zachowała swoją cenę.
             odniesienia = ceny_wejscia({"version": sig.get("version"),
+                                        "long": sig.get("long"),
+                                        "short": sig.get("short"),
+                                        "tactical": sig.get("tactical"),
                                         "fills": fills}, po, epic2tic)
             rozmiary = {epic2tic.get(x["epic"]): x["size"] for x in po
                         if epic2tic.get(x["epic"])}
@@ -2059,7 +2090,7 @@ for _nazwa in ("gunicorn.access", "werkzeug"):
 
 @app.get("/health")
 def health():
-    return jsonify(ok=True, wersja="1.7.2", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
+    return jsonify(ok=True, wersja="1.7.3", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
 
 
 @app.route("/generate", methods=["GET", "POST"])
