@@ -3,9 +3,10 @@
 Repozytorium jest źródłem prawdy dla sygnałów (`signals.json`), raportów
 (`reports/`) i treści rutyn (`rutyny/dzienna.md`, `rutyny/tygodniowa.md`).
 Egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`), odpalana przez
-cron-job.org w dni robocze o **13:45 i 17:05 UTC**. Rutyny nigdy nie składają
-zleceń i nie dotykają pól pisanych przez bota (`fills`, `equity_peak`,
-`wykonanie`).
+cron-job.org o **13:45 i 17:05 UTC** (zlecenia tylko w dni robocze; zadanie
+13:45 odpala się też w weekendy — patrz „Biegi weekendowe" niżej). Rutyny
+nigdy nie składają zleceń i nie dotykają pól pisanych przez bota (`fills`,
+`equity_peak`, `wykonanie`).
 
 ## Co wolno, czego nie wolno
 
@@ -58,7 +59,7 @@ curl -sS -m 120 "$NDX_BOT_URL/status"
 | `konta_wszystkie[]` | wszystkie rachunki Capital.com; `aktywne_dla_bota = true` wskazuje ten, na którym bot handluje; `blad_przelaczenia_rachunku ≠ null` = handel wstrzymany. |
 | `sygnaly` | `version`, `status`, `long`, `short`, `exclude`, `tactical` — wersja sygnałów, którą bot widzi (po rotacji sobotniej jest nowsza niż pozycje na rachunku do poniedziałku 13:45 UTC). |
 | `pozycje[]` | pozycje z epikami z mapy `epics` (+ hedge indeksowy): `epic`, `direction`, `size`, `upl` (otwarty wynik), `wejscie` (poziom otwarcia u brokera), `otwarta`. UWAGA: taktyczne spoza NDX-100 (własny `epic`) tu NIE są — patrz `pokrycie_koszyka.pozycje_taktyczne`. |
-| `ceny_wejscia` | = `fills` z `signals.json` (ceny odniesienia tezy, pole `cena`); do zwrotów OD CENY WEJŚCIA zgodnie z KROK 1 Pulsu. `cena_brokera` to tylko bieżący poziom u brokera. |
+| `ceny_wejscia` | = `fills` z `signals.json` (ceny odniesienia tezy, pole `cena`); do zwrotów OD CENY WEJŚCIA zgodnie z KROK 1 Pulsu. `cena_brokera` to tylko bieżący poziom u brokera. Noga kontynuowana w nowym koszyku w tym samym kierunku ZACHOWUJE `cena` i `data` z pierwszego wejścia w tezę (bot od 12.10.2026; `wersja` dostaje nową wartość w pierwszym biegu po zmianie `version`, także weekendowym). Wpis ze STARĄ `wersja` = noga poprzedniego koszyka, która czeka na rotację (zamknięcie w poniedziałek 13:45 UTC) — nie „cena sprzed rotacji". Reset do poziomu brokera dotyczy tylko nóg nowych, o zmienionym kierunku albo takich, które wypadły z koszyka i wróciły. Do 10.10.2026 każdy bieg między sobotnim raportem a poniedziałkową rotacją resetował ceny WSZYSTKICH nóg (stąd `fills` z 10.10 ma dla MU, APP, SBUX, CMCSA poziomy brokera z 06.10, nie ceny tezy). |
 | `kontrola_kapitalu` | `zgodne`, `roznica` wobec `tolerancja`, `pozycje_spoza_ksiazki`, `pozycje_bez_wyceny`, `suma_upl_pozycji_bota`, `wycena_z_api`. |
 | `pokrycie_koszyka` | (bot od 12.10.2026) `nogi_koszyka`, `nogi_na_rachunku`, `brakujace[]`, `wykluczone_przez_puls[]`, `zredukowane_przez_puls[]` dla LONG; `short` z tą samą strukturą (tryb classic) albo `null`; `pozycje_taktyczne[]`, `pozycje_spoza_koszyka[]`, `hedge_mode`, `wersja_sygnalow`. Starszy bot nie ma tego pola — wtedy policz pokrycie sam (niżej). |
 | `hedge_mode` | `classic` (short koszykowy jako SELL na akcjach — tryb w użyciu: `fills` ma wpisy `SELL`), `index` (syntetyczny short przez `HEDGE_EPIC`) albo `off` (long-only). Wynika ze zmiennej `HEDGE_EPIC` w Renderze. |
@@ -107,14 +108,28 @@ ograniczenie wielkości rachunku, nie awarię.
 ### Godzina biegu `/run` a godzina rutyn
 
 - `/run`: dni robocze 13:45 i 17:05 UTC (cron-job.org; wyrównywanie
-  wielkości tylko w biegu 17:05 — `REBALANCE_HOURS=17`). Rotacja koszyka
-  wykonuje się w PIERWSZYM biegu po zmianie `version`, czyli w poniedziałek
-  o 13:45 UTC.
+  wielkości tylko w biegu 17:05 — `REBALANCE_HOURS=17`). Rotacja POZYCJI
+  (zamknięcie nóg poprzedniego koszyka, otwarcie nowych) wykonuje się
+  w pierwszym biegu po zmianie `version` przy OTWARTYM rynku, czyli
+  w poniedziałek o 13:45 UTC; sama zmiana `version` w sobotę rotacją nie jest.
 - Puls NDX100: dni robocze ok. 12:30 UTC (14:30 Warszawy, przed otwarciem
   NYSE) — widzi stan **po biegu 17:05 UTC z poprzedniego dnia**, a
   w poniedziałek stan **SPRZED rotacji** (pozycje poprzedniego tygodnia przy
   nowych `sygnaly.long/short`). Napisz w raporcie, który to przypadek;
-  wskazówką jest `wersja` we wpisach `ceny_wejscia` wobec `sygnaly.version`.
+  wskazówką są wpisy `ceny_wejscia` ze starą `wersja` (nogi poprzedniego
+  koszyka czekające na zamknięcie) oraz nogi nowego koszyka nieobecne
+  w `pozycje`. Noga kontynuowana ma już nową `wersja`, ale `data` sprzed
+  rotacji — to poprawne, nie błąd ledgera.
+- Biegi weekendowe: historia gita pokazuje commity bota z soboty 3.10,
+  niedzieli 4.10 i soboty 10.10.2026, zawsze o 13:45 UTC, nigdy o 17:05 —
+  zadanie 13:45 w cron-job.org jest ustawione na codziennie, zadanie 17:05
+  na dni robocze (konfiguracja leży w cron-job.org, nie w repo;
+  `WDROZENIE-2026-09-28.md`, krok 5, pozostawia weekendy jako opcję). Przy
+  zamkniętym rynku bieg nic nie składa (`rynek()` → „pominięte"), ale
+  zapisuje ledger `fills` i `wykonanie` — po poprawce z 12.10.2026 taki
+  zapis jest dla cen tezy nieszkodliwy (podnosi tylko `wersja` nóg
+  kontynuowanych). Jeśli w `fills` pojawi się commit z weekendu zmieniający
+  `cena` nogi kontynuowanej, to regresja — zgłoś w problemach.
 - Raport tygodniowy (sobota ok. 07:30 UTC): widzi pozycje ROZLICZANEGO
   tygodnia — porównuj je z koszykiem rozliczanym, nie z nowym.
 - Stan rachunku nie opuszcza raportów: kapitał i wynik w USD tylko w sekcji

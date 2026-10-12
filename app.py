@@ -989,6 +989,60 @@ def rynek(cap, epic, rep, etykieta):
     return m
 
 
+def _numer_wersji(wersja):
+    """'2026-W7' -> 7; None, gdy wersja nie ma licznika tygodnia."""
+    m = re.search(r"W(\d+)\s*$", str(wersja or ""))
+    return int(m.group(1)) if m else None
+
+
+def poprzednie_wersje(sig):
+    """Wersje sygnałów, z których noga mogła PRZEJŚĆ do bieżącego koszyka.
+
+    Raport tygodniowy dopisuje do `history` rozliczany tydzień w tym samym
+    commicie, w którym podnosi `version` (W7 rozlicza W6), więc ostatni wpis
+    `history.week` to poprzednia wersja. Drugie źródło to licznik tygodnia
+    w samej wersji (W6 -> W7). Pusty zbiór = nie da się ustalić.
+    """
+    wynik = set()
+    hist = sig.get("history") or []
+    if hist and isinstance(hist[-1], dict) and hist[-1].get("week"):
+        wynik.add(str(hist[-1]["week"]))
+    n = _numer_wersji(sig.get("version"))
+    if n and n > 1:
+        wynik.add(re.sub(r"W\d+\s*$", f"W{n - 1}", str(sig["version"])))
+    return wynik
+
+
+def noga_biezacego_koszyka(sig, ticker, kierunek):
+    """Czy ticker z tym kierunkiem jest nogą BIEŻĄCYCH sygnałów?
+
+    Noga LONG = ticker w `long` z kierunkiem BUY; noga SHORT = ticker
+    w `short` z kierunkiem SELL (tylko w trybie classic, bo w pozostałych
+    short koszykowy nie jest pozycją na akcji); pozycja taktyczna liczy
+    się z własnym kierunkiem.
+    """
+    if kierunek == "BUY" and ticker in (sig.get("long") or []):
+        return True
+    if (kierunek == "SELL" and HEDGE_MODE == "classic"
+            and ticker in (sig.get("short") or [])):
+        return True
+    return any(t.get("ticker") == ticker and t.get("direction") == kierunek
+               for t in (sig.get("tactical") or []))
+
+
+def kontekst_cen(sig, fills):
+    """Sygnały dla ceny_wejscia() przy ZAPISIE ledgera po biegu.
+
+    Funkcja czyta koszyk (`long`, `short`, `tactical`) i `history`, żeby
+    odróżnić nogę kontynuowaną od nowej — zubożony słownik z samym
+    `version` cofnąłby ją do zachowania sprzed tej zmiany (reset każdej
+    nogi przy zmianie wersji).
+    """
+    return {"version": sig.get("version"), "long": sig.get("long") or [],
+            "short": sig.get("short") or [], "tactical": sig.get("tactical") or [],
+            "history": sig.get("history") or [], "fills": fills}
+
+
 def ceny_wejscia(sig, positions, epic2tic):
     """Mapa ticker -> CENA ODNIESIENIA TEZY (nie poziom otwarcia u brokera).
 
@@ -1005,18 +1059,43 @@ def ceny_wejscia(sig, positions, epic2tic):
         biegami, czyli praktycznie nigdy;
       * kolumna "zwrot od wejścia" w raporcie mierzyła godziny, nie tydzień.
 
-    Teraz cena odniesienia PRZEŻYWA wyrównanie i kasuje się tylko wtedy,
-    gdy naprawdę przestaje opisywać tę samą tezę:
+    Cena odniesienia PRZEŻYWA wyrównanie i kasuje się tylko wtedy, gdy
+    naprawdę przestaje opisywać tę samą tezę:
       * zmiana kierunku pozycji,
-      * rotacja koszyka - poznajemy ją po zmianie sig["version"], którą
-        zapisujemy razem z ceną (wpis bez pola "wersja" pochodzi sprzed tej
-        zmiany i uznajemy go za ważny, żeby migracja nic nie zgubiła),
-      * brak wcześniejszego wpisu, czyli pozycja otwarta po raz pierwszy.
+      * brak wcześniejszego wpisu, czyli pozycja otwarta po raz pierwszy
+        (także noga, która wypadła z koszyka, została zamknięta w rotacji
+        i wróciła w późniejszym tygodniu - jej wpis zniknął razem z pozycją),
+      * wpis z wersji WCZEŚNIEJSZEJ niż poprzednia (noga ominęła co najmniej
+        jeden koszyk, a pozycja mimo to nie została zamknięta).
+
+    ZMIANA sig["version"] SAMA W SOBIE NIE JEST ROTACJĄ NOGI. Do 10.10.2026
+    rotację poznawaliśmy wyłącznie po różnicy wersji wobec pola "wersja"
+    wpisu, a rutyna tygodniowa podnosi wersję w sobotę, gdy rotacja pozycji
+    wykona się dopiero w pierwszym biegu /run w poniedziałek 13:45 UTC.
+    Każdy bieg między tymi momentami (10.10.2026, sobota 13:45 UTC) kasował
+    więc ceny tezy nóg KONTYNUOWANYCH w nowym koszyku i wpisywał poziom
+    brokera z ostatniego wyrównania: MU 913,35 (27.08) -> 1063,70 (06.10),
+    APP 308,51 -> 277,22, SBUX 95,28 -> 95,99, CMCSA 21,71 -> 21,46.
+    Bramka i stop liczyły od tego dnia od złego punktu. Teraz wpis
+    z poprzednią wersją jest traktowany tak:
+      * ticker nadal jest nogą bieżącego koszyka (long/short, albo
+        taktyczna) w tym samym kierunku -> wpis PRZENIESIONY: "cena"
+        i "data" zostają, "wersja" dostaje bieżącą wartość, "cena_brokera"
+        bieżący poziom u brokera;
+      * ticker wypadł z koszyka, a pozycja jeszcze jest na rachunku (okno
+        sobota -> poniedziałek 13:45 UTC) -> wpis zostaje NIETKNIĘTY,
+        ze starą wersją: jego rotacja jeszcze się nie wykonała, a przy
+        zamknięciu wypadnie z ledgera razem z pozycją. Z tego powodu stara
+        "wersja" we wpisie oznacza "noga poprzedniego koszyka czekająca na
+        rotację", a nie "cena sprzed rotacji".
+    Wpis bez pola "wersja" pochodzi sprzed migracji z 28.09.2026 i jest
+    uznawany za ważny, żeby nic nie zgubić.
 
     Pole "cena_brokera" niesie bieżący poziom otwarcia - do rachunku P/L
     i do diagnostyki; bramka i stopy czytają "cena".
     """
     wersja = str(sig.get("version") or "")
+    poprzednie = poprzednie_wersje(sig)
     fills = {}
     for t, f in (sig.get("fills") or {}).items():
         try:
@@ -1034,23 +1113,40 @@ def ceny_wejscia(sig, positions, epic2tic):
             continue
         poziom = float(p["wejscie"])
         data_b = (p.get("otwarta") or "")[:10] or None
+        kier = p.get("direction")
         stary = fills.get(t)
-        # Brak pola "wersja" = wpis sprzed tej zmiany; nie kasujemy go.
-        ta_sama_wersja = (not stary or not stary.get("wersja")
-                          or str(stary["wersja"]) == wersja)
-        ten_sam_kierunek = (not stary or not stary.get("kierunek")
-                            or stary["kierunek"] == p.get("direction"))
-        if stary and stary.get("cena") and ta_sama_wersja and ten_sam_kierunek:
-            fills[t] = {"cena": float(stary["cena"]),
+        nowy = {"cena": poziom, "data": data_b, "kierunek": kier,
+                "wersja": wersja, "cena_brokera": poziom,
+                "zrodlo": "broker (nowe wejście)"}
+        if not stary or not stary.get("cena"):
+            fills[t] = nowy
+            continue
+        if stary.get("kierunek") and stary["kierunek"] != kier:
+            nowy["zrodlo"] = "broker (zmiana kierunku)"
+            fills[t] = nowy
+            continue
+        stara_wersja = str(stary.get("wersja") or "")
+        przeniesiony = {"cena": float(stary["cena"]),
                         "data": stary.get("data") or data_b,
-                        "kierunek": p.get("direction"),
-                        "wersja": stary.get("wersja") or wersja,
-                        "cena_brokera": poziom,
-                        "zrodlo": "teza (przeniesiona przez wyrównania)"}
+                        "kierunek": kier, "wersja": stara_wersja or wersja,
+                        "cena_brokera": poziom}
+        if not stara_wersja or stara_wersja == wersja:
+            # Brak pola "wersja" = wpis sprzed migracji; ta sama wersja =
+            # zwykłe wyrównanie wielkości w trakcie tygodnia.
+            przeniesiony["zrodlo"] = "teza (przeniesiona przez wyrównania)"
+        elif not noga_biezacego_koszyka(sig, t, kier):
+            przeniesiony["zrodlo"] = (f"teza ({stara_wersja}; poza koszykiem "
+                                      f"{wersja} — czeka na rotację)")
+        elif poprzednie and stara_wersja not in poprzednie:
+            # Noga ominęła co najmniej jeden koszyk i wróciła, a pozycja nie
+            # została zamknięta - to nowa teza, nie kontynuacja.
+            nowy["zrodlo"] = f"broker (powrót do koszyka po {stara_wersja})"
+            fills[t] = nowy
+            continue
         else:
-            fills[t] = {"cena": poziom, "data": data_b,
-                        "kierunek": p.get("direction"), "wersja": wersja,
-                        "cena_brokera": poziom, "zrodlo": "broker (nowe wejście)"}
+            przeniesiony["wersja"] = wersja
+            przeniesiony["zrodlo"] = f"teza (kontynuacja z {stara_wersja})"
+        fills[t] = przeniesiony
     return fills
 
 
@@ -1889,8 +1985,9 @@ def sync():
             # wyrównanie wielkości nie kasuje punktu odniesienia bramki i stopu.
             # Karmimy ją stanem z początku biegu, żeby pozycja zamknięta
             # i otwarta na nowo w TYM biegu też zachowała swoją cenę.
-            odniesienia = ceny_wejscia({"version": sig.get("version"),
-                                        "fills": fills}, po, epic2tic)
+            # Przekazujemy też koszyk i history (kontekst_cen): bez nich noga
+            # kontynuowana w nowym tygodniu byłaby resetowana jak nowa.
+            odniesienia = ceny_wejscia(kontekst_cen(sig, fills), po, epic2tic)
             rozmiary = {epic2tic.get(x["epic"]): x["size"] for x in po
                         if epic2tic.get(x["epic"])}
             nowe = {}

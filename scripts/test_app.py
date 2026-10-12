@@ -519,14 +519,110 @@ closed, reduced, slad = app.bramka_reakcji(
 sprawdz("bramka widzi strate liczona od odniesienia, nie od wyrownania",
         "MU" in closed, f"c={closed} r={reduced}")
 
-# 3. Rotacja koszyka (zmiana version) kasuje odniesienie — nowy tydzien to
-#    nowa teza i nowa cena wejscia.
-s3 = sig(version="2026-W5",
-         fills={"MU": {"cena": 913.35, "kierunek": "BUY",
-                       "wersja": "2026-W4"}})
-f3 = app.ceny_wejscia(s3, [poz("MU", 1082.28)], E2T)
-sprawdz("rotacja koszyka resetuje cene odniesienia",
-        f3["MU"]["cena"] == 1082.28 and f3["MU"]["wersja"] == "2026-W5", f3)
+# 3. Zmiana version przy nodze KONTYNUOWANEJ w tym samym kierunku NIE jest
+#    rotacja tej nogi: wpis jest przenoszony (cena, data), dostaje nowa
+#    wersje i biezacy poziom brokera. Przypadek z 10.10.2026 (sobota 13:45
+#    UTC, miedzy raportem W7 a rotacja pozycji w poniedzialek): MU 913,35
+#    z 27.08 zostal zastapiony poziomem brokera z wyrownania 06.10 (1063,70),
+#    APP 308,51 -> 277,22, SBUX 95,28 -> 95,99, CMCSA 21,71 -> 21,46 — mimo
+#    ze wszystkie cztery nogi zostaly w koszyku W7 w tym samym kierunku.
+W6_LONG = ["MU", "LITE", "TER", "AMAT", "AMD"]
+W6_SHORT = ["APP", "NFLX", "PAYX", "CMCSA", "SBUX"]
+W7_LONG = ["MU", "LITE", "MRVL", "PANW", "CSCO"]
+W7_SHORT = ["CMCSA", "SBUX", "PEP", "TMUS", "APP"]
+E2T_W = {t: t for t in set(W6_LONG + W6_SHORT + W7_LONG + W7_SHORT)}
+FILLS_W6 = {
+    "MU":   {"cena": 913.35, "kierunek": "BUY", "data": "2026-08-27",
+             "wersja": "2026-W6"},
+    "APP":  {"cena": 308.51, "kierunek": "SELL", "data": "2026-09-28",
+             "wersja": "2026-W6"},
+    "SBUX": {"cena": 95.28, "kierunek": "SELL", "data": "2026-09-28",
+             "wersja": "2026-W6"},
+    "TER":  {"cena": 406.82, "kierunek": "BUY", "data": "2026-09-29",
+             "wersja": "2026-W6"},
+}
+POZ_SOBOTA = [poz("MU", 1063.7, otwarta="2026-10-06T17:05:00"),
+              poz("APP", 277.22, kier="SELL", otwarta="2026-10-06T17:05:00"),
+              poz("SBUX", 95.99, kier="SELL", otwarta="2026-10-06T17:05:00"),
+              poz("TER", 430.65, otwarta="2026-10-06T17:05:00")]
+s3 = sig(version="2026-W7", long=W7_LONG, short=W7_SHORT,
+         epics=dict(E2T_W), fills=dict(FILLS_W6),
+         history=[{"week": "2026-W6", "spread_pp": -5.89}])
+f3 = app.ceny_wejscia(s3, POZ_SOBOTA, E2T_W)
+sprawdz("W6->W7: noga LONG kontynuowana (MU) zachowuje cene i date tezy",
+        f3["MU"]["cena"] == 913.35 and f3["MU"]["data"] == "2026-08-27",
+        f3["MU"])
+sprawdz("W6->W7: wpis przeniesiony dostaje nowa wersje i poziom brokera",
+        f3["MU"]["wersja"] == "2026-W7" and f3["MU"]["cena_brokera"] == 1063.7
+        and "kontynuacja" in f3["MU"]["zrodlo"], f3["MU"])
+sprawdz("W6->W7: nogi SHORT kontynuowane (APP, SBUX) tez zachowuja cene",
+        f3["APP"]["cena"] == 308.51 and f3["SBUX"]["cena"] == 95.28
+        and f3["APP"]["wersja"] == f3["SBUX"]["wersja"] == "2026-W7",
+        (f3["APP"], f3["SBUX"]))
+sprawdz("W6->W7: noga, ktora WYPADLA z koszyka (TER), czeka na rotacje "
+        "z nietknietym wpisem i stara wersja",
+        f3["TER"]["cena"] == 406.82 and f3["TER"]["wersja"] == "2026-W6"
+        and f3["TER"]["cena_brokera"] == 430.65
+        and "rotacj" in f3["TER"]["zrodlo"], f3["TER"])
+
+# 3b. Poniedzialek po rotacji: TER zamkniety, MRVL otwarty po raz pierwszy —
+#     nowa noga bierze poziom brokera, kontynuowana dalej trzyma teze.
+f3b = app.ceny_wejscia(s3, [poz("MU", 1063.7), poz("MRVL", 281.4)], E2T_W)
+sprawdz("W6->W7: nowa noga (MRVL) bierze poziom brokera z nowa wersja",
+        f3b["MRVL"]["cena"] == 281.4 and f3b["MRVL"]["wersja"] == "2026-W7"
+        and "nowe" in f3b["MRVL"]["zrodlo"], f3b["MRVL"])
+sprawdz("W6->W7: po rotacji MU nadal liczony od 913,35",
+        f3b["MU"]["cena"] == 913.35, f3b["MU"])
+
+# 3c. Zmiana kierunku razem ze zmiana wersji — reset (nowa teza).
+s3c = sig(version="2026-W7", long=W7_LONG, short=W7_SHORT, epics=dict(E2T_W),
+          fills={"MU": {"cena": 913.35, "kierunek": "SELL", "wersja": "2026-W6"}})
+f3c = app.ceny_wejscia(s3c, [poz("MU", 1063.7, kier="BUY")], E2T_W)
+sprawdz("W6->W7: ten sam ticker w odwrotnym kierunku jest nowym wejsciem",
+        f3c["MU"]["cena"] == 1063.7 and f3c["MU"]["wersja"] == "2026-W7", f3c)
+
+# 3d. Noga, ktora ominela koszyk (wpis W5 przy sygnalach W7) i wrocila, a jej
+#     pozycja mimo to nie zostala zamknieta — to powrot, nie kontynuacja.
+s3d = sig(version="2026-W7", long=W7_LONG, short=W7_SHORT, epics=dict(E2T_W),
+          fills={"MU": {"cena": 913.35, "kierunek": "BUY", "wersja": "2026-W5"}},
+          history=[{"week": "2026-W6"}])
+f3d = app.ceny_wejscia(s3d, [poz("MU", 1063.7)], E2T_W)
+sprawdz("W5->W7: ticker, ktory wypadl i wrocil, startuje od poziomu brokera",
+        f3d["MU"]["cena"] == 1063.7 and "powrót" in f3d["MU"]["zrodlo"], f3d)
+sprawdz("poprzednie wersje: z history i z licznika tygodnia",
+        app.poprzednie_wersje(s3d) == {"2026-W6"}
+        and app.poprzednie_wersje(sig(version="2026-W7", history=[]))
+        == {"2026-W6"}
+        and app.poprzednie_wersje(sig(version="tydz-7b", history=[])) == set(),
+        app.poprzednie_wersje(s3d))
+
+# 3e. Zapis ledgera po biegu dostaje PELNY kontekst (koszyk + history), nie
+#     sam version — inaczej druga przepustka resetowalaby kontynuowane nogi.
+ctx = app.kontekst_cen(s3, f3)
+f3e = app.ceny_wejscia(ctx, POZ_SOBOTA, E2T_W)
+sprawdz("kontekst zapisu niesie long/short/tactical/history",
+        ctx["long"] == W7_LONG and ctx["short"] == W7_SHORT
+        and ctx["history"] == s3["history"] and ctx["version"] == "2026-W7")
+sprawdz("druga przepustka (zapis) nie resetuje kontynuowanych nog",
+        f3e["MU"]["cena"] == 913.35 and f3e["APP"]["cena"] == 308.51
+        and f3e["TER"]["wersja"] == "2026-W6", f3e)
+f3x = app.ceny_wejscia({"version": "2026-W7", "fills": FILLS_W6},
+                       POZ_SOBOTA, E2T_W)
+sprawdz("zubozony kontekst (sam version) zostawilby MU jako 'czeka na "
+        "rotacje' ze stara wersja — dlatego zapis idzie przez kontekst_cen",
+        f3x["MU"]["wersja"] == "2026-W6" and "rotacj" in f3x["MU"]["zrodlo"],
+        f3x["MU"])
+
+# 3f. Noga SHORT jest noga koszyka tylko w trybie classic.
+sprawdz("noga koszyka: long BUY tak, long SELL nie, short SELL w classic",
+        app.noga_biezacego_koszyka(s3, "MU", "BUY")
+        and not app.noga_biezacego_koszyka(s3, "MU", "SELL")
+        and app.noga_biezacego_koszyka(s3, "APP", "SELL") == (app.HEDGE_MODE == "classic")
+        and not app.noga_biezacego_koszyka(s3, "TER", "BUY"))
+sprawdz("noga koszyka: taktyczna liczy sie z wlasnym kierunkiem",
+        app.noga_biezacego_koszyka(
+            sig(tactical=[{"ticker": "APOG", "direction": "BUY", "epic": "APOG"}]),
+            "APOG", "BUY"))
 
 # 4. Odwrocenie kierunku tez kasuje odniesienie.
 s4 = sig(fills={"MU": {"cena": 913.35, "kierunek": "SELL",
