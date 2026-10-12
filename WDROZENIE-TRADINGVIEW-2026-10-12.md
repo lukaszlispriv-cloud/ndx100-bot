@@ -645,3 +645,19 @@ Wszystkie punkty §9 PROPOZYCJI obowiązują. Dodatkowo:
   scoringiem, `totalCount` 100–102, tabela ZGODNOŚĆ 21/21, benchmark momentum
   i wariant „bez nóg EVENT" w raporcie (nie w history), walidator `--rutyna
   sobota` przeszedł.
+
+### 11.5 Decyzje właściciela z 12.10.2026 (po południu) — zmiana wobec §4 i §7
+
+Właściciel: „scal wszystko; w pełni wykorzystaj TV i nie patrz na licencję".
+Skutek: **faza 2 od startu w obu repozytoriach** (bez fazy cienia jako
+bramki, bez bramki licencyjnej — ryzyko regulaminu TV §3 przyjmuje
+właściciel). Włączone: N-P4, N-P5, N-R2 pkt (4) z `b1_z_tv`, N-R4, W-R3,
+flagi `rezim_surowszy`, `kryterium_event_remis`, `event_blokada_taktycznej`
+(NDX) oraz `konsensus_tv_do_punktacji`, `event_blokada_taktycznej` (WIG20).
+Zostają `false` (zmiana protokołu bez dowodu / łagodzenie wyzwalaczy):
+`sektor_tv`, `wstrzymanie_przy_rozjezdzie`, `korekta_exdiv_momentum_v1_2`.
+Niezmienne: wariant A dla NDX (`kursy.py` nr 1 zamknięć i `d0.prices`), dla
+WIG20 TV → `kursy.py` (TV nr 1 po walidacji D0, bankier wygrywa przy
+rozjeździe >0,5%), walidacje danych i zakaz FALLBACK/uśredniania, wszystkie
+prerejestrowane progi i wagi. Raport cienia 31.10 zostaje jako pomiar z
+progami WYCOFANIA (§8), nie awansu. Gałęzie scalone do `main` 12.10.2026.

@@ -20,7 +20,8 @@ Reguły (per rutyna):
   puls   — wobec bazy zmienione tylko: status, exclude, tactical, last_daily
   sobota — wobec bazy zmienione tylko: version, status, long, short, d0,
            generated, exclude (=[]), tactical (=[]), history (dopisany
-           DOKŁADNIE jeden wpis); epics — wyłącznie dopisanie nowych kluczy
+           DOKŁADNIE jeden wpis; pole "dane_b1": "tv" dozwolone od 12.10.2026);
+           epics — wyłącznie dopisanie nowych kluczy
   obie   — zestaw kluczy top-level DOKŁADNIE taki jak KLUCZE; fills,
            equity_peak, wykonanie identyczne z bazą; podstawowa spójność
            (5/5, rozłączność, tickery w epics, pola wpisów exclude/tactical)

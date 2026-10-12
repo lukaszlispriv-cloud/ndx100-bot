@@ -120,7 +120,7 @@ ograniczenie wielkości rachunku, nie awarię.
 - Stan rachunku nie opuszcza raportów: kapitał i wynik w USD tylko w sekcji
   kontroli rachunku / problemów, nigdy w powiadomieniu push ani w commicie.
 
-## TradingView MCP (od 12.10.2026 — faza 1, CIEŃ)
+## TradingView MCP (od 12.10.2026 — FAZA 2, pełne użycie)
 
 Właściciel 12.10.2026 wyraził zgodę na wdrożenie wg
 `WDROZENIE-TRADINGVIEW-2026-10-12.md` (plan po inwentaryzacji na żywo;
@@ -145,17 +145,22 @@ starcie. Skrót:
   walidator jest jedyną ochroną), `scripts/tv_porownaj.py` (porównanie
   TV vs Yahoo vs FMP, mediana branży, wiersz logu). Testy obu w
   `scripts/test_app.py`.
-- Faza 1 (cień, do raportu `reports/tv-cien-2026-10.html` ok. 31.10): TV jest
-  drugim źródłem (kontrola krzyżowa), rezerwą poza sesją, kontrolą reżimu
-  (serie 260 świec) i źródłem snapshotu B1 / kalendarzy / dywidend. ŻADEN
-  werdykt (status, exclude, tactical, koszyki, d0.prices, reżim) nie zależy
-  od TV. Kryteria awansu i wycofania: `rutyny/tradingview.md` §9.
-- Decyzje właściciela z 12.10.2026 (zgoda na plan i jego rekomendacje):
-  faza 2 dla NDX = **wariant A** (`kursy.py` nr 1, TV kontrola i rezerwa);
-  flagi w configu wszystkie `false`, każda włączana osobno z datą tutaj;
+- Faza 2 od startu (decyzja właściciela 12.10.2026, po południu): TV w pełnym
+  użyciu — drugie źródło kursów i rezerwa poza sesją, reżim z poziomem
+  SUROWSZYM z dwóch źródeł, czynniki ilościowe B1/B2 i rewizje ze snapshotu
+  i `get-forecasts`, panel fundamentów z `get-financial-history`/dokumentów,
+  newsy i 8-K, pre-market, futures NQ, kalendarze, dywidendy. Niezmienne:
+  `kursy.py` nr 1 dla zamknięć i `d0.prices` (wariant A), rozjazd = adnotacja
+  (nigdy FALLBACK ani uśrednianie), prerejestrowane progi i wagi bez zmian.
+  Raport cienia (`reports/tv-cien-2026-10.html`, ok. 31.10) mierzy, nie bramkuje;
+  progi WYCOFANIA: `rutyny/tradingview.md` §9.
+- Flagi (stan 12.10.2026): `b1_z_tv`, `rezim_surowszy`, `kryterium_event_remis`,
+  `event_blokada_taktycznej` = `true`; `sektor_tv` (taksonomia bez dowodu ex
+  post), `wstrzymanie_przy_rozjezdzie` (łagodzi wyzwalacze) = `false`;
   `fpe_z_tv` usunięta (brak kolumny forward P/E). **Licencja (regulamin TV
-  §3, użycie danych w sygnałach bota)** — decyzja otwarta, termin 31.10.2026;
-  do tego czasu `b1_z_tv` pozostaje `false`, a TV nie zasila scoringu.
+  §3)**: właściciel 12.10.2026 zdecydował, że nie jest bramką — ryzyko przyjmuje
+  właściciel; bramka wycofana z planu.
+- Nowe pole wpisu `history` (sobota): `dane_b1` = `"tv"` albo `"yahoo"`.
 - Konektor FMP wg stanu: na obecnym planie działa `^VIX` EOD,
   earnings-calendar i historical-price-eod-light (wyrywkowo); quote, chart,
   indexes, news odmawiają — nie wołać. Nie jest już „źródłem nr 1”.

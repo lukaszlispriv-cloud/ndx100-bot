@@ -136,3 +136,17 @@ Nie zmieniono: Model 3.0 (wagi, limity bloków, kara event-risk, p=38–62%),
 panel fundamentów (B0b), histereza, zasady koszyków, `tactical=[]` przy
 rotacji. Pozycje N-P4, N-P5, N-R4 (newsy, pre-market, panel fundamentów ze
 źródła) czekają na krok 8 planu — teksty w pliku PROPOZYCJA.
+
+### 12.10.2026 (b) — faza 2 od startu (pełne użycie TV, decyzja właściciela)
+
+- `data/tv-config.json`: `faza: 2`, budżety Puls ≤40 / 10 min, sobota ≤50 /
+  20 min; flagi `b1_z_tv`, `rezim_surowszy`, `kryterium_event_remis`,
+  `event_blokada_taktycznej` = `true`.
+- `dzienna.md`: KROK 0b bez „fazy cienia"; REŻIM z poziomem surowszym; nowe
+  KROK 1a (newsy, dokumenty, kalendarze z TV) i KROK 1c (pre-market, NQ,
+  flaga EVENT, blokada taktycznej przy EVENT).
+- `tygodniowa.md`: B0 poziom surowszy; B0b panel fundamentów ze źródła
+  (`get-financial-history`, dokumenty, US10Y); B1 pkt (5) czynniki ilościowe
+  z TV w scoringu, rewizje z `get-forecasts`, reguła D2; B4 kryterium remisu
+  EVENT; KROK D pole `dane_b1` we wpisie `history`.
+- Bramka licencyjna usunięta z planu (ryzyko przyjął właściciel).
