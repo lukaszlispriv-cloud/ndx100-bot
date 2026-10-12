@@ -237,15 +237,6 @@
       "epic": "CMCSA",
       "cena_brokera": 21.46
     },
-    "AMD": {
-      "cena": 655.75,
-      "kierunek": "BUY",
-      "wielkosc": 0.3,
-      "data": "2026-10-06",
-      "wersja": "2026-W7",
-      "epic": "AMD",
-      "cena_brokera": 655.75
-    },
     "MU": {
       "cena": 1063.7,
       "kierunek": "BUY",
@@ -254,33 +245,6 @@
       "wersja": "2026-W7",
       "epic": "MU",
       "cena_brokera": 1063.7
-    },
-    "NFLX": {
-      "cena": 67.93,
-      "kierunek": "SELL",
-      "wielkosc": 3.15,
-      "data": "2026-10-06",
-      "wersja": "2026-W7",
-      "epic": "NFLX",
-      "cena_brokera": 67.93
-    },
-    "TER": {
-      "cena": 430.65,
-      "kierunek": "BUY",
-      "wielkosc": 0.5,
-      "data": "2026-10-06",
-      "wersja": "2026-W7",
-      "epic": "TER",
-      "cena_brokera": 430.65
-    },
-    "PAYX": {
-      "cena": 98.87,
-      "kierunek": "SELL",
-      "wielkosc": 2.6,
-      "data": "2026-10-05",
-      "wersja": "2026-W7",
-      "epic": "PAYX",
-      "cena_brokera": 98.87
     },
     "LITE": {
       "cena": 1088.08,
@@ -291,32 +255,32 @@
       "epic": "LITE",
       "cena_brokera": 1088.08
     },
-    "AMAT": {
-      "cena": 535.82,
+    "PANW": {
+      "cena": 411.82,
       "kierunek": "BUY",
-      "wielkosc": 0.5,
-      "data": "2026-10-05",
+      "wielkosc": 0.3,
+      "data": "2026-10-12",
       "wersja": "2026-W7",
-      "epic": "AMAT",
-      "cena_brokera": 535.82
+      "epic": "PANW",
+      "cena_brokera": 411.82
     },
-    "APOG": {
-      "cena": 42.64,
+    "CSCO": {
+      "cena": 116.47,
       "kierunek": "BUY",
-      "wielkosc": 5.0,
-      "data": "2026-10-06",
+      "wielkosc": 1.0,
+      "data": "2026-10-12",
       "wersja": "2026-W7",
-      "epic": "APOG",
-      "cena_brokera": 42.64
+      "epic": "CSCO",
+      "cena_brokera": 116.47
     },
-    "PENG": {
-      "cena": 73.78,
+    "MRVL": {
+      "cena": 273.8,
       "kierunek": "BUY",
-      "wielkosc": 3.0,
-      "data": "2026-10-07",
+      "wielkosc": 0.4,
+      "data": "2026-10-12",
       "wersja": "2026-W7",
-      "epic": "PENG",
-      "cena_brokera": 73.78
+      "epic": "MRVL",
+      "cena_brokera": 273.8
     }
   },
   "equity_peak": 1091.83,
