@@ -237,15 +237,6 @@
       "epic": "CMCSA",
       "cena_brokera": 21.46
     },
-    "LITE": {
-      "cena": 1088.08,
-      "kierunek": "BUY",
-      "wielkosc": 0.2,
-      "data": "2026-10-05",
-      "wersja": "2026-W7",
-      "epic": "LITE",
-      "cena_brokera": 1088.08
-    },
     "PANW": {
       "cena": 411.82,
       "kierunek": "BUY",
@@ -290,6 +281,15 @@
       "wersja": "2026-W7",
       "epic": "TMUS",
       "cena_brokera": 152.79
+    },
+    "MU": {
+      "cena": 935.73,
+      "kierunek": "BUY",
+      "wielkosc": 0.2,
+      "data": "2026-10-13",
+      "wersja": "2026-W7",
+      "epic": "MU",
+      "cena_brokera": 935.73
     }
   },
   "equity_peak": 1091.83,
