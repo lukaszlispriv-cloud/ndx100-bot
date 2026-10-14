@@ -16,9 +16,17 @@
     "TMUS",
     "APP"
   ],
-  "exclude": [],
+  "exclude": [
+    {
+      "ticker": "LITE",
+      "action": "CLOSE",
+      "basis": "cena",
+      "reason": "brak ceny wejścia, mierzone od D0: pozycję zamknął twardy stop bota 13.10 17:05 UTC (fills bez LITE); zamknięcie 13.10 987,99 = -10,46% od D0 1103,36, względnie vs ^NDX -9,44 p.p. (próg CLOSE >8 p.p.); druga kolejna sesja za progiem (12.10: -9,78%/-9,07 p.p.); 13.10 bez blokady sektorowej (optyka: COHR +0,68, CIEN -1,14, AAOI -2,88, CRDO -1,26, POET -1,40; mediana -1,26%); wpis zapobiega ponownemu otwarciu nogi w biegu 13:45 UTC",
+      "date": "2026-10-14"
+    }
+  ],
   "tactical": [],
-  "last_daily": "2026-10-13",
+  "last_daily": "2026-10-14",
   "history": [
     {
       "week": "2026-W1",
