@@ -150,3 +150,28 @@ rotacji. Pozycje N-P4, N-P5, N-R4 (newsy, pre-market, panel fundamentów ze
   z TV w scoringu, rewizje z `get-forecasts`, reguła D2; B4 kryterium remisu
   EVENT; KROK D pole `dane_b1` we wpisie `history`.
 - Bramka licencyjna usunięta z planu (ryzyko przyjął właściciel).
+
+## Zmiany wprowadzone 14.10.2026 — wykonalność pozycji taktycznych (`dzienna.md`)
+
+Decyzja właściciela 14.10.2026 („zrób 1”). Przez cały wrzesień i październik
+slot taktyczny stał pusty: zadanie kazało Pulsowi odrzucać kandydata, gdy
+jego kurs przekraczał 1,6 × 20 % kapitału, zakładając minimalny lot
+1 akcji. Bot liczy wykonalność inaczej (`app.py::calc_size`): minimalny lot
+z brokera (`minDealSize`) × kurs ≤ `MAX_OVERSHOOT` × `TACTICAL_ALLOC_PCT` ×
+kapitał, a lot dla większości dużych spółek USA to 0,1 akcji (historia
+`fills`: MU, STX, AMD, AVGO 0,1; ADSK 0,3; INTU 0,26). Puls odrzucał więc
+kandydatów, których bot otworzyłby bez trudu (13.10 UNH, GS; 14.10 BLK).
+
+1. **KROK 2, MODUŁ TAKTYCZNY, akapit WYKONALNOŚĆ** — Puls wpisuje kandydata
+   z twardym wyzwalaczem niezależnie od kursu akcji; o wykonalności decyduje
+   bot, który zapisuje `wykonanie.taktyczne` („nieotwarta — min. wielkość N
+   = X USD > tolerancja”); Puls usuwa taki wpis następnego dnia (jak dotąd)
+   i nie wpisuje tej spółki ponownie w tym tygodniu. W raporcie limit w USD
+   i wartość lotu w dwóch wariantach (0,1 akcji i 1 akcja).
+2. **Nagłówek** — wersja 14.10.2026 (c).
+
+Nie zmieniono: twardy wyzwalacz z 24 h, wsparcie elity dla SELL, limit
+1 nowa/dzień i 2 otwarte, blokada EVENT, zawieszenie przy P1/P2, ustawienia
+bota (`MAX_OVERSHOOT`, `TACTICAL_ALLOC_PCT`), kod bota. Po zmianie pliku
+wklej do zadania „Puls NDX100” cały tekst poniżej linii — albo tylko akapit
+WYKONALNOŚĆ (jedyna różnica względem kopii z 12.10.2026 (b)).
