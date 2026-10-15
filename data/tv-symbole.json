@@ -120,5 +120,7 @@
   "WMT": "NASDAQ:WMT",
   "XEL": "NASDAQ:XEL"
  },
- "taktyczne": {}
+ "taktyczne": {
+  "ERIC": "NASDAQ:ERIC"
+ }
 }

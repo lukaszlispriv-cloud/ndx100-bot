@@ -25,8 +25,16 @@
       "date": "2026-10-14"
     }
   ],
-  "tactical": [],
-  "last_daily": "2026-10-14",
+  "tactical": [
+    {
+      "ticker": "ERIC",
+      "direction": "BUY",
+      "epic": "ERIC",
+      "entry_date": "2026-10-15",
+      "reason": "twardy wyzwalacz 24h: raport Q3 2026 (15.10 przed sesją) — skoryg. EBITA 10,1 mld SEK vs konsensus 7,93 mld SEK (+27%), sprzedaż 59,5 mld SEK, wzrost organiczny +7%; reakcja pre-market +11,69% (TradingView MCP get-symbol-data, odczyt 2026-10-15 12:52 UTC, dane opóźnione); ADR notowany na Nasdaq (Nasdaq Composite), spoza koszyków; epic Capital.com = ticker ADR (niezweryfikowany — przy braku instrumentu bot pominie pozycję); ryzyka: zysk netto −49% r/r (baza z zyskiem ze sprzedaży Iconectiv), ostrzeżenie o kosztach komponentów na 2027"
+    }
+  ],
+  "last_daily": "2026-10-15",
   "history": [
     {
       "week": "2026-W1",
