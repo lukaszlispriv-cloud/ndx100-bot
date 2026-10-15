@@ -297,12 +297,32 @@
       "wersja": "2026-W7",
       "epic": "MU",
       "cena_brokera": 935.73
+    },
+    "MRVL": {
+      "cena": 235.93,
+      "kierunek": "BUY",
+      "wielkosc": 0.9,
+      "data": "2026-10-15",
+      "wersja": "2026-W7",
+      "epic": "MRVL",
+      "cena_brokera": 235.93
+    },
+    "ERIC": {
+      "cena": 10.4,
+      "kierunek": "BUY",
+      "wielkosc": 17.0,
+      "data": "2026-10-15",
+      "wersja": "2026-W7",
+      "epic": "ERIC",
+      "cena_brokera": 10.4
     }
   },
   "equity_peak": 1091.83,
   "wykonanie": {
     "reakcje": {},
-    "taktyczne": {},
-    "aktualizacja": "2026-10-10"
+    "taktyczne": {
+      "ERIC": "otwarta"
+    },
+    "aktualizacja": "2026-10-15"
   }
 }
