@@ -271,15 +271,6 @@
       "epic": "CSCO",
       "cena_brokera": 115.53
     },
-    "MRVL": {
-      "cena": 273.8,
-      "kierunek": "BUY",
-      "wielkosc": 0.8,
-      "data": "2026-10-12",
-      "wersja": "2026-W7",
-      "epic": "MRVL",
-      "cena_brokera": 267.53
-    },
     "PEP": {
       "cena": 126.91,
       "kierunek": "SELL",
