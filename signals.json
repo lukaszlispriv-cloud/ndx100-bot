@@ -260,15 +260,6 @@
       "epic": "CMCSA",
       "cena_brokera": 21.46
     },
-    "PANW": {
-      "cena": 411.82,
-      "kierunek": "BUY",
-      "wielkosc": 0.5,
-      "data": "2026-10-12",
-      "wersja": "2026-W7",
-      "epic": "PANW",
-      "cena_brokera": 400.95
-    },
     "CSCO": {
       "cena": 116.47,
       "kierunek": "BUY",
