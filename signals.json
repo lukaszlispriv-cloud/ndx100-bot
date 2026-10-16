@@ -313,6 +313,15 @@
       "wersja": "2026-W7",
       "epic": "ERIC",
       "cena_brokera": 10.4
+    },
+    "PANW": {
+      "cena": 341.71,
+      "kierunek": "BUY",
+      "wielkosc": 0.3,
+      "data": "2026-10-16",
+      "wersja": "2026-W7",
+      "epic": "PANW",
+      "cena_brokera": 341.71
     }
   },
   "equity_peak": 1091.83,
