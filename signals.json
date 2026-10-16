@@ -23,6 +23,13 @@
       "basis": "cena",
       "reason": "brak ceny wejścia, mierzone od D0: pozycję zamknął twardy stop bota 13.10 17:05 UTC (fills bez LITE); zamknięcie 13.10 987,99 = -10,46% od D0 1103,36, względnie vs ^NDX -9,44 p.p. (próg CLOSE >8 p.p.); druga kolejna sesja za progiem (12.10: -9,78%/-9,07 p.p.); 13.10 bez blokady sektorowej (optyka: COHR +0,68, CIEN -1,14, AAOI -2,88, CRDO -1,26, POET -1,40; mediana -1,26%); wpis zapobiega ponownemu otwarciu nogi w biegu 13:45 UTC",
       "date": "2026-10-14"
+    },
+    {
+      "ticker": "PANW",
+      "action": "REDUCE",
+      "basis": "cena",
+      "reason": "od ceny wejścia 411,82 (12.10) do 370,27 (15.10): -10,09% bezwzględnie, -7,71 p.p. względem ^NDX (-2,38%) — druga kolejna sesja w paśmie REDUCE 4–8 p.p. (14.10: -6,60 p.p.); bramka: ruch ≥4%; 15.10 bez blokady sektorowej (cyberbezpieczeństwo: CRWD -1,89, OKTA -1,60, FTNT -1,16, ZS -0,16; mediana -1,38%); elita bez downgrade'u (Citi Buy 440, WFC 525)",
+      "date": "2026-10-16"
     }
   ],
   "tactical": [
@@ -34,7 +41,7 @@
       "reason": "twardy wyzwalacz 24h: raport Q3 2026 (15.10 przed sesją) — skoryg. EBITA 10,1 mld SEK vs konsensus 7,93 mld SEK (+27%), sprzedaż 59,5 mld SEK, wzrost organiczny +7%; reakcja pre-market +11,69% (TradingView MCP get-symbol-data, odczyt 2026-10-15 12:52 UTC, dane opóźnione); ADR notowany na Nasdaq (Nasdaq Composite), spoza koszyków; epic Capital.com = ticker ADR (niezweryfikowany — przy braku instrumentu bot pominie pozycję); ryzyka: zysk netto −49% r/r (baza z zyskiem ze sprzedaży Iconectiv), ostrzeżenie o kosztach komponentów na 2027"
     }
   ],
-  "last_daily": "2026-10-15",
+  "last_daily": "2026-10-16",
   "history": [
     {
       "week": "2026-W1",
