@@ -227,7 +227,7 @@
       "kierunek": "SELL",
       "wielkosc": 2.2,
       "data": "2026-10-06",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "SBUX",
       "cena_brokera": 95.99
     },
@@ -236,7 +236,7 @@
       "kierunek": "SELL",
       "wielkosc": 0.8,
       "data": "2026-10-06",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "APP",
       "cena_brokera": 277.22
     },
@@ -245,16 +245,16 @@
       "kierunek": "SELL",
       "wielkosc": 10.0,
       "data": "2026-10-06",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "CMCSA",
       "cena_brokera": 21.46
     },
     "CSCO": {
-      "cena": 116.47,
+      "cena": 115.53,
       "kierunek": "BUY",
       "wielkosc": 1.8,
       "data": "2026-10-12",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "CSCO",
       "cena_brokera": 115.53
     },
@@ -263,7 +263,7 @@
       "kierunek": "SELL",
       "wielkosc": 1.8,
       "data": "2026-10-12",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "PEP",
       "cena_brokera": 126.91
     },
@@ -272,7 +272,7 @@
       "kierunek": "SELL",
       "wielkosc": 1.5,
       "data": "2026-10-12",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "TMUS",
       "cena_brokera": 152.79
     },
@@ -281,7 +281,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.2,
       "data": "2026-10-13",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "MU",
       "cena_brokera": 935.73
     },
@@ -290,7 +290,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.9,
       "data": "2026-10-15",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "MRVL",
       "cena_brokera": 235.93
     },
@@ -299,7 +299,7 @@
       "kierunek": "BUY",
       "wielkosc": 17.0,
       "data": "2026-10-15",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "ERIC",
       "cena_brokera": 10.4
     },
@@ -308,7 +308,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.3,
       "data": "2026-10-16",
-      "wersja": "2026-W7",
+      "wersja": "2026-W8",
       "epic": "PANW",
       "cena_brokera": 341.71
     }
@@ -316,9 +316,7 @@
   "equity_peak": 1091.83,
   "wykonanie": {
     "reakcje": {},
-    "taktyczne": {
-      "ERIC": "otwarta"
-    },
-    "aktualizacja": "2026-10-15"
+    "taktyczne": {},
+    "aktualizacja": "2026-10-17"
   }
 }
