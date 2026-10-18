@@ -318,11 +318,13 @@
     "reakcje": {},
     "taktyczne": {},
     "soft": {
-      "aktywny": true,
+      "aktywny": false,
       "od": "2026-10-18",
       "dd_start": 0.2375,
       "wersja": "2026-W8",
-      "pary": 2
+      "pary": 2,
+      "wylaczono": "2026-10-18",
+      "dd_koniec": 0.0
     },
     "aktualizacja": "2026-10-18"
   }
