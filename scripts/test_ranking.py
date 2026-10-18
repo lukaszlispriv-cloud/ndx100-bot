@@ -5,6 +5,7 @@
 Uruchomienie: python3 scripts/test_ranking.py
 """
 import json
+import tempfile
 import math
 import os
 import random
@@ -210,6 +211,8 @@ def test_v2_poprawki():
     with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False) as f2:
         for row in rows[:5]:
             f2.write(json.dumps(row) + "\n")
+    out0, md0 = koszyki_cienie.podsumowanie(os.path.join(tempfile.gettempdir(), "koszyki-cienie-nie-ma.jsonl"))
+    sprawdz("podsumowanie: brak pliku logu → n=0 bez wyjątku", out0["okna"] == 0 and isinstance(md0, str))
     out5, md5 = koszyki_cienie.podsumowanie(f2.name)
     sprawdz("podsumowanie: n=5 → „za wcześnie”, bez wniosku o wariancji", out5["okna"] == 5 and "za wcześnie" in md5 and "WARIANCJA (26+)" not in md5)
 

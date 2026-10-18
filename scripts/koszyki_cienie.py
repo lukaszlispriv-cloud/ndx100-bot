@@ -186,11 +186,14 @@ def statystyka(xs):
 def podsumowanie(sciezka_logu, koszt=KOSZT_PP_TYDZ):
     """Czyta data/koszyki-cienie.jsonl i zwraca (dict, markdown)."""
     wiersze = []
-    with open(sciezka_logu, encoding="utf-8") as f:
-        for linia in f:
-            linia = linia.strip()
-            if linia:
-                wiersze.append(json.loads(linia))
+    # Brak pliku = jeszcze żadnego okna (pierwszy bieg v2 albo bieg powtórny
+    # bez --log po nieudanym logowaniu) — podsumowanie n = 0, nie traceback.
+    if os.path.exists(sciezka_logu):
+        with open(sciezka_logu, encoding="utf-8") as f:
+            for linia in f:
+                linia = linia.strip()
+                if linia:
+                    wiersze.append(json.loads(linia))
     serie, kalib, pokrycia = {}, [], []
     for r in wiersze:
         pokrycia.append(r.get("pokrycie"))
