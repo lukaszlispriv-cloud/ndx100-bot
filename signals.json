@@ -317,6 +317,13 @@
   "wykonanie": {
     "reakcje": {},
     "taktyczne": {},
-    "aktualizacja": "2026-10-17"
+    "soft": {
+      "aktywny": true,
+      "od": "2026-10-18",
+      "dd_start": 0.2375,
+      "wersja": "2026-W8",
+      "pary": 2
+    },
+    "aktualizacja": "2026-10-18"
   }
 }
