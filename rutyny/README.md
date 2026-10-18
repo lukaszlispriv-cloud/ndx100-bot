@@ -287,3 +287,44 @@ taktyczne wyłączone / `REDUCE_FALLBACK=close`, `/status` z `kill_switch`,
 treści: pola, które czytają z `/status` (A9 tygodniowej, KROK 1b dziennej),
 istnieją teraz w bocie; do deployu nadal piszą „b.d." tam, gdzie pola brak.
 `waliduj_signals.py` traktuje `wykonanie` jak dotąd jako pole bota.
+
+### 18.10.2026 (noc) — poprawki w bocie po przeglądzie adwersaryjnym diffu `app.py` i dopasowanie rutyn
+
+Czterech niezależnych recenzentów diffu `app.py` (poprawność, ryzyko
+wykonania, zgodność z specyfikacją, spójność z rutynami) → poprawki w kodzie,
+206 testów (w tym scenariusze S1–S5 pełnego biegu `sync()` na atrapach
+Capital.com i GitHuba): kill switch jest zatrzaskiem (po kill bot trzyma
+rachunek płasko; odblokowanie automatyczne po 14 dniach i zmianie `version`
+albo ręczne po dopłacie do ≥ próg × 1,10 — `KILL_REARM_PCT`), wznowienie
+zapisuje `equity_peak` do pliku PRZED otwarciami, pamięć stopu zna kierunek
+i dotyczy tylko nóg `long`/`short`, `REDUCE_FALLBACK=close` nie zamyka
+w pętli pozycji o minimalnym locie (tolerancja `MAX_OVERSHOOT`), ślad kill
+switcha w pliku bez kwot (`dd_pct`, `kill_level`), `_sanity` sprawdza
+kształt `wykonanie`. Szczegóły: `INSTRUKCJA.md` §12.
+
+Zmiany w treści rutyn (tylko odczyt nowych pól `/status`, bez zmiany pól
+pisanych do `signals.json`):
+
+- `dzienna.md` KROK 0: pełna lista kluczy `wykonanie.kill`. KROK 1b (3):
+  `pokrycie_koszyka` ma `nogi_sygnalu`, `zamkniete_progiem_miekkim`,
+  `prog_miekki_aktywny`; noga zamknięta progiem miękkim nie jest brakująca.
+  (4): nowe klucze `ustawienia` (`soft_pary`, `alloc_restart`,
+  `kill_rearm_pct`, `max_overshoot`). (5): próg, zapas i obsunięcie
+  z `/status.kill_switch`, nie z `kill_level × equity_peak` (podłoga
+  `START_EQUITY` i wznowienie zmieniają odniesienie); starszy bot — wzór
+  z `max(equity_peak, start_equity)`. (6): próg miękki ZAPISANY (`aktywny`)
+  vs PRZEWIDYWANY (`wlaczy_sie_w_najblizszym_biegu` — Puls widzi stan sprzed
+  biegu 13:45 UTC). (7): `zatrzask`, oczekujące wznowienie,
+  `restart_reczny_od_kapitalu`, tryb wznowienia. (8): `MAX_OVERSHOOT`
+  z `ustawienia.max_overshoot` zamiast stałej. KROK 3 (5): ta sama zmiana
+  źródła progu i stanu progu miękkiego w raporcie.
+- `tygodniowa.md` A9: definicja `--pokrycie` dla A4 — k = nogi na rachunku
+  + zatrzymane stopem + zamknięte progiem miękkim + wykluczone przez Puls
+  nad `nogi_sygnalu` = 10 (noga zamknięta PRZEZ PROCES jest pokryta;
+  pokrycie mierzy wykonanie składu, nie ekspozycję), z adnotacją w raporcie,
+  ile z k to nogi zamknięte przez proces; próg/zapas z `/status.kill_switch`;
+  `zatrzask` w pierwszej linii A9; nowe klucze `ustawienia`;
+  `MAX_OVERSHOOT` z `ustawienia.max_overshoot`.
+
+Do zrobienia przez właściciela: wkleić obie rutyny do zadań na
+claude.ai/code/routines po scaleniu gałęzi.

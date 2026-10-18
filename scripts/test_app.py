@@ -716,7 +716,14 @@ cap = FakeCap({"STX": 849.10}, minimum=0.1)
 stx = {"epic": "STX", "size": 0.1, "direction": "BUY"}
 # cel po redukcji przy kapitale 1088 i ALLOC 0,12: ok. 65 USD
 dec, size, opis = app.plan_redukcji(cap, stx, 1088 * 0.12 * 0.5, "USD")
-sprawdz("STX 0,1 przy celu 65 USD: redukcja NIEWYKONALNA, nie cicha",
+# v2 (18.10.2026): granica „na poziomie celu" = MAX_OVERSHOOT (1,6×), ta sama,
+# przy której calc_size otworzyłby lot minimalny — inaczej REDUCE_FALLBACK=close
+# zamykałby nogę, a następny bieg otwierał ją z powrotem (pętla spreadów).
+sprawdz("STX 0,1 (85 USD) przy celu 65 USD: lot w tolerancji 1,6× → 'zredukowana' (bez pętli zamknij/otwórz)",
+        dec == "zredukowana" and size == 0.1, (dec, size, opis))
+cap_drogi = FakeCap({"STX": 1200.0}, minimum=0.1)
+dec, size, opis = app.plan_redukcji(cap_drogi, stx, 1088 * 0.12 * 0.5, "USD")
+sprawdz("STX 0,1 (120 USD) przy celu 65 USD: ponad 1,6× celu → redukcja NIEWYKONALNA, nie cicha",
         dec == "niewykonalna" and size is None, (dec, size, opis))
 stx2 = {"epic": "STX", "size": 0.2, "direction": "BUY"}
 dec, size, _ = app.plan_redukcji(cap, stx2, 1092 * 0.24 * 0.5, "USD")
@@ -924,6 +931,213 @@ pk3 = app.pokrycie_koszyka(sig(version="2026-W9", wykonanie={"stopy": {"MU": {"w
 sprawdz("pokrycie v2: bez progu miękkiego i z 1 stopem — 4 nogi LONG brakujące, MU osobno",
         pk3["nogi_koszyka"] == 4 and len(pk3["brakujace"]) == 4 and pk3["zatrzymane_stopem"] == ["MU"]
         and pk3["prog_miekki_aktywny"] is False, pk3)
+
+# pamięć stopu z kierunkiem, tylko dla nóg koszyka; funkcje pomocnicze
+s_k = sig(version="2026-W9", wykonanie={"stopy": {
+    "INTU": {"wersja": "2026-W9", "kierunek": "BUY"},    # noga SHORT — stop na starym BUY nie wiąże
+    "MU": {"wersja": "2026-W9", "kierunek": "BUY"},      # noga LONG, ten sam kierunek — wiąże
+    "LITE": {"wersja": "2026-W9"},                       # wpis bez kierunku (starszy) — wiąże
+    "GNRC": {"wersja": "2026-W9", "kierunek": "BUY"}}})  # spoza koszyka — nie wiąże
+zb = app.stopy_biezacej_wersji(s_k)
+sprawdz("stopy_biezacej_wersji: INTU (stop BUY, noga SELL) i GNRC (spoza koszyka) nie wiążą; MU i LITE wiążą",
+        set(zb) == {"MU", "LITE"}, sorted(zb))
+pk_k = app.pokrycie_koszyka(s_k, [])
+sprawdz("pokrycie: INTU brakująca (nie zatrzymana), MU i LITE zatrzymane, nogi_sygnalu = 5",
+        "INTU" in pk_k["short"]["brakujace"] and pk_k["short"]["zatrzymane_stopem"] == []
+        and pk_k["zatrzymane_stopem"] == ["LITE", "MU"] and pk_k["nogi_sygnalu"] == 5
+        and pk_k["nogi_koszyka"] == 3, pk_k)
+_sr = app.STOP_REOPEN
+app.STOP_REOPEN = True
+sprawdz("STOP_REOPEN=true: pamięć stopu nie wiąże (pokrycie bez zatrzymanych)",
+        app.stopy_biezacej_wersji(s_k) == {} and app.pokrycie_koszyka(s_k, [])["zatrzymane_stopem"] == [])
+app.STOP_REOPEN = _sr
+sprawdz("nogi_progu_miekkiego: 2 long + 2 short w trybie classic",
+        app.nogi_progu_miekkiego(sig()) == {"MU", "AMD", "INTU", "SBUX"})
+try:
+    app._sanity(sig(wykonanie={"soft": {"aktywny": "false"}}))
+    _zle = False
+except ValueError:
+    _zle = True
+sprawdz("_sanity: wykonanie.soft.aktywny jako tekst jest odrzucane (fail-closed)", _zle)
+try:
+    app._sanity(sig(wykonanie={"stopy": {"MU": {"wersja": "2026-W9"}}, "soft": {"aktywny": True}, "kill": {"data": "2026-10-20"}}))
+    _ok = True
+except ValueError:
+    _ok = False
+sprawdz("_sanity: poprawny kształt wykonanie v2 przechodzi", _ok)
+
+# ------------------------------------------ PROCES v2: sync() na atrapach -------
+print("\nPROCES v2 — sync() end-to-end na atrapach (Capital + GitHub, bez sieci)")
+import copy as _copy  # noqa: E402
+from datetime import date as _date, timedelta as _td  # noqa: E402
+
+
+class FakeCapital(FakeCap):
+    """Pełna atrapa Capital() dla sync(): rachunek, pozycje, zlecenia."""
+
+    def __init__(self, equity, pozycje, ceny, **kw):
+        super().__init__(ceny, **kw)
+        self.switch_error = None
+        self.equity = equity
+        self.poz = [dict(p) for p in pozycje]
+        self.zlecenia = []
+        self._n = 100
+
+    def login(self):
+        pass
+
+    def account_snapshot(self):
+        return {"equity": self.equity, "ccy": "USD", "accountId": "ACC", "wycena": 0.0,
+                "gotowka": self.equity, "depozyt": 0.0, "dostepne": self.equity}
+
+    def positions(self):
+        return [dict(p) for p in self.poz]
+
+    def close(self, deal_id):
+        self.zlecenia.append(("close", deal_id))
+        self.poz = [p for p in self.poz if p["dealId"] != deal_id]
+        return True, "ok"
+
+    def open(self, epic, direction, size):
+        self._n += 1
+        self.zlecenia.append(("open", epic, direction, size))
+        self.poz.append({"epic": epic, "direction": direction, "size": size, "upl": 0.0,
+                         "wejscie": self.ceny[epic], "otwarta": "2026-10-20T14:00:00",
+                         "dealId": f"d{self._n}"})
+        return True, f"ref{self._n}", "ok"
+
+    def accounts(self):
+        return []
+
+
+def poz_e2e(epic, direction, wejscie, size=0.8):
+    return {"epic": epic, "direction": direction, "size": size, "upl": 0.0,
+            "wejscie": wejscie, "otwarta": "2026-10-19T14:00:00", "dealId": f"deal-{epic}"}
+
+
+def bieg(sig_in, equity, pozycje, ceny):
+    """Uruchamia app.sync() na atrapach; zwraca (rep, zapisy signals.json, atrapa)."""
+    zapisy = []
+    fake = FakeCapital(equity, pozycje, ceny)
+    s = _copy.deepcopy(sig_in)
+    s.setdefault("fills", {})
+    s.setdefault("wykonanie", {"reakcje": {}, "taktyczne": {}})
+    s.setdefault("equity_peak", 1000.0)
+    s.setdefault("d0", {"date": _date.today().isoformat()})
+    stare = {k: getattr(app, k) for k in ("Capital", "load_signals", "save_signals", "save_signals_sha",
+                                         "DRY_RUN", "WRITE_FILLS", "LIVE_ODBLOKOWANY", "ACCOUNT_ID", "notify")}
+    sleep_stary = app.time.sleep
+    try:
+        app.Capital = lambda: fake
+        app.load_signals = lambda: (_copy.deepcopy(s), "sha0")
+
+        def _zapis(sg, sha, msg):
+            zapisy.append((msg, _copy.deepcopy(sg)))
+            return f"sha{len(zapisy)}"
+        app.save_signals = _zapis
+        app.save_signals_sha = _zapis
+        app.DRY_RUN, app.WRITE_FILLS, app.LIVE_ODBLOKOWANY, app.ACCOUNT_ID = False, True, True, ""
+        app.notify = lambda t: None
+        app.time.sleep = lambda s_: None
+        rep = app.sync()
+    finally:
+        for k, v in stare.items():
+            setattr(app, k, v)
+        app.time.sleep = sleep_stary
+    return rep, zapisy, fake
+
+
+NOGI = BAZA["long"] + BAZA["short"]
+CENY = {t: 100.0 for t in NOGI}
+otwarcia = lambda f: [z for z in f.zlecenia if z[0] == "open"]  # noqa: E731
+zamkniecia = lambda f: [z for z in f.zlecenia if z[0] == "close"]  # noqa: E731
+pelny = lambda: [poz_e2e(t, "BUY" if t in BAZA["long"] else "SELL", 100.0) for t in NOGI]  # noqa: E731
+
+# S1 — próg miękki: obsunięcie 15% → 6 z 10 nóg, bez churnu w kolejnym biegu, pełny koszyk po powrocie < 5%
+s1 = sig(version="2026-W9")
+rep, zap, f = bieg(s1, 850.0, [], CENY)
+sprawdz("S1 sync: dd 15% → próg miękki włączony, otwarte 6 nóg (bez MU, AMD, INTU, SBUX)",
+        rep["prog_miekki"]["aktywny"] is True and len(otwarcia(f)) == 6
+        and {z[1] for z in otwarcia(f)} == {"AVGO", "MRVL", "LITE", "CMCSA", "APP", "ADSK"}
+        and rep["prog_miekki"]["nogi_zamkniete"] == ["AMD", "INTU", "MU", "SBUX"], (rep["prog_miekki"], f.zlecenia))
+sprawdz("S1 sync: stan progu zapisany w wykonanie.soft, znacznik w ostrzeżeniach",
+        zap and zap[-1][1]["wykonanie"]["soft"]["aktywny"] is True and zap[-1][1]["wykonanie"]["soft"]["pary"] == 2, zap[-1][1].get("wykonanie") if zap else None)
+s1b = zap[-1][1]
+rep2, zap2, f2 = bieg(s1b, 850.0, f.poz, CENY)
+sprawdz("S1 sync (bieg 2, bez zmian): żadnych zleceń i żadnego commitu — brak churnu",
+        f2.zlecenia == [] and zap2 == [] and rep2["prog_miekki"]["aktywny"] is True, (f2.zlecenia, [z[0] for z in zap2]))
+rep3, zap3, f3 = bieg(s1b, 970.0, f.poz, CENY)
+sprawdz("S1 sync (bieg 3, dd 3% < 5%): próg wyłączony, dołożone 4 nogi, soft.aktywny=false zapisany",
+        rep3["prog_miekki"]["aktywny"] is False and len(otwarcia(f3)) == 4
+        and zap3 and zap3[-1][1]["wykonanie"]["soft"]["aktywny"] is False, (rep3["prog_miekki"], f3.zlecenia))
+
+# S2 — pamięć stopu: MU -16% → zamknięta, nie wraca w tej wersji, wraca po rotacji
+s2 = sig(version="2026-W9")
+ceny_mu = dict(CENY, MU=84.0)
+rep, zap, f = bieg(s2, 1000.0, pelny(), ceny_mu)
+sprawdz("S2 sync: stop LONG 15% zamyka MU (jedno zamknięcie, bez ponownego otwarcia w tym biegu)",
+        len(rep.get("stopy", [])) == 1 and zamkniecia(f) == [("close", "deal-MU")] and otwarcia(f) == [], (rep.get("stopy"), f.zlecenia))
+sprawdz("S2 sync: pamięć stopu zapisana (wykonanie.stopy.MU: wersja W9, kierunek BUY)",
+        zap and zap[-1][1]["wykonanie"]["stopy"]["MU"]["wersja"] == "2026-W9"
+        and zap[-1][1]["wykonanie"]["stopy"]["MU"]["kierunek"] == "BUY", zap[-1][1].get("wykonanie") if zap else None)
+s2b = zap[-1][1]
+rep2, zap2, f2 = bieg(s2b, 1000.0, f.poz, ceny_mu)
+sprawdz("S2 sync (bieg 2): MU nie wraca — zatrzymane_stopem = [MU], brak otwarć",
+        rep2["zatrzymane_stopem"] == ["MU"] and otwarcia(f2) == []
+        and any("stop w tej wersji" in x for x in rep2["pominiete"]), (rep2["zatrzymane_stopem"], f2.zlecenia))
+s2c = dict(s2b, version="2026-W10")
+rep3, zap3, f3 = bieg(s2c, 1000.0, f.poz, ceny_mu)
+sprawdz("S2 sync (bieg 3, nowa wersja): pamięć stopu wygasa, MU otwarta ponownie, wpis W9 usunięty",
+        [z[1] for z in otwarcia(f3)] == ["MU"] and rep3["zatrzymane_stopem"] == []
+        and zap3 and "MU" not in (zap3[-1][1]["wykonanie"].get("stopy") or {}), (f3.zlecenia, zap3[-1][1].get("wykonanie") if zap3 else None))
+
+# S3 — kill switch: ślad bez kwot, zatrzask przy kapitale tuż nad progiem, restart ręczny przy ≥ 110% progu
+s3 = sig(version="2026-W9")
+rep, zap, f = bieg(s3, 740.0, pelny(), CENY)
+slad = zap[0][1]["wykonanie"]["kill"] if zap else {}
+sprawdz("S3 sync: kill zamyka 10 pozycji, ślad zapisany (data, wersja, dd_pct 26, bez kwot)",
+        len(zamkniecia(f)) == 10 and otwarcia(f) == [] and slad.get("data") == _date.today().isoformat()
+        and slad.get("wersja") == "2026-W9" and slad.get("dd_pct") == 26.0
+        and not {"kapital", "prog", "szczyt"} & set(slad) and "kill switch" in zap[0][0], (slad, zap[0][0] if zap else None))
+s3b = zap[0][1]
+rep2, zap2, f2 = bieg(s3b, 760.0, [], CENY)
+sprawdz("S3 sync (bieg 2, kapitał 760 > próg 750, ale < 825): ZATRZASK — płasko, zero zleceń, zero commitów",
+        f2.zlecenia == [] and zap2 == [] and rep2["kill_switch"]["zatrzask"] is True
+        and any("ZATRZASK" in a for a in rep2["akcje"]), (rep2["akcje"], f2.zlecenia))
+rep3, zap3, f3 = bieg(s3b, 900.0, [], CENY)
+kill3 = zap3[-1][1]["wykonanie"]["kill"] if zap3 else {}
+sprawdz("S3 sync (bieg 3, kapitał 900 ≥ 110% progu): restart ręczny — ślad rozwiązany, szczyt i podłoga bez zmian, pełny koszyk",
+        len(otwarcia(f3)) == 10 and kill3.get("wznowiono") == _date.today().isoformat()
+        and not kill3.get("bez_podlogi") and zap3[-1][1]["equity_peak"] == 1000.0
+        and rep3["kill_switch"]["podloga_start_equity"] is True and abs(rep3["alloc_pct"] - 0.08) < 1e-9, (kill3, rep3["kill_switch"], rep3["alloc_pct"]))
+
+# S4 — wznowienie automatyczne po 14 dniach i nowej wersji: szczyt := kapitał, bez podłogi, ALLOC_RESTART
+s4 = sig(version="2026-W9", wykonanie={"reakcje": {}, "taktyczne": {},
+                                       "kill": {"data": (_date.today() - _td(days=20)).isoformat(), "wersja": "2026-W7"}})
+rep, zap, f = bieg(s4, 740.0, [], CENY)
+kill4 = zap[0][1]["wykonanie"]["kill"] if zap else {}
+sprawdz("S4 sync: wznowienie zapisane NATYCHMIAST (pierwszy commit): equity_peak := 740, kill.wznowiono, bez_podlogi",
+        zap and "wznowienie" in zap[0][0] and zap[0][1]["equity_peak"] == 740.0
+        and kill4.get("wznowiono") == _date.today().isoformat() and kill4.get("bez_podlogi") is True
+        and kill4.get("dni_plasko") == 20, (zap[0][0] if zap else None, kill4))
+sprawdz("S4 sync: koszyk wersji wznowienia z ALLOC_RESTART 0,04 (10 otwarć po 0,3), próg 555 bez podłogi",
+        len(otwarcia(f)) == 10 and all(abs(z[3] - 0.3) < 1e-9 for z in otwarcia(f))
+        and abs(rep["alloc_pct"] - 0.04) < 1e-9 and rep["kill_switch"]["prog"] == 555.0
+        and rep["kill_switch"]["podloga_start_equity"] is False and rep["kill_switch"]["zatrzask"] is False, (rep["alloc_pct"], rep["kill_switch"], f.zlecenia[:2]))
+s4b = sig(version="2026-W9", wykonanie={"reakcje": {}, "taktyczne": {},
+                                        "kill": {"data": (_date.today() - _td(days=5)).isoformat(), "wersja": "2026-W7"}})
+rep, zap, f = bieg(s4b, 740.0, [], CENY)
+sprawdz("S4b sync: 5 dni po kill — za wcześnie, zatrzask trzyma (brak zleceń)",
+        f.zlecenia == [] and rep["kill_switch"]["zatrzask"] is True, (rep["akcje"], f.zlecenia))
+
+# S5 — pierwszy bieg po deployu na dzisiejszym pliku: brak soft/kill/stopy → normalny koszyk, jeden commit
+s5 = sig(version="2026-W9", wykonanie={"reakcje": {}, "taktyczne": {}})
+rep, zap, f = bieg(s5, 1000.0, [], CENY)
+sprawdz("S5 sync: plik bez pól v2 → 10 otwarć po 0,8 (ALLOC 0,08), bez stopów/progu/kill, jeden commit cen wejścia",
+        len(otwarcia(f)) == 10 and all(abs(z[3] - 0.8) < 1e-9 for z in otwarcia(f))
+        and rep["prog_miekki"]["aktywny"] is False and rep["zatrzymane_stopem"] == []
+        and rep["kill_switch"]["zatrzask"] is False and len(zap) == 1 and "soft" not in zap[0][1]["wykonanie"]
+        and "kill" not in zap[0][1]["wykonanie"], (rep["prog_miekki"], [z[0] for z in zap]))
 
 # -------------------------------------------- walidator i tv_porownaj -------
 print("\nWALIDATOR signals.json I SKRYPT PORÓWNAWCZY TV (bez sieci)")

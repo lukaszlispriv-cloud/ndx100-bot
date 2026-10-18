@@ -55,7 +55,7 @@ curl -sS -m 120 "$NDX_BOT_URL/status"
 | Pole | Znaczenie dla rutyny |
 |---|---|
 | `konto.kapital`, `konto.waluta` | equity rachunku (USD) — kapitał do sekcji kontroli rachunku; `konto.gotowka` to saldo bez wyceny, `konto.wycena_pozycji` otwarty wynik wszystkich pozycji, `konto.depozyt_zabezpieczajacy` zamrożony depozyt, `konto.dostepne_do_handlu` wolne środki. |
-| `equity_peak` | kroczący szczyt kapitału z `signals.json` (kill switch = `ustawienia.kill_level` × szczyt). Porównaj z plikiem — rozjazd oznacza, że bot zapisał nowy szczyt po ostatnim commicie. |
+| `equity_peak` | kroczący szczyt kapitału z `signals.json`. Porównaj z plikiem — rozjazd oznacza, że bot zapisał nowy szczyt po ostatnim commicie. Próg kill switcha NIE jest po prostu `kill_level` × szczyt: bot v2 zwraca gotowe `kill_switch` (`odniesienie` = max(szczyt, podłoga `START_EQUITY`; po wznowieniu bez podłogi), `prog`, `zapas_pct`, `dd_od_szczytu_pct`, `zatrzask`, `wznowienie_oczekuje_w_najblizszym_biegu`, `restart_reczny_od_kapitalu`, `slad`) — próg i zapas bierz stamtąd. |
 | `konta_wszystkie[]` | wszystkie rachunki Capital.com; `aktywne_dla_bota = true` wskazuje ten, na którym bot handluje; `blad_przelaczenia_rachunku ≠ null` = handel wstrzymany. |
 | `sygnaly` | `version`, `status`, `long`, `short`, `exclude`, `tactical` — wersja sygnałów, którą bot widzi (po rotacji sobotniej jest nowsza niż pozycje na rachunku do poniedziałku 13:45 UTC). |
 | `pozycje[]` | pozycje z epikami z mapy `epics` (+ hedge indeksowy): `epic`, `direction`, `size`, `upl` (otwarty wynik), `wejscie` (poziom otwarcia u brokera), `otwarta`. UWAGA: taktyczne spoza NDX-100 (własny `epic`) tu NIE są — patrz `pokrycie_koszyka.pozycje_taktyczne`. |
@@ -204,17 +204,26 @@ obie rutyny, edytowany tylko commitem właściciela). Materiał dowodowy:
   ponownego otwarcia w tej samej wersji (`STOP_REOPEN=false`, pamięć w
   `wykonanie.stopy`), próg miękki od kroczącego szczytu (`DD_SOFT=0.10`,
   `DD_SOFT_RESET=0.05`, `SOFT_PARY=2` — zamyka pierwsze 2 pary list, stan
-  w `wykonanie.soft`), ślad kill switcha (`wykonanie.kill`) i wznowienie po
-  `KILL_RESUME_DAYS=14` dniach i zmianie `version` (szczyt := kapitał bez
-  podłogi START_EQUITY, koszyk wznowienia z `ALLOC_RESTART=0.04`); nowe
+  w `wykonanie.soft`), ślad kill switcha (`wykonanie.kill` = data, wersja,
+  `dd_pct`, `kill_level` — bez kwot) działający jak ZATRZASK (po kill bot
+  trzyma rachunek płasko) i wznowienie: automatyczne po `KILL_RESUME_DAYS=14`
+  dniach i zmianie `version` (szczyt := kapitał bez podłogi START_EQUITY,
+  zapis do pliku przed otwarciami, koszyk wznowienia z `ALLOC_RESTART=0.04`)
+  albo ręczne po dopłacie do ≥ próg × (1 + `KILL_REARM_PCT=0.10`); nowe
   domyślne: `ALLOC_PCT=0.08`, `ALLOC_PCT_SAFE=0.04`, `TACTICAL_ENABLED=false`,
   `REDUCE_FALLBACK=close`. Zmienne w Renderze mają pierwszeństwo — jeśli
   `ALLOC_PCT=0.24` jest tam ustawione jawnie, trzeba je zmienić ręcznie.
   Podklucze `wykonanie.stopy/soft/kill` są POLAMI BOTA — rutyny ich nie
-  piszą, tylko czytają. `/status` zwraca dodatkowo `kill_switch` (próg,
-  `zapas_pct`, obsunięcie, ślad), `prog_miekki`, `wykonanie` i nowe pola
-  `ustawienia`. Do deployu rutyny czytają stan faktyczny bota z `/status`
-  (`ustawienia`), nie z pamięci.
+  piszą, tylko czytają; `_sanity` sprawdza ich kształt i przy obcym
+  wstrzymuje handel. `/status` zwraca dodatkowo `kill_switch` (próg,
+  `zapas_pct`, `dd_od_szczytu_pct`, `zatrzask`, `restart_reczny_od_kapitalu`,
+  ślad), `prog_miekki` (stan zapisany `aktywny` i przewidywany
+  `wlaczy_sie_w_najblizszym_biegu`), `wykonanie`, `pokrycie_koszyka` z
+  `nogi_sygnalu`/`zatrzymane_stopem`/`zamkniete_progiem_miekkim` i nowe pola
+  `ustawienia` (m.in. `max_overshoot`, `kill_rearm_pct`). Kod po przeglądzie
+  adwersaryjnym diffu (4 recenzentów, 18.10 wieczór) — poprawki w
+  `INSTRUKCJA.md` §12. Do deployu rutyny czytają stan faktyczny bota z
+  `/status` (`ustawienia`), nie z pamięci.
 - **Zmienne Rendera z decyzji 18.10** (ustawia właściciel; rutyny ich nie
   dotykają): `ALLOC_PCT=0.08`, `ALLOC_PCT_SAFE=0.04`, `TACTICAL_ENABLED=false`,
   `TACTICAL_ALLOC_PCT=0`, `REDUCE_FALLBACK=close`, `START_EQUITY=<kapitał>`
