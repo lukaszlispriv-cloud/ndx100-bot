@@ -48,11 +48,11 @@ Nowe (wszystkie mają sensowne domyślne — ustaw tylko to, co chcesz zmienić)
 | `REACT_GATE` | `true` | Weryfikuj wyzwalacze cenowe wobec ceny wejścia. `false` = zachowanie sprzed poprawki. |
 | `REACT_REDUCE_PCT` | `0.04` | Próg REDUCE liczony od ceny wejścia. |
 | `REACT_CLOSE_PCT` | `0.08` | Próg CLOSE liczony od ceny wejścia. |
-| `STOP_LOSS_PCT` | `0.10` | Twardy stop od ceny wejścia. `0` wyłącza. |
-| `REDUCE_FALLBACK` | `keep` | Gdy minimalna wielkość > cel po redukcji: `keep` zostawia pełną pozycję, `close` zamyka całość. |
+| `STOP_LOSS_PCT` | `0.10` | Twardy stop od ceny wejścia dla nóg SHORT (domyślna `STOP_LOSS_PCT_SHORT`); nogi LONG mają od 18.10.2026 własny próg `STOP_LOSS_PCT_LONG` (0.15) — §12. `0` wyłącza obie strony. |
+| `REDUCE_FALLBACK` | `close` (do 18.10.2026 `keep`) | Gdy minimalna wielkość > cel po redukcji: `keep` zostawia pełną pozycję, `close` zamyka całość. Pozycja ≤ 1,6 × celu (`MAX_OVERSHOOT`) uchodzi za zredukowaną, więc `close` nie zamyka w pętli nogi, której minimalny lot ledwo przekracza cel. |
 | `KILL_TRAILING` | `true` | Kill switch od kroczącego szczytu kapitału. |
 | `EQUITY_TOL` | `0.02` | Tolerancja kontroli kapitału (ułamek equity). |
-| `ALLOC_PCT_SAFE` | `0.10` | Wielkość pozycji, gdy kontrola kapitału nie przechodzi. |
+| `ALLOC_PCT_SAFE` | `0.04` (do 18.10.2026 `0.10`) | Wielkość pozycji, gdy kontrola kapitału nie przechodzi. |
 | `WRITE_FILLS` | `true` | Zapis cen wejścia do `signals.json`. |
 | `MAX_EXPOSURE_STEP` | `0.25` | O ile najwyżej mogą urosnąć w JEDNYM biegu pozycje już niesione. `0` wyłącza. |
 | `MARGIN_BUDGET` | `0.60` | Jaka część kapitału może być najwyżej zamrożona w depozycie zabezpieczającym. |
@@ -65,6 +65,11 @@ Nowe (wszystkie mają sensowne domyślne — ustaw tylko to, co chcesz zmienić)
 | `ROTATION_MAX_DNI` | `9` | Po ilu dniach od `d0` bot ostrzega, że rutyna tygodniowa nie wystartowała. `0` wyłącza ostrzeżenie. |
 | `KURSY_LIMIT_CZASU` | `600` | Budżet czasu dla `scripts/kursy.py` (sekundy). |
 | `KURSY_UA` | — | Własny User-Agent dla Yahoo, próbowany jako pierwszy. |
+
+Zmienne procesu v2 (18.10.2026: `STOP_LOSS_PCT_LONG/SHORT`, `STOP_REOPEN`,
+`DD_SOFT`, `DD_SOFT_RESET`, `SOFT_PARY`, `KILL_RESUME_DAYS`, `ALLOC_RESTART`,
+`KILL_REARM_PCT`, `TACTICAL_ENABLED`) są opisane w tabeli w §12; tam też
+aktualne domyślne `ALLOC_PCT` (0,08). Akapit niżej to stan z 18.09.2026.
 
 Zmienione domyślne: **`ALLOC_PCT` z `0.10` na `0.26`** oraz
 **`TACTICAL_ALLOC_PCT` z `0.05` na `0.10`** — podwojenie wielkości pozycji
@@ -92,7 +97,8 @@ Podniesienie wielkości pozycji jest obwarowane dwoma bezpiecznikami, które
 działają automatycznie:
 
 1. **Kontrola kapitału** — dopóki equity z API nie daje się odtworzyć
-   z pozycji, które bot zna, obowiązuje `ALLOC_PCT_SAFE` (0,10).
+   z pozycji, które bot zna, obowiązuje `ALLOC_PCT_SAFE` (0,04 od 18.10.2026;
+   wcześniej 0,10).
 2. **Limit depozytowy** — bot wylicza stopę depozytu na żywo (depozyt
    zabezpieczający podzielony przez bieżącą ekspozycję) i nie pozwala,
    by depozyt przekroczył `MARGIN_BUDGET` kapitału. Bez tego broker
@@ -539,3 +545,74 @@ WYŁĄCZNIE `/status` (tylko odczyt; `/health` nie wymaga tokena) — nigdy
 interpretują: `CLAUDE.md`, sekcja „Kontrola rachunku przez `/status`".
 Odpowiedź `/status` ma od tej wersji pola `pokrycie_koszyka` i `hedge_mode`
 (tylko odczyt, bez wpływu na `/run`).
+
+## 12. Proces v2 (18.10.2026) — sizing, stop asymetryczny, próg miękki, kill switch
+
+Podstawa: `rutyny/ANALIZA-2026-10-18-wyniki-i-metoda.md` (wynik W1–W7
+nieodróżnialny od zera, 74 % wariancji = zakład na półprzewodniki przy
+gross 240 %, P(kill −25 %) przy zerowej alfie 98–100 %/rok) i
+`rutyny/PROPOZYCJA-2026-10-18-proces-v2.md` §3. Wersja `/health`: 1.12.0.
+
+| Mechanizm | Zmienne (domyślne = v2) | Co robi |
+|---|---|---|
+| Sizing | `ALLOC_PCT` 0.08 (było 0.24), `ALLOC_PCT_SAFE` 0.04 (było 0.10) | gross 80 % zamiast 240 %; wielkość awaryjna połowa normalnej |
+| Stop asymetryczny | `STOP_LOSS_PCT_LONG` 0.15, `STOP_LOSS_PCT_SHORT` 0.10 (0 = strona bez stopu) | stop 10 % na nogach LONG kosztował −0,23 p.p./tydz.; kotwica bez zmian (poziom brokera, potem cena tezy) |
+| Pamięć stopu | `STOP_REOPEN` false | noga zatrzymana nie wraca w tej samej `version` I tym samym kierunku (wpis `wykonanie.stopy[ticker]` = `{wersja, data, kierunek, opis}`; rotacja czyści, ticker po zmianie strony otwiera się normalnie); wpis powstaje tylko dla nogi bieżącej książki `long`/`short` — nie dla taktycznych ani pozycji spoza sygnałów; `true` = dawne ponowne otwieranie |
+| Próg miękki | `DD_SOFT` 0.10, `DD_SOFT_RESET` 0.05, `SOFT_PARY` 2 | obsunięcie od szczytu kill switcha > 10 % → bot zamyka pierwsze 2 nogi `long` i 2 nogi `short` (rutyna porządkuje listy od pary o najwyższej σ) i trzyma je zamknięte do spadku obsunięcia poniżej 5 % (`wykonanie.soft`); taktyczne nietknięte; 0 = wyłączony; `DD_SOFT_RESET` ≥ `DD_SOFT` bot sprowadza do połowy progu. **Listy 2026-W8 nie są uporządkowane po σ** (koszyk wybrany Modelem 3.0), więc do rotacji na W9 próg zamykałby GOOGL/GILD i AXON/DASH arbitralnie — przy deployu przed sobotą 24.10 rozważ `DD_SOFT=0` do W9 |
+| Ślad kill switcha i zatrzask | `KILL_REARM_PCT` 0.10 | przy kill bot zapisuje `wykonanie.kill = {data, wersja, dd_pct, kill_level}` (raz; bez kwot — zakaz liczb z rachunku w repo) i od tej pory ZATRZASK: każdy bieg zamyka wszystko, co otwarte, i nic nie otwiera — do wznowienia automatycznego (niżej) albo ręcznego: kapitał ≥ próg × (1 + `KILL_REARM_PCT`), czyli po dopłacie, kończy zatrzask bez resetu szczytu (`/status.kill_switch.restart_reczny_od_kapitalu` pokazuje ten poziom). Przed poprawką bieg, w którym kapitał wrócił nad próg, otwierał koszyk od nowa |
+| Wznowienie po kill | `KILL_RESUME_DAYS` 14, `ALLOC_RESTART` 0.04 | po ≥ 14 dniach I zmianie `version` (wymaga `KILL_TRAILING=true`): szczyt := kapitał (podłoga `START_EQUITY` znika), zapis do `signals.json` NATYCHMIAST, przed jakimkolwiek otwarciem (nieudany zapis = brak wznowienia w tym biegu), koszyk wersji wznowienia z ALLOC ≤ 0.04; 0 = bez automatycznego wznowienia (zatrzask do restartu ręcznego) |
+| Moduł taktyczny | `TACTICAL_ENABLED` false (było true) | do testu przekrojowego reguły H2 (`rutyny/reguly.md`) |
+| REDUCE niewykonalny | `REDUCE_FALLBACK` close (było keep) | przy 0,08 i locie 0,1 akcji REDUCE per noga jest martwy dla spółek > ~600 USD — zamykamy całą pozycję zamiast zostawiać pełną; pozycja ≤ 1,6 × celu (`MAX_OVERSHOOT`) uchodzi za zredukowaną, więc nie ma pętli zamknij-otwórz |
+
+Zmienne ustawione jawnie w panelu Render mają pierwszeństwo przed
+domyślnymi. Dziś są tam co najmniej `ALLOC_PCT=0.24` i
+`TACTICAL_ALLOC_PCT=0.20` (§11) — żeby v2 działało, ustaw:
+
+```
+ALLOC_PCT          = 0.08
+ALLOC_PCT_SAFE     = 0.04
+TACTICAL_ENABLED   = false
+TACTICAL_ALLOC_PCT = 0
+REDUCE_FALLBACK    = close
+START_EQUITY       = <bieżący kapitał>   (razem z commitem equity_peak := kapitał — wariant B z PROPOZYCJI §1)
+```
+
+Co zobaczysz w `/run`: `kill_switch` (`odniesienie`, `prog`, `zapas_pct`,
+`podloga_start_equity`, `zatrzask`, `wznowienie_w_tym_biegu`, `slad`),
+`prog_miekki` (`dd_od_szczytu_pct`, `prog_pct`, `reset_pct`, `aktywny`,
+`nogi_zamkniete`), `zatrzymane_stopem`, w powiadomieniu znaczniki
+`⏸ zatrzymane stopem`, `⚠ PRÓG MIĘKKI (dd …%)`, `▶ WZNOWIENIE po kill
+switchu`, `⚠ ZAPIS STANU NIEUDANY`. W `/status`: `kill_switch` (`odniesienie`,
+`prog`, `zapas_pct`, `dd_od_szczytu_pct`, `kroczacy`, `podloga_start_equity`,
+`zatrzask`, `wznowienie_oczekuje_w_najblizszym_biegu`,
+`restart_reczny_od_kapitalu`, `slad`), `prog_miekki` (`wlaczony`, `prog_pct`,
+`reset_pct`, `pary`, `aktywny` = stan zapisany, `wlaczy_sie_w_najblizszym_biegu`
+= przewidywanie, `nogi`, `stan`), `pokrycie_koszyka` z `nogi_sygnalu`,
+`zatrzymane_stopem`, `zamkniete_progiem_miekkim`, `prog_miekki_aktywny`, całe
+pole `wykonanie` i nowe klucze `ustawienia` (`stop_loss_pct_long/short`,
+`stop_reopen`, `dd_soft`, `dd_soft_reset`, `soft_pary`, `kill_resume_days`,
+`alloc_restart`, `kill_rearm_pct`, `start_equity`, `max_overshoot`,
+`tactical_enabled`). `_sanity` sprawdza teraz także kształt `wykonanie`
+(słownik; `stopy`/`kill` słowniki; `soft.aktywny` bool) — obcy kształt
+wstrzymuje handel jak każdy zły plik, więc rutyny tego pola nie dotykają.
+
+Przegląd adwersaryjny diffu (18.10.2026 wieczór, czterech niezależnych
+recenzentów) wymusił poprawki przed scaleniem: kill switch nie był
+zatrzaskiem (bieg po odbiciu nad próg otwierał koszyk), wznowienie
+stosowano przed zapisem do pliku (awaria zapisu = koszyk otwarty przy starym
+progu), pamięć stopu nie znała kierunku i zapisywała się także dla
+taktycznych i pozycji spoza sygnałów, `REDUCE_FALLBACK=close` zamykał
+w pętli pozycje o minimalnym locie, ślad kill switcha zapisywał kwoty
+w repo. Wszystko ma testy, łącznie ze scenariuszami S1–S5 pełnego biegu
+`sync()` na atrapie brokera i GitHuba.
+
+UWAGA na pierwszy bieg po deployu BEZ restartu z PROPOZYCJI §1: kapitał jest
+dziś ok. 24 % poniżej szczytu, więc próg miękki włączy się natychmiast i bot
+będzie trzymał 3 pary z 5 (pierwsze 2 nogi każdej listy zamknięte), aż
+właściciel zresetuje szczyt (wariant B) albo kapitał wróci poniżej 5 % od
+szczytu. To zamierzone — mniejsza ekspozycja przy ≈ 1,7 % zapasu do kill —
+ale decyzja o restarcie należy do właściciela.
+
+Testy: `python3 scripts/test_app.py` (206, w tym blok PROCES v2 i
+scenariusze S1–S5 biegu `sync()` na atrapach) i
+`python3 scripts/test_ranking.py` (37).

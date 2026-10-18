@@ -7,7 +7,9 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`signals.json`** — stan systemu: koszyki, status, reakcje dzienne,
   pozycje taktyczne, faktyczne ceny wejścia (`fills`), szczyt kapitału.
 - **`app.py`** — synchronizacja portfela z sygnałami, bramka wyzwalaczy,
-  kontrola kapitału, stopy, kill switch.
+  kontrola kapitału, stopy (od 18.10.2026: 15 % LONG / 10 % SHORT bez
+  ponownego otwarcia), próg miękki od kroczącego szczytu, kill switch ze
+  śladem i wznowieniem (`INSTRUKCJA.md` §12).
 - **`scripts/kursy.py`** — kursy zamknięcia i wyliczenie reżimu rynkowego.
 - **`scripts/test_app.py`** — testy logiki decyzyjnej (bez sieci).
 - **`reports/`** — raporty dzienne, tygodniowe i rozliczenia okresów.
@@ -23,12 +25,21 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`scripts/waliduj_signals.py`** — bramka przed commitem `signals.json`
   (obce klucze, pola bota, zmiany poza rutyną); **`scripts/tv_porownaj.py`**
   — porównanie kursów TradingView vs Yahoo vs FMP.
+- **`scripts/ranking.py`** — (proces v2 od 2026-W9) deterministyczny ranking
+  momentum i konstrukcja koszyka 5 par branżowych z budżetem czynnikowym;
+  **`scripts/koszyki_cienie.py`** — rozliczenie koszyków cieni
+  (`data/koszyki-cienie.jsonl`); **`scripts/test_ranking.py`** — testy obu.
+- **`rutyny/reguly.md`** — rejestr reguł (obowiązujące / kandydaci / wyjątki /
+  uchylone); **`rutyny/ANALIZA-2026-10-18-wyniki-i-metoda.md`** i
+  **`rutyny/PROPOZYCJA-2026-10-18-proces-v2.md`** — analiza i decyzje procesu
+  v2; **`analiza/2026-10-18/`** — skrypty i notatki dowodowe.
 
 ## Szybki start
 
 ```bash
 pip install -r requirements.txt
 python3 scripts/test_app.py     # musi przejść 151/151
+python3 scripts/test_ranking.py # 23/23, bez sieci
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 

@@ -17,10 +17,14 @@ data_quality) albo nadpisane fills / equity_peak / wykonanie przechodzą
 do bota po cichu. Ten walidator jest jedyną ochroną przed tym.
 
 Reguły (per rutyna):
-  puls   — wobec bazy zmienione tylko: status, exclude, tactical, last_daily
+  puls   — wobec bazy zmienione tylko: status, exclude, tactical, last_daily;
+           PROCES v2 (od 18.10.2026, domyślnie): każdy NOWY wpis exclude ma
+           basis="news" (bramka cenowa 4 %/8 % jest tylko pomiarem), a tactical
+           == [] (moduł taktyczny wyłączony); --v1 wyłącza te dwie reguły
   sobota — wobec bazy zmienione tylko: version, status, long, short, d0,
-           generated, exclude (=[]), tactical (=[]), history (dopisany
-           DOKŁADNIE jeden wpis; pole "dane_b1": "tv" dozwolone od 12.10.2026);
+           generated, exclude (=[]), tactical (=[]), history (stare wpisy +
+           DOKŁADNIE jeden nowy na końcu, lista obcięta do 26 OSTATNICH — jak
+           app.py; pole "dane_b1": "tv" | "yahoo" (od v2 "yahoo"));
            epics — wyłącznie dopisanie nowych kluczy
   obie   — zestaw kluczy top-level DOKŁADNIE taki jak KLUCZE; fills,
            equity_peak, wykonanie identyczne z bazą; podstawowa spójność
@@ -120,7 +124,7 @@ def spojnosc(sig, problemy):
             problemy.append(f"zła cena wejścia w fills: {t}")
 
 
-def porownaj(baza, sig, rutyna, problemy):
+def porownaj(baza, sig, rutyna, problemy, v2=True):
     zmienione = {k for k in KLUCZE if baza.get(k) != sig.get(k)}
     for k in POLA_BOTA:
         if k in zmienione:
@@ -128,6 +132,13 @@ def porownaj(baza, sig, rutyna, problemy):
     obce = zmienione - DOZWOLONE[rutyna] - set(POLA_BOTA)
     for k in sorted(obce):
         problemy.append(f"pole {k} zmienione, a rutyna {rutyna} nie ma do niego prawa")
+    if rutyna == "puls" and v2:
+        stare = {json.dumps(e, sort_keys=True, ensure_ascii=False) for e in (baza.get("exclude") or [])}
+        for e in sig.get("exclude") or []:
+            if json.dumps(e, sort_keys=True, ensure_ascii=False) not in stare and str(e.get("basis", "cena")).lower() != "news":
+                problemy.append(f"proces v2: nowy wpis exclude musi mieć basis=\"news\" (bramka cenowa = pomiar, bez wpisów): {e}")
+        if sig.get("tactical"):
+            problemy.append("proces v2: Puls zapisuje tactical=[] (moduł taktyczny wyłączony); starsza rutyna → --v1")
     if rutyna == "sobota":
         if "epics" in zmienione:
             stare, nowe = baza.get("epics") or {}, sig.get("epics") or {}
@@ -137,8 +148,9 @@ def porownaj(baza, sig, rutyna, problemy):
             problemy.append("sobota zapisuje exclude=[] i tactical=[]")
         h0, h1 = baza.get("history") or [], sig.get("history") or []
         if "history" in zmienione:
-            if len(h1) != len(h0) + 1 or h1[:-1] != h0:
-                problemy.append("history: wolno DOPISAĆ dokładnie jeden wpis na końcu")
+            oczekiwane = (list(h0) + h1[-1:])[-26:]
+            if not h1 or h1 != oczekiwane:
+                problemy.append("history: wolno DOPISAĆ dokładnie jeden wpis na końcu (i obciąć listę do 26 OSTATNICH)")
             else:
                 brak = HISTORY_POLA - set(h1[-1].keys())
                 if brak:
@@ -160,6 +172,7 @@ def main():
     ap.add_argument("--diff", default="HEAD", help="rewizja gita z wersją bazową (domyślnie HEAD)")
     ap.add_argument("--base", help="plik JSON z wersją bazową zamiast rewizji gita")
     ap.add_argument("--plik", default="signals.json")
+    ap.add_argument("--v1", action="store_true", help="wyłącz reguły procesu v2 dla Pulsu (basis=news, tactical=[])")
     args = ap.parse_args()
 
     with open(args.plik, encoding="utf-8") as f:
@@ -177,7 +190,7 @@ def main():
             problemy.append(f"BRAK kluczy top-level: {sorted(KLUCZE - klucze)}")
     spojnosc(sig, problemy)
     baza = wczytaj_baze(args)
-    zmienione = porownaj(baza, sig, args.rutyna, problemy)
+    zmienione = porownaj(baza, sig, args.rutyna, problemy, v2=not args.v1)
 
     print(f"waliduj_signals: rutyna={args.rutyna}, baza={args.base or args.diff}, "
           f"zmienione pola: {sorted(zmienione) or 'brak'}")
