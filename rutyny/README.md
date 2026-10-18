@@ -273,3 +273,17 @@ Najważniejsze zmiany względem pierwszej wersji v2 z tego samego dnia:
   dokumentach wyłącznie jako zaokrąglone wskaźniki (CLAUDE.md —
   doprecyzowanie reguły); `PROPOZYCJA` §0/§1/§4 i `ANALIZA` §0/§1.1/§4.2/§6/§7
   spójne z kodem; `reguly.md` K2'/R3/K0/R8 doprecyzowane.
+
+### 18.10.2026 (wieczór) — zmiany w bocie (`app.py`) na polecenie właściciela
+
+„Wprowadź wszystkie niezbędne zmiany, aby zwiększyć skuteczność" → wdrożona
+specyfikacja z `PROPOZYCJA` §3 (szczegóły: `INSTRUKCJA.md` §12): stop 15 %
+LONG / 10 % SHORT bez ponownego otwarcia w tej samej wersji
+(`wykonanie.stopy`), próg miękki 10 %/5 % zamykający 2 pierwsze pary list
+(`wykonanie.soft`), ślad kill switcha i wznowienie po 14 dniach i zmianie
+`version` (`wykonanie.kill`), nowe domyślne ALLOC 0,08 / SAFE 0,04 /
+taktyczne wyłączone / `REDUCE_FALLBACK=close`, `/status` z `kill_switch`,
+`prog_miekki`, `wykonanie` i nowymi `ustawienia`. Rutyny nie zmieniają
+treści: pola, które czytają z `/status` (A9 tygodniowej, KROK 1b dziennej),
+istnieją teraz w bocie; do deployu nadal piszą „b.d." tam, gdzie pola brak.
+`waliduj_signals.py` traktuje `wykonanie` jak dotąd jako pole bota.

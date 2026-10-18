@@ -7,7 +7,9 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`signals.json`** — stan systemu: koszyki, status, reakcje dzienne,
   pozycje taktyczne, faktyczne ceny wejścia (`fills`), szczyt kapitału.
 - **`app.py`** — synchronizacja portfela z sygnałami, bramka wyzwalaczy,
-  kontrola kapitału, stopy, kill switch.
+  kontrola kapitału, stopy (od 18.10.2026: 15 % LONG / 10 % SHORT bez
+  ponownego otwarcia), próg miękki od kroczącego szczytu, kill switch ze
+  śladem i wznowieniem (`INSTRUKCJA.md` §12).
 - **`scripts/kursy.py`** — kursy zamknięcia i wyliczenie reżimu rynkowego.
 - **`scripts/test_app.py`** — testy logiki decyzyjnej (bez sieci).
 - **`reports/`** — raporty dzienne, tygodniowe i rozliczenia okresów.

@@ -215,14 +215,22 @@ poz = [{"epic": "STX", "direction": "BUY", "size": 0.1, "wejscie": 909.52},
 cap = FakeCap({"STX": 790.55, "MU": 977.5})
 trafione = app.stopy_bezpieczenstwa(poz, {}, {"STX": "STX", "MU": "MU"},
                                     cap, pusty_rep())
-sprawdz("STX -13% od wejścia przebija stop", "STX" in trafione, trafione)
+# PROCES v2 (18.10.2026): stop LONG 15% — -13% już NIE wystarcza; przy dawnym
+# progu 10% (zmienna STOP_LOSS_PCT_LONG) nadal przebija.
+sprawdz("STX -13% od wejścia NIE przebija stopu LONG 15% (v2)", "STX" not in trafione, trafione)
 sprawdz("MU na plusie nie przebija stopu", "MU" not in trafione)
+_sl = app.STOP_LOSS_PCT_LONG
+app.STOP_LOSS_PCT_LONG = 0.10
+trafione = app.stopy_bezpieczenstwa(poz, {}, {"STX": "STX", "MU": "MU"},
+                                    cap, pusty_rep())
+sprawdz("przy progu 10% (dawne ustawienie) STX -13% przebija stop", "STX" in trafione, trafione)
+app.STOP_LOSS_PCT_LONG = _sl
 
-stary = app.STOP_LOSS_PCT
-app.STOP_LOSS_PCT = 0
-sprawdz("STOP_LOSS_PCT=0 wyłącza stopy",
+_sl, _ss = app.STOP_LOSS_PCT_LONG, app.STOP_LOSS_PCT_SHORT
+app.STOP_LOSS_PCT_LONG = app.STOP_LOSS_PCT_SHORT = 0
+sprawdz("STOP_LOSS_PCT_LONG = STOP_LOSS_PCT_SHORT = 0 wyłącza stopy",
         app.stopy_bezpieczenstwa(poz, {}, {"STX": "STX"}, cap, pusty_rep()) == {})
-app.STOP_LOSS_PCT = stary
+app.STOP_LOSS_PCT_LONG, app.STOP_LOSS_PCT_SHORT = _sl, _ss
 
 # Rynek zamknięty nie generuje stopu na starej cenie.
 cap = FakeCap({"STX": 790.55}, status="CLOSED")
@@ -251,14 +259,22 @@ book, _, closed = app.desired_book(sig(), {"LITE"}, {"MU"})
 sprawdz("CLOSE usuwa pozycję z książki", "LITE" not in book)
 sprawdz("REDUCE zostawia pozycję z flagą", book["MU"]["reduced"] is True)
 
+# PROCES v2 (18.10.2026): moduł taktyczny jest domyślnie WYŁĄCZONY — testy
+# jego mechaniki włączają go jawnie, a osobny test pilnuje domyślnego stanu.
 s = sig(tactical=[{"ticker": "GNRC", "direction": "BUY", "epic": "GNRC"}])
 book, skipped, _ = app.desired_book(s, set(), set())
-sprawdz("taktyczna z własnym epic wchodzi do książki spoza uniwersum",
+sprawdz("TACTICAL_ENABLED=false (v2): taktyczna nie wchodzi do książki",
+        "GNRC" not in book and len(book) == 10, sorted(book))
+_te = app.TACTICAL_ENABLED
+app.TACTICAL_ENABLED = True
+book, skipped, _ = app.desired_book(s, set(), set())
+sprawdz("taktyczna z własnym epic wchodzi do książki spoza uniwersum (moduł włączony)",
         "GNRC" in book and book["GNRC"].get("tactical") is True, skipped)
 s = sig(tactical=[{"ticker": "GNRC", "direction": "BUY"}])
 book, skipped, _ = app.desired_book(s, set(), set())
 sprawdz("taktyczna bez epic i spoza uniwersum jest pomijana",
         "GNRC" not in book and any("GNRC" in x for x in skipped))
+app.TACTICAL_ENABLED = _te
 
 # ------------------------------------------------------------- spójność ------
 print("\nKONTROLA SPÓJNOŚCI signals.json")
@@ -435,9 +451,9 @@ sprawdz("stopa 50% ogranicza cel bardziej niz stopa 20%",
         limit_depozytowy(1041.61, 0.50, 0.26)
         < limit_depozytowy(1041.61, 0.20, 0.26))
 
-# Wartosci domyslne po podwojeniu.
-# 3.10.2026: wolumen podwojony wobec 0,12 / 0,10 ustawionych w panelu.
-sprawdz("ALLOC_PCT domyslnie 0.24", abs(app.ALLOC_PCT - 0.24) < 1e-12,
+# Wartosci domyslne: 3.10.2026 podwojenie do 0,24; 18.10.2026 (proces v2)
+# zejscie do 0,08 — analiza W1-W7: P(kill) przy 0,24 i alfie 0 to 98-100%/rok.
+sprawdz("ALLOC_PCT domyslnie 0.08 (proces v2)", abs(app.ALLOC_PCT - 0.08) < 1e-12,
         app.ALLOC_PCT)
 sprawdz("TACTICAL_ALLOC_PCT domyslnie 0.20",
         abs(app.TACTICAL_ALLOC_PCT - 0.20) < 1e-12, app.TACTICAL_ALLOC_PCT)
@@ -790,6 +806,124 @@ sprawdz("ticker bez epic liczony jako brakujący, nie wywala funkcji",
 sprawdz("pusty rachunek: wszystkie nogi brakujące, bez wyjątku",
         app.pokrycie_koszyka(sig(), [])["nogi_na_rachunku"] == 0)
 
+
+# ------------- PROCES v2 (18.10.2026): stop 15/10, pamięć stopu, próg miękki, kill ------------
+print("\nPROCES v2 — stop asymetryczny, pamięć stopu, próg miękki, ślad kill switcha")
+sprawdz("domyślne v2: ALLOC 0,08, SAFE 0,04, stop LONG 0,15 / SHORT 0,10, bez reopen, DD_SOFT 0,10/0,05, "
+        "SOFT_PARY 2, KILL_RESUME 14, ALLOC_RESTART 0,04, taktyczne wyłączone, REDUCE_FALLBACK close",
+        abs(app.ALLOC_PCT - 0.08) < 1e-12 and abs(app.ALLOC_PCT_SAFE - 0.04) < 1e-12
+        and abs(app.STOP_LOSS_PCT_LONG - 0.15) < 1e-12 and abs(app.STOP_LOSS_PCT_SHORT - 0.10) < 1e-12
+        and app.STOP_REOPEN is False and abs(app.DD_SOFT - 0.10) < 1e-12
+        and abs(app.DD_SOFT_RESET - 0.05) < 1e-12 and app.SOFT_PARY == 2
+        and app.KILL_RESUME_DAYS == 14 and abs(app.ALLOC_RESTART - 0.04) < 1e-12
+        and app.TACTICAL_ENABLED is False and app.REDUCE_FALLBACK == "close")
+poz_v2 = [{"epic": "STX", "direction": "BUY", "size": 0.1, "wejscie": 1000.0},
+          {"epic": "AMD", "direction": "BUY", "size": 0.1, "wejscie": 1000.0},
+          {"epic": "APP", "direction": "SELL", "size": 1.0, "wejscie": 100.0},
+          {"epic": "SBUX", "direction": "SELL", "size": 1.0, "wejscie": 100.0}]
+E2T_v2 = {t: t for t in ("STX", "AMD", "APP", "SBUX")}
+cap_v2 = FakeCap({"STX": 870.0, "AMD": 840.0, "APP": 112.0, "SBUX": 108.0})
+traf = app.stopy_bezpieczenstwa(poz_v2, {}, E2T_v2, cap_v2, pusty_rep())
+sprawdz("stop asymetryczny: BUY -13% nie, BUY -16% tak; SELL +12% tak, SELL +8% nie",
+        "STX" not in traf and "AMD" in traf and "APP" in traf and "SBUX" not in traf, traf)
+sprawdz("opis stopu podaje próg i stronę",
+        "STOP 15% (BUY)" in traf["AMD"] and "STOP 10% (SELL)" in traf["APP"], traf)
+_sl = app.STOP_LOSS_PCT_LONG
+app.STOP_LOSS_PCT_LONG = 0
+traf = app.stopy_bezpieczenstwa(poz_v2, {}, E2T_v2, cap_v2, pusty_rep())
+sprawdz("STOP_LOSS_PCT_LONG=0 wyłącza stop tylko dla BUY", "AMD" not in traf and "APP" in traf, traf)
+app.STOP_LOSS_PCT_LONG = _sl
+# pamięć stopu i próg miękki w książce docelowej
+book, skipped, _ = app.desired_book(sig(), set(), set(), stopped={"MU"}, soft=False)
+sprawdz("desired_book: noga zatrzymana stopem nie wraca (pominięta z opisem)",
+        "MU" not in book and any("stop w tej wersji" in x for x in skipped), skipped)
+book, skipped, _ = app.desired_book(sig(), set(), set(), soft=True)
+sprawdz("desired_book: próg miękki pomija pierwsze 2 nogi long i 2 short, zostaje 6 nóg",
+        set(book) == {"AVGO", "MRVL", "LITE", "CMCSA", "APP", "ADSK"}
+        and sum("próg miękki" in x for x in skipped) == 4, sorted(book))
+_so = app.SOFT_PARY
+app.SOFT_PARY = 0
+book, _, _ = app.desired_book(sig(), set(), set(), soft=True)
+sprawdz("SOFT_PARY=0: próg miękki nic nie zamyka", len(book) == 10)
+app.SOFT_PARY = _so
+# scal_wykonanie: stopy tylko bieżącej wersji, soft i kill nigdy nie gubione
+st = {"stopy": {"MU": {"wersja": "2026-W4", "data": "2026-10-20", "kierunek": "BUY", "opis": "x"},
+                "AMD": {"wersja": "2026-W3", "data": "2026-10-13", "kierunek": "BUY", "opis": "y"}},
+      "soft": {"aktywny": True, "od": "2026-10-19"},
+      "kill": {"data": "2026-10-01", "wersja": "2026-W2"},
+      "reakcje": {}, "taktyczne": {}}
+w5 = app.scal_wykonanie(st, {"reakcje": {}, "taktyczne": {},
+                             "stopy": {"LITE": {"wersja": "2026-W4", "data": "2026-10-21",
+                                                "kierunek": "BUY", "opis": "z"}}}, sig())
+sprawdz("scal_wykonanie: stopy = bieżąca wersja (MU) + nowy (LITE), stara wersja (AMD) znika; soft i kill przeniesione",
+        set(w5["stopy"]) == {"MU", "LITE"} and w5["soft"]["aktywny"] is True
+        and w5["kill"]["wersja"] == "2026-W2", w5)
+w6 = app.scal_wykonanie(st, {"reakcje": {}, "taktyczne": {}, "stopy": {},
+                             "soft": {"aktywny": False, "wylaczono": "2026-10-22"}}, sig(version="2026-W5"))
+sprawdz("scal_wykonanie: po rotacji stopy puste, bieżący soft nadpisuje stary",
+        w6["stopy"] == {} and w6["soft"]["aktywny"] is False, w6)
+w7 = app.scal_wykonanie({"reakcje": {}, "taktyczne": {}}, {"reakcje": {}, "taktyczne": {}, "stopy": {}}, sig())
+sprawdz("scal_wykonanie: bez stopów/soft/kill nie dopisuje kluczy (brak zbędnego commitu)",
+        "stopy" not in w7 and "soft" not in w7 and "kill" not in w7, w7)
+# histereza progu miękkiego
+ak, wpis = app.stan_progu_miekkiego(None, 0.09, "2026-10-20", "2026-W9")
+sprawdz("próg miękki: dd 9% < 10% → nieaktywny, bez wpisu", ak is False and wpis is None)
+ak, wpis = app.stan_progu_miekkiego(None, 0.11, "2026-10-20", "2026-W9")
+sprawdz("próg miękki: dd 11% → włączony z wpisem",
+        ak is True and wpis["aktywny"] and wpis["dd_start"] == 0.11 and wpis["pary"] == 2, wpis)
+ak, wpis2 = app.stan_progu_miekkiego(wpis, 0.07, "2026-10-21", "2026-W9")
+sprawdz("próg miękki: dd 7% (między 5 a 10) → zostaje włączony, bez nowego wpisu", ak is True and wpis2 is None)
+ak, wpis3 = app.stan_progu_miekkiego(wpis, 0.04, "2026-10-22", "2026-W9")
+sprawdz("próg miękki: dd 4% < 5% → wyłączony z wpisem",
+        ak is False and wpis3["aktywny"] is False and wpis3["wylaczono"] == "2026-10-22", wpis3)
+_dd = app.DD_SOFT
+app.DD_SOFT = 0
+ak, wpis4 = app.stan_progu_miekkiego(wpis, 0.3, "2026-10-22", "2026-W9")
+sprawdz("DD_SOFT=0: aktywny próg zostaje wyłączony, nieaktywny bez wpisu",
+        ak is False and wpis4["aktywny"] is False
+        and app.stan_progu_miekkiego(None, 0.3, "2026-10-22", "2026-W9") == (False, None))
+app.DD_SOFT = _dd
+# wznowienie po kill switchu
+ki = {"data": "2026-10-20", "wersja": "2026-W9", "szczyt": 1.0, "prog": 0.75, "kapital": 0.74}
+sprawdz("wznowienie: za wcześnie (13 dni) → nie", app.decyzja_wznowienia(ki, "2026-W11", "2026-11-02")[0] is False)
+sprawdz("wznowienie: 14 dni, ale ta sama wersja → nie", app.decyzja_wznowienia(ki, "2026-W9", "2026-11-03")[0] is False)
+wz, ki2 = app.decyzja_wznowienia(ki, "2026-W11", "2026-11-03")
+sprawdz("wznowienie: 14 dni i nowa wersja → tak; wpis dostaje wznowiono/wersja_wznowienia/dni_plasko",
+        wz is True and ki2["wznowiono"] == "2026-11-03" and ki2["wersja_wznowienia"] == "2026-W11"
+        and ki2["dni_plasko"] == 14 and "wznowiono" not in ki, ki2)
+sprawdz("wznowienie: wpis już wznowiony nie wznawia ponownie", app.decyzja_wznowienia(ki2, "2026-W12", "2026-12-01")[0] is False)
+sprawdz("wznowienie: brak śladu kill → nie", app.decyzja_wznowienia(None, "2026-W12", "2026-12-01") == (False, {}))
+_kr = app.KILL_RESUME_DAYS
+app.KILL_RESUME_DAYS = 0
+sprawdz("KILL_RESUME_DAYS=0 wyłącza wznowienie", app.decyzja_wznowienia(ki, "2026-W11", "2026-12-03")[0] is False)
+app.KILL_RESUME_DAYS = _kr
+# pokrycie_koszyka: zatrzymane stopem i próg miękki nie są „brakujące"
+s_v2 = sig(version="2026-W9",
+           wykonanie={"stopy": {"MU": {"wersja": "2026-W9", "data": "2026-10-20", "kierunek": "BUY", "opis": "x"},
+                                "AMD": {"wersja": "2026-W8", "data": "2026-10-13", "kierunek": "BUY", "opis": "y"}},
+                      "soft": {"aktywny": True}})
+pk2 = app.pokrycie_koszyka(s_v2, [{"epic": "AVGO", "direction": "BUY", "size": 0.1},
+                                  {"epic": "MRVL", "direction": "BUY", "size": 0.1},
+                                  {"epic": "LITE", "direction": "BUY", "size": 0.1},
+                                  {"epic": "CMCSA", "direction": "SELL", "size": 1},
+                                  {"epic": "APP", "direction": "SELL", "size": 1},
+                                  {"epic": "ADSK", "direction": "SELL", "size": 1}])
+sprawdz("pokrycie v2: MU zatrzymany (ta wersja), MU/AMD i INTU/SBUX zamknięte progiem miękkim — nie brakujące; AMD ze starej wersji nie jest zatrzymany",
+        pk2["zatrzymane_stopem"] == ["MU"] and pk2["zamkniete_progiem_miekkim"] == ["AMD", "MU"]
+        and pk2["nogi_koszyka"] == 3 and pk2["brakujace"] == []
+        and pk2["short"]["zamkniete_progiem_miekkim"] == ["INTU", "SBUX"] and pk2["short"]["brakujace"] == []
+        and pk2["prog_miekki_aktywny"] is True, pk2)
+pk_smieci = app.pokrycie_koszyka(sig(version="2026-W9", wykonanie={"stopy": ["MU"], "soft": "tak", "kill": 5}), [])
+sprawdz("śmieci w wykonanie (lista/tekst/liczba) nie wywracają pokrycia ani scalania ani decyzji",
+        pk_smieci["zatrzymane_stopem"] == [] and pk_smieci["prog_miekki_aktywny"] is False
+        and app.scal_wykonanie({"stopy": ["MU"], "soft": "tak", "kill": 5, "reakcje": {}, "taktyczne": {}},
+                               {"reakcje": {}, "taktyczne": {}, "stopy": {}}, sig()).get("soft") is None
+        and app.decyzja_wznowienia("x", "2026-W9", "2026-11-01") == (False, {})
+        and app.stan_progu_miekkiego(["x"], 0.2, "2026-11-01", "2026-W9")[0] is True)
+pk3 = app.pokrycie_koszyka(sig(version="2026-W9", wykonanie={"stopy": {"MU": {"wersja": "2026-W9"}}}), [])
+sprawdz("pokrycie v2: bez progu miękkiego i z 1 stopem — 4 nogi LONG brakujące, MU osobno",
+        pk3["nogi_koszyka"] == 4 and len(pk3["brakujace"]) == 4 and pk3["zatrzymane_stopem"] == ["MU"]
+        and pk3["prog_miekki_aktywny"] is False, pk3)
 
 # -------------------------------------------- walidator i tv_porownaj -------
 print("\nWALIDATOR signals.json I SKRYPT PORÓWNAWCZY TV (bez sieci)")

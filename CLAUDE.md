@@ -198,13 +198,23 @@ obie rutyny, edytowany tylko commitem właściciela). Materiał dowodowy:
 - **Pliki dopuszczone w commitach rutyn** (uzupełnienie): sobota — także
   `data/ranking-<version>.json` i `data/koszyki-cienie.jsonl`; żaden plik
   w `data/` nie zawiera liczb z rachunku.
-- **Bot (`app.py`) nie został zmieniony w tej gałęzi.** Specyfikacja zmian
-  (stop 15 % LONG / 10 % SHORT bez ponownego otwarcia, próg miękki od
-  kroczącego szczytu, ślad kill switcha i polityka wznowienia; nowe podklucze
-  `wykonanie.stopy/soft/kill` są POLAMI BOTA, rutyny ich nie piszą) jest
-  w PROPOZYCJI §3 — wymaga decyzji właściciela, testów i deployu. Do deployu
-  rutyny opisują stan faktyczny bota (10 %, ponowne otwarcie) i czytają
-  `ustawienia` z `/status`, nie z pamięci.
+- **Bot (`app.py`) — zmiany v2 WDROŻONE w tej gałęzi (18.10.2026, polecenie
+  właściciela „wprowadź wszystkie niezbędne zmiany")**, aktywne po deployu
+  na Renderze: stop 15 % LONG / 10 % SHORT (`STOP_LOSS_PCT_LONG/SHORT`) bez
+  ponownego otwarcia w tej samej wersji (`STOP_REOPEN=false`, pamięć w
+  `wykonanie.stopy`), próg miękki od kroczącego szczytu (`DD_SOFT=0.10`,
+  `DD_SOFT_RESET=0.05`, `SOFT_PARY=2` — zamyka pierwsze 2 pary list, stan
+  w `wykonanie.soft`), ślad kill switcha (`wykonanie.kill`) i wznowienie po
+  `KILL_RESUME_DAYS=14` dniach i zmianie `version` (szczyt := kapitał bez
+  podłogi START_EQUITY, koszyk wznowienia z `ALLOC_RESTART=0.04`); nowe
+  domyślne: `ALLOC_PCT=0.08`, `ALLOC_PCT_SAFE=0.04`, `TACTICAL_ENABLED=false`,
+  `REDUCE_FALLBACK=close`. Zmienne w Renderze mają pierwszeństwo — jeśli
+  `ALLOC_PCT=0.24` jest tam ustawione jawnie, trzeba je zmienić ręcznie.
+  Podklucze `wykonanie.stopy/soft/kill` są POLAMI BOTA — rutyny ich nie
+  piszą, tylko czytają. `/status` zwraca dodatkowo `kill_switch` (próg,
+  `zapas_pct`, obsunięcie, ślad), `prog_miekki`, `wykonanie` i nowe pola
+  `ustawienia`. Do deployu rutyny czytają stan faktyczny bota z `/status`
+  (`ustawienia`), nie z pamięci.
 - **Zmienne Rendera z decyzji 18.10** (ustawia właściciel; rutyny ich nie
   dotykają): `ALLOC_PCT=0.08`, `ALLOC_PCT_SAFE=0.04`, `TACTICAL_ENABLED=false`,
   `TACTICAL_ALLOC_PCT=0`, `REDUCE_FALLBACK=close`, `START_EQUITY=<kapitał>`

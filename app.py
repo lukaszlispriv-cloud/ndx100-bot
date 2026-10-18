@@ -122,11 +122,19 @@ DRY_RUN          = os.environ.get("DRY_RUN", "true").lower() == "true"
 # PODWOJENIE WOLUMENU (decyzja właściciela, 3.10.2026): 0,12 -> 0,24 na
 # pozycję koszykową i 0,10 -> 0,20 na taktyczną. Zmienna ALLOC_PCT ustawiona
 # w panelu Render ma pierwszeństwo przed tą wartością domyślną.
-ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.24"))
+# PROCES v2 (decyzja właściciela 18.10.2026, rutyny/PROPOZYCJA-2026-10-18-
+# proces-v2.md §0–§1): analiza W1–W7 wykazała, że sizing 0,24 (gross 240%)
+# przy zerowej alfie daje P(kill switch −25%) 51–65% w 12 tygodni i 98–100%
+# w roku. Domyślnie 0,08 (gross 80%); zmiana krokiem ≤ 0,02 na 4 tygodnie.
+# Zmienna ALLOC_PCT w panelu Render NADAL ma pierwszeństwo — jeśli jest tam
+# ustawiona na 0.24, trzeba ją zmienić ręcznie.
+ALLOC_PCT        = float(os.environ.get("ALLOC_PCT", "0.08"))
 # Wielkość awaryjna: używana, gdy KONTROLA KAPITAŁU nie przechodzi (na
 # rachunku są pozycje spoza książki albo equity nie zgadza się z sumą upl).
 # Nie skalujemy pozycji na portfelu, którego nie potrafimy odtworzyć.
-ALLOC_PCT_SAFE   = float(os.environ.get("ALLOC_PCT_SAFE", "0.10"))
+# 18.10.2026: 0,10 -> 0,04 (połowa ALLOC_PCT v2; wcześniej "awaryjna"
+# wielkość 0,10 była WIĘKSZA niż normalna 0,08).
+ALLOC_PCT_SAFE   = float(os.environ.get("ALLOC_PCT_SAFE", "0.04"))
 # LIMIT DEPOZYTOWY: jaka część kapitału może być najwyżej zamrożona
 # w depozycie zabezpieczającym. 0,60 zostawia 40% kapitału jako bufor
 # przed wezwaniem do uzupełnienia depozytu. Stopę depozytu bot wylicza
@@ -193,7 +201,10 @@ WEB_MAX_DAILY     = int(os.environ.get("WEB_MAX_DAILY", "8"))
 WEB_MAX_WEEKLY    = int(os.environ.get("WEB_MAX_WEEKLY", "30"))
 
 # --- Moduł taktyczny: dokładki w środku tygodnia (rozliczane OSOBNO)
-TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "true").lower() == "true"
+# 18.10.2026 (proces v2): moduł taktyczny WYŁĄCZONY domyślnie — 4 pozycje
+# w historii, 20% kapitału na nogę bez dowodu; reguła H2 z rutyny/reguly.md
+# czeka na test przekrojowy. Zmienna w Render ma pierwszeństwo.
+TACTICAL_ENABLED   = os.environ.get("TACTICAL_ENABLED", "false").lower() == "true"
 TACTICAL_ALLOC_PCT = float(os.environ.get("TACTICAL_ALLOC_PCT", "0.20"))
 TACTICAL_MAX       = int(os.environ.get("TACTICAL_MAX", "2"))
 REDUCE_FACTOR      = float(os.environ.get("REDUCE_FACTOR", "0.5"))
@@ -211,11 +222,42 @@ REACT_CLOSE_PCT  = float(os.environ.get("REACT_CLOSE_PCT", "0.08"))
 # Co zrobić, gdy minimalna wielkość transakcji przekracza cel po redukcji
 # (np. MU: cel 55 USD, minimum 0,1 akcji = 98 USD): "keep" zostawia pełną
 # pozycję i zgłasza to w "pominiete", "close" zamyka ją w całości.
-REDUCE_FALLBACK  = os.environ.get("REDUCE_FALLBACK", "keep").lower()
+# 18.10.2026: domyślnie "close" — przy ALLOC 0,08 i locie 0,1 akcji REDUCE
+# per noga jest niewykonalny dla spółek > ~600 USD, a "keep" zostawiał pełną
+# pozycję wbrew wpisowi (STX 2.10.2026).
+REDUCE_FALLBACK  = os.environ.get("REDUCE_FALLBACK", "close").lower()
 # Twardy stop bezpieczeństwa liczony od ceny wejścia, niezależny od logiki
 # tygodniowej (STX: -13% w cztery sesje bez żadnej reakcji, bo próg 4-8%
 # mierzono od D0, a pozycja weszła już po D0). 0 = wyłączony.
 STOP_LOSS_PCT    = float(os.environ.get("STOP_LOSS_PCT", "0.10"))
+# --- PROCES v2 (18.10.2026): stop asymetryczny, pamięć stopu, próg miękki,
+#     ślad kill switcha i polityka wznowienia (PROPOZYCJA §3.1–3.3).
+# STOP ASYMETRYCZNY: weryfikacja C3 — stop 10% na nogach LONG kosztował
+# −0,23 p.p./tydz. (t −2,3), na SHORT był neutralny. LONG 15%, SHORT 10%.
+# Kotwica bez zmian (poziom brokera, potem cena tezy z fills) — wariant
+# z kotwicą w cenie tezy wypadł gorzej. 0 = stop wyłączony dla tej strony.
+STOP_LOSS_PCT_LONG  = float(os.environ.get("STOP_LOSS_PCT_LONG",
+                                           "0.15" if STOP_LOSS_PCT > 0 else "0"))
+STOP_LOSS_PCT_SHORT = float(os.environ.get("STOP_LOSS_PCT_SHORT", str(STOP_LOSS_PCT)))
+# PAMIĘĆ STOPU: po stopie noga NIE wraca w tej samej wersji koszyka (ponowne
+# otwarcie w kolejnym biegu = drugi spread bez sygnału; wpis w
+# wykonanie.stopy[ticker], rotacja czyści). true = dawne zachowanie.
+STOP_REOPEN      = os.environ.get("STOP_REOPEN", "false").lower() == "true"
+# PRÓG MIĘKKI od kroczącego szczytu: obsunięcie > DD_SOFT → bot zamyka
+# SOFT_PARY pierwszych nóg z long i z short (rutyna porządkuje listy od pary
+# o najwyższej σ60) i trzyma je zamknięte, aż obsunięcie spadnie poniżej
+# DD_SOFT_RESET. Symulacja (sędzia 3): P(kill 52 tyg., alfa 0) 8% → <1%.
+# Zamyka całe pozycje (wykonalne lotami), nie połowi. 0 = wyłączony.
+DD_SOFT          = float(os.environ.get("DD_SOFT", "0.10"))
+DD_SOFT_RESET    = float(os.environ.get("DD_SOFT_RESET", "0.05"))
+SOFT_PARY        = int(os.environ.get("SOFT_PARY", "2"))
+# ŚLAD KILL SWITCHA I WZNOWIENIE: dotąd po kill bot stał bezterminowo bez
+# śladu w pliku, a wznowienie wymagało ręcznej edycji pola bota. Teraz kill
+# zapisuje wykonanie.kill; po KILL_RESUME_DAYS dniach I zmianie version bot
+# wznawia: szczyt := kapitał (bez podłogi START_EQUITY), a koszyk wersji
+# wznowienia dostaje ALLOC ≤ ALLOC_RESTART. 0 = bez automatycznego wznowienia.
+KILL_RESUME_DAYS = int(os.environ.get("KILL_RESUME_DAYS", "14"))
+ALLOC_RESTART    = float(os.environ.get("ALLOC_RESTART", "0.04"))
 # Zapis faktycznych cen wejścia do signals.json (pole "fills") — źródło
 # prawdy dla bramki wyzwalaczy i dla raportu dziennego.
 WRITE_FILLS      = os.environ.get("WRITE_FILLS", "true").lower() == "true"
@@ -897,6 +939,12 @@ def calc_size(cap, target_acc, epic, acc_ccy):
     return size, m, "ok"
 
 
+def _slownik(x):
+    """Pole bota odczytane z pliku może być zepsute ręczną edycją — śmieci
+    (lista, tekst, None) traktujemy jak pusty słownik, żeby nie wywrócić biegu."""
+    return x if isinstance(x, dict) else {}
+
+
 def scal_wykonanie(stare, biezace, sig):
     """Łączy stan wykonania z bieżącego biegu z zapisanym w signals.json.
 
@@ -923,6 +971,22 @@ def scal_wykonanie(stare, biezace, sig):
                 wynik[klucz][t] = poprzednie[t]
             elif nowy:
                 wynik[klucz][t] = nowy
+    # PROCES v2 (18.10.2026): pamięć stopów (tylko bieżąca wersja koszyka —
+    # rotacja czyści), stan progu miękkiego i ślad kill switcha (nigdy nie
+    # gubione; bieżący bieg ma pierwszeństwo).
+    wersja = str(sig.get("version") or "")
+    stare_stopy = _slownik((stare or {}).get("stopy"))
+    stopy = {t: info for t, info in stare_stopy.items()
+             if isinstance(info, dict) and str(info.get("wersja")) == wersja}
+    stopy.update(_slownik((biezace or {}).get("stopy")))
+    if stopy or (stare or {}).get("stopy") is not None:
+        wynik["stopy"] = stopy
+    for klucz in ("soft", "kill"):
+        wartosc = (biezace or {}).get(klucz)
+        if not isinstance(wartosc, dict):
+            wartosc = (stare or {}).get(klucz)
+        if isinstance(wartosc, dict):
+            wynik[klucz] = wartosc
     if stare and stare.get("aktualizacja"):
         wynik["aktualizacja"] = stare["aktualizacja"]
     return wynik
@@ -1147,6 +1211,19 @@ def pokrycie_koszyka(sig, positions):
                  if e.get("action", "CLOSE") == "CLOSE"}
     zredukowane = {e.get("ticker") for e in sig.get("exclude", [])
                    if e.get("action") == "REDUCE"}
+    # PROCES v2: noga zatrzymana stopem w tej wersji (wykonanie.stopy) i nogi
+    # zamknięte progiem miękkim (wykonanie.soft.aktywny → pierwsze SOFT_PARY
+    # z każdej listy) nie są „brakujące" — to decyzje bota, widoczne osobno.
+    wyk = _slownik(sig.get("wykonanie"))
+    wersja = str(sig.get("version") or "")
+    zatrzymane = {t for t, info in _slownik(wyk.get("stopy")).items()
+                  if isinstance(info, dict) and str(info.get("wersja")) == wersja}
+    soft_aktywny = bool(_slownik(wyk.get("soft")).get("aktywny")) and DD_SOFT > 0
+    soft_t = set()
+    if soft_aktywny:
+        soft_t = set(list(sig.get("long", []))[:SOFT_PARY])
+        if HEDGE_MODE == "classic":
+            soft_t |= set(list(sig.get("short", []))[:SOFT_PARY])
     na_rachunku = {}
     for p in positions:
         na_rachunku.setdefault(p.get("epic"), []).append(p)
@@ -1154,7 +1231,7 @@ def pokrycie_koszyka(sig, positions):
     def noga(tickery, kierunek):
         nogi, brak = [], []
         for t in tickery:
-            if t in zamkniete:
+            if t in zamkniete or t in zatrzymane or t in soft_t:
                 continue
             epic = (epics.get(t) or "").strip()
             if not epic or epic.upper().startswith("UZUP"):
@@ -1171,11 +1248,16 @@ def pokrycie_koszyka(sig, positions):
                 "wykluczone_przez_puls": sorted(t for t in tickery
                                                 if t in zamkniete),
                 "zredukowane_przez_puls": sorted(t for t in tickery
-                                                 if t in zredukowane)}
+                                                 if t in zredukowane),
+                "zatrzymane_stopem": sorted(t for t in tickery
+                                            if t in zatrzymane),
+                "zamkniete_progiem_miekkim": sorted(t for t in tickery
+                                                    if t in soft_t)}
 
     wynik = noga(sig.get("long", []), "BUY")
     wynik["short"] = (noga(sig.get("short", []), "SELL")
                       if HEDGE_MODE == "classic" else None)
+    wynik["prog_miekki_aktywny"] = soft_aktywny
     koszyk = {(epics.get(t) or "").strip()
               for t in list(sig.get("long", [])) + list(sig.get("short", []))}
     taktyczne = {(t.get("epic") or epics.get(t.get("ticker"), "") or "").strip()
@@ -1288,13 +1370,22 @@ def bramka_reakcji(sig, cap, fills, rep):
 
 
 def stopy_bezpieczenstwa(positions, fills, epic2tic, cap, rep):
-    """Zwraca epic-i pozycji, które przebiły twardy stop od ceny wejścia."""
+    """Zwraca epic-i pozycji, które przebiły twardy stop od ceny wejścia.
+
+    PROCES v2 (18.10.2026): próg zależy od strony — STOP_LOSS_PCT_LONG dla
+    BUY, STOP_LOSS_PCT_SHORT dla SELL (0 = strona bez stopu). Kotwica bez
+    zmian: poziom otwarcia u brokera, a gdy go brak — cena tezy z fills.
+    """
     trafione = {}
-    if STOP_LOSS_PCT <= 0:
+    progi = {"BUY": STOP_LOSS_PCT_LONG, "SELL": STOP_LOSS_PCT_SHORT}
+    if all(v <= 0 for v in progi.values()):
         return trafione
     for p in positions:
         t = epic2tic.get(p["epic"])
         if not t:
+            continue
+        prog = progi.get(p.get("direction"), 0)
+        if prog <= 0:
             continue
         wejscie = p.get("wejscie") or (fills.get(t) or {}).get("cena")
         m = None
@@ -1305,14 +1396,69 @@ def stopy_bezpieczenstwa(positions, fills, epic2tic, cap, rep):
         if not m["mid"] or m["status"] != RYNEK_OTWARTY:
             continue
         ruch = ruch_przeciw_tezie(p["direction"], wejscie, m["mid"])
-        if ruch is not None and ruch >= STOP_LOSS_PCT:
-            trafione[p["epic"]] = (f"STOP {STOP_LOSS_PCT * 100:.0f}%: "
+        if ruch is not None and ruch >= prog:
+            trafione[p["epic"]] = (f"STOP {prog * 100:.0f}% ({p['direction']}): "
                                    f"{t} {ruch * 100:.1f}% pod ceną wejścia "
                                    f"{wejscie:.2f}")
     return trafione
 
 
-def desired_book(sig, closed=None, reduced=None):
+def decyzja_wznowienia(kill_info, wersja, dzis):
+    """PROCES v2: czy ten bieg wznawia handel po kill switchu.
+
+    Warunki (PROPOZYCJA §3.3): jest ślad `wykonanie.kill` bez "wznowiono",
+    minęło ≥ KILL_RESUME_DAYS dni od kill i `version` jest inna niż przy kill
+    (nowy koszyk z soboty). Zwraca (wznowienie, kill_info_po) — kopia wpisu
+    z polami wznowiono / wersja_wznowienia / dni_plasko, gdy wznawiamy.
+    """
+    info = dict(_slownik(kill_info))
+    if not info or info.get("wznowiono") or KILL_RESUME_DAYS <= 0:
+        return False, info
+    try:
+        dni = (date.fromisoformat(str(dzis)[:10])
+               - date.fromisoformat(str(info.get("data"))[:10])).days
+    except (TypeError, ValueError):
+        return False, info
+    if dni >= KILL_RESUME_DAYS and str(wersja) != str(info.get("wersja") or ""):
+        info.update({"wznowiono": str(dzis)[:10], "wersja_wznowienia": str(wersja),
+                     "dni_plasko": dni})
+        return True, info
+    return False, info
+
+
+def stan_progu_miekkiego(soft_stary, dd, dzis, wersja):
+    """PROCES v2: histereza progu miękkiego (PROPOZYCJA §3.2).
+
+    dd = obsunięcie od odniesienia kill switcha (0,11 = 11%). Włącza się,
+    gdy dd > DD_SOFT; wyłącza, gdy dd < DD_SOFT_RESET; między progami
+    trzyma poprzedni stan. Zwraca (aktywny, nowy_wpis albo None, gdy stan
+    się nie zmienił — wtedy nic nie zapisujemy, żeby nie robić commitów).
+    """
+    stary = dict(_slownik(soft_stary))
+    aktywny = bool(stary.get("aktywny"))
+    if DD_SOFT <= 0:
+        if aktywny:
+            return False, dict(stary, aktywny=False, wylaczono=str(dzis)[:10],
+                               uwaga="DD_SOFT=0")
+        return False, None
+    if not aktywny and dd > DD_SOFT:
+        return True, {"aktywny": True, "od": str(dzis)[:10], "dd_start": round(dd, 4),
+                      "wersja": str(wersja), "pary": SOFT_PARY}
+    if aktywny and dd < DD_SOFT_RESET:
+        return False, dict(stary, aktywny=False, wylaczono=str(dzis)[:10],
+                           dd_koniec=round(dd, 4))
+    return aktywny, None
+
+
+def desired_book(sig, closed=None, reduced=None, stopped=None, soft=False):
+    """Książka docelowa: epic -> {direction, ticker, reduced|tactical}.
+
+    PROCES v2 (18.10.2026): `stopped` = tickery zatrzymane stopem w tej
+    wersji (bez ponownego otwarcia, gdy STOP_REOPEN=false); `soft=True` =
+    próg miękki aktywny — pomijamy pierwsze SOFT_PARY nogi z long i z short
+    (rutyna porządkuje listy od pary o najwyższej σ60). Pozycje taktyczne
+    nie podlegają progowi miękkiemu.
+    """
     book, skipped = {}, []
     if closed is None:
         closed = {e.get("ticker") for e in sig.get("exclude", [])
@@ -1320,6 +1466,12 @@ def desired_book(sig, closed=None, reduced=None):
     if reduced is None:
         reduced = {e.get("ticker") for e in sig.get("exclude", [])
                    if e.get("action") == "REDUCE"}
+    stopped = set(stopped or ())
+    soft_t = set()
+    if soft and SOFT_PARY > 0:
+        soft_t = set(list(sig["long"])[:SOFT_PARY])
+        if HEDGE_MODE == "classic":
+            soft_t |= set(list(sig["short"])[:SOFT_PARY])
     pary = [(t, "BUY") for t in sig["long"]]
     if HEDGE_MODE == "classic":
         pary += [(t, "SELL") for t in sig["short"]]
@@ -1329,6 +1481,13 @@ def desired_book(sig, closed=None, reduced=None):
                           if HEDGE_MODE == "index" else "tryb long-only"))
     for ticker, direction in pary:
         if ticker in closed:
+            continue
+        if ticker in stopped:
+            skipped.append(f"{ticker} (stop w tej wersji — bez ponownego otwarcia)")
+            continue
+        if ticker in soft_t:
+            skipped.append(f"{ticker} (próg miękki — para zamknięta do czasu "
+                           f"powrotu obsunięcia poniżej {DD_SOFT_RESET * 100:.0f}%)")
             continue
         epic = sig["epics"].get(ticker, "")
         if not epic or epic.upper().startswith("UZUP"):
@@ -1433,6 +1592,39 @@ def sync():
     fills = ceny_wejscia(sig, positions, epic2tic)
     rep["ceny_wejscia"] = fills
 
+    # WYKONANIE SYGNAŁÓW - zapisywane do signals.json, żeby rutyny wiedziały,
+    # co naprawdę stało się na rachunku. Rozliczenie W5 (3.10.2026) wpisało
+    # do history wynik taktycznych -1,72 p.p. i reakcji +1,05 p.p., choć VICR
+    # i ACN nigdy nie zostały otwarte, a REDUCE na STX się nie wykonał.
+    # PROCES v2: także pamięć stopów ("stopy"), stan progu miękkiego ("soft")
+    # i ślad kill switcha ("kill") — wszystko to POLA BOTA.
+    wyk_stare = _slownik(sig.get("wykonanie"))
+    wykonanie = {"reakcje": {}, "taktyczne": {}, "stopy": {}}
+    dzis = date.today().isoformat()
+    wersja_sig = str(sig.get("version") or "")
+
+    # WZNOWIENIE PO KILL SWITCHU (PROPOZYCJA §3.3): wpis wykonanie.kill bez
+    # "wznowiono", minęło KILL_RESUME_DAYS dni i version się zmieniła →
+    # szczyt := kapitał (bez podłogi START_EQUITY), koszyk wersji wznowienia
+    # dostaje ALLOC ≤ ALLOC_RESTART. Bez tej ścieżki bot po kill stał
+    # bezterminowo, a wznowienie wymagało ręcznej edycji pola bota.
+    wznowienie, kill_info = decyzja_wznowienia(wyk_stare.get("kill"), wersja_sig, dzis)
+    if wznowienie:
+        wykonanie["kill"] = kill_info
+        rep["akcje"].append(
+            f"WZNOWIENIE po kill switchu z {kill_info.get('data')}: "
+            f"{kill_info.get('dni_plasko')} dni płasko, nowa wersja {wersja_sig} — "
+            f"szczyt := kapitał, ALLOC ≤ {ALLOC_RESTART}")
+    if (ALLOC_RESTART > 0 and kill_info.get("wznowiono")
+            and str(kill_info.get("wersja_wznowienia")) == wersja_sig
+            and alloc > ALLOC_RESTART):
+        alloc = ALLOC_RESTART
+        rep["alloc_pct"] = alloc
+        rep["alloc_restart"] = {"wersja": wersja_sig, "alloc": ALLOC_RESTART}
+        rep["pominiete"].append(
+            f"koszyk wersji wznowienia {wersja_sig}: ALLOC ograniczony do "
+            f"ALLOC_RESTART={ALLOC_RESTART}")
+
     # WIEK KOSZYKA. Prognoza jest tygodniowa i rotacja ma przychodzić
     # w sobotę. Gdy rutyna tygodniowa nie wystartuje, nic tego nie zgłasza:
     # bot handluje dalej starym koszykiem, a reguła "raz zredukowana zostaje
@@ -1486,14 +1678,25 @@ def sync():
     # rozluźniał się z każdym zarobionym dolarem (kapitał 1104 USD, próg
     # 750 USD = dopuszczalne obsunięcie -32% zamiast deklarowanych -25%).
     szczyt = float(sig.get("equity_peak") or 0) or START_EQUITY
+    if wznowienie:
+        szczyt = equity          # restart: nowy cykl liczony od dzisiejszego kapitału
     if KILL_TRAILING and equity > szczyt:
         szczyt = equity
-    odniesienie = max(szczyt, START_EQUITY) if KILL_TRAILING else START_EQUITY
+    # Podłoga START_EQUITY chroni start (brak zapisanego szczytu). Po
+    # wznowieniu po kill switchu podłoga znika — inaczej reset szczytu dawałby
+    # poduszkę 11% zamiast 25% (weryfikacja C9) i wznowienie byłoby fikcją.
+    podloga = 0.0 if kill_info.get("wznowiono") else START_EQUITY
+    odniesienie = max(szczyt, podloga) if KILL_TRAILING else START_EQUITY
     prog_kill = odniesienie * KILL_LEVEL
     rep["kill_switch"] = {"odniesienie": round(odniesienie, 2),
                           "prog": round(prog_kill, 2),
                           "kapital": round(equity, 2),
-                          "kroczacy": KILL_TRAILING}
+                          "zapas_pct": (round((equity - prog_kill) / equity * 100, 2)
+                                        if equity else None),
+                          "kroczacy": KILL_TRAILING,
+                          "podloga_start_equity": bool(podloga),
+                          "wznowienie_w_tym_biegu": wznowienie,
+                          "slad": kill_info or None}
     if equity < prog_kill:
         for p in positions:
             do_close(p, "KILL SWITCH")
@@ -1501,6 +1704,26 @@ def sync():
                f"poniżej progu {prog_kill:.2f} (szczyt {odniesienie:.2f}). "
                f"Wszystko zamknięte, handel wstrzymany.")
         rep["akcje"].append("KILL SWITCH aktywny — handel wstrzymany.")
+        # ŚLAD KILL SWITCHA (raz; kolejne biegi nie nadpisują, dopóki nie
+        # było wznowienia). Bez niego nikt poza logiem Rendera nie wiedział,
+        # kiedy i przy jakim progu bot stanął.
+        if not kill_info or kill_info.get("wznowiono"):
+            nowy_kill = {"data": dzis, "wersja": wersja_sig,
+                         "szczyt": round(odniesienie, 2), "prog": round(prog_kill, 2),
+                         "kapital": round(equity, 2)}
+            rep["kill_switch"]["slad"] = nowy_kill
+            if not DRY_RUN:
+                try:
+                    wyk = dict(wyk_stare)
+                    wyk["kill"] = nowy_kill
+                    wyk["aktualizacja"] = dzis
+                    sig["wykonanie"] = wyk
+                    if KILL_TRAILING:
+                        sig["equity_peak"] = round(szczyt, 2)
+                    save_signals(sig, sig_sha, "bot: kill switch — ślad w wykonanie.kill")
+                    rep["zapis_kill"] = nowy_kill
+                except Exception as e:
+                    rep["pominiete"].append(f"zapis śladu kill switcha pominięty: {e}")
         return rep
 
     if sig["status"].upper().startswith("NIEAKT"):
@@ -1509,11 +1732,44 @@ def sync():
         rep["akcje"].append("Status NIEAKTUALNA — portfel płasko do nowych sygnałów.")
         return rep
 
+    # PRÓG MIĘKKI od kroczącego szczytu (PROPOZYCJA §3.2): między stopem nogi
+    # a kill switchem −25% nie było nic. Obsunięcie > DD_SOFT → zamykamy
+    # SOFT_PARY pierwszych nóg z każdej listy (najwyższa σ60) i trzymamy je
+    # zamknięte, aż obsunięcie spadnie poniżej DD_SOFT_RESET (histereza).
+    dd = (1.0 - equity / odniesienie) if odniesienie > 0 else 0.0
+    soft_aktywny, soft_nowy = stan_progu_miekkiego(wyk_stare.get("soft"), dd, dzis, wersja_sig)
+    if soft_nowy is not None:
+        wykonanie["soft"] = soft_nowy
+        rep["akcje"].append(
+            f"PRÓG MIĘKKI włączony: obsunięcie {dd * 100:.1f}% od szczytu "
+            f"> {DD_SOFT * 100:.0f}% — pierwsze {SOFT_PARY} pary zamknięte"
+            if soft_aktywny else
+            f"PRÓG MIĘKKI wyłączony: obsunięcie {dd * 100:.1f}% "
+            f"< {DD_SOFT_RESET * 100:.0f}% — pełny koszyk")
+    rep["prog_miekki"] = {"dd_od_szczytu_pct": round(dd * 100, 2),
+                          "prog_pct": DD_SOFT * 100, "reset_pct": DD_SOFT_RESET * 100,
+                          "aktywny": soft_aktywny,
+                          "pary_zamkniete": SOFT_PARY if soft_aktywny else 0}
+
+    # PAMIĘĆ STOPÓW: noga zatrzymana w tej wersji nie wraca (STOP_REOPEN=false).
+    zatrzymane = {}
+    if not STOP_REOPEN:
+        zatrzymane = {t: info for t, info in _slownik(wyk_stare.get("stopy")).items()
+                      if isinstance(info, dict) and str(info.get("wersja")) == wersja_sig}
+        wykonanie["stopy"].update(zatrzymane)
+    rep["zatrzymane_stopem"] = sorted(zatrzymane)
+
     # BRAMKA WYZWALACZY: wpisy cenowe pulsu liczą ruch od D0, a pozycja
     # bywa otwarta kilka sesji po D0 — sprawdzamy je wobec ceny wejścia.
     g_closed, g_reduced, slad = bramka_reakcji(sig, cap, fills, rep)
     rep["reakcje"] = slad
-    book, skipped, closed = desired_book(sig, g_closed, g_reduced)
+    book, skipped, closed = desired_book(sig, g_closed, g_reduced,
+                                         stopped=set(zatrzymane), soft=soft_aktywny)
+    soft_t = set()
+    if soft_aktywny and SOFT_PARY > 0:
+        soft_t = set(list(sig["long"])[:SOFT_PARY])
+        if HEDGE_MODE == "classic":
+            soft_t |= set(list(sig["short"])[:SOFT_PARY])
     rep["pominiete"] += skipped
 
     # TWARDY STOP od ceny wejścia — siatka niezależna od logiki tygodniowej.
@@ -1529,10 +1785,23 @@ def sync():
         if p["epic"] in stopy:
             do_close(p, stopy[p["epic"]])
             book.pop(p["epic"], None)   # nie otwieraj jej z powrotem w tym biegu
+            taktyczna = bool(want and want.get("tactical"))
+            if not STOP_REOPEN and not taktyczna:
+                # pamięć stopu: noga koszykowa nie wraca w tej wersji
+                wykonanie["stopy"][tic] = {"wersja": wersja_sig, "data": dzis,
+                                           "kierunek": p["direction"],
+                                           "opis": stopy[p["epic"]]}
             continue
         if not want:
-            do_close(p, "wykluczona przez puls" if tic in closed
-                     else "poza aktualnymi sygnałami")
+            if tic in closed:
+                powod = "wykluczona przez puls"
+            elif tic in zatrzymane:
+                powod = "stop w tej wersji — bez ponownego otwarcia"
+            elif tic in soft_t:
+                powod = f"próg miękki — obsunięcie {dd * 100:.1f}% od szczytu"
+            else:
+                powod = "poza aktualnymi sygnałami"
+            do_close(p, powod)
         elif want["direction"] != p["direction"]:
             do_close(p, f"zmiana kierunku na {want['direction']}")
 
@@ -1691,11 +1960,8 @@ def sync():
     rep["alloc_pct"] = round(alloc, 4)
 
     stracone = set()
-    # WYKONANIE SYGNAŁÓW - zapisywane do signals.json, żeby rutyny wiedziały,
-    # co naprawdę stało się na rachunku. Rozliczenie W5 (3.10.2026) wpisało
-    # do history wynik taktycznych -1,72 p.p. i reakcji +1,05 p.p., choć VICR
-    # i ACN nigdy nie zostały otwarte, a REDUCE na STX się nie wykonał.
-    wykonanie = {"reakcje": {}, "taktyczne": {}}
+    # (słownik `wykonanie` jest tworzony wyżej, zaraz po cenach wejścia —
+    # stopy i próg miękki zapisują do niego przed tą pętlą)
     # OKNO WYRÓWNYWANIA. Każde wyrównanie to zamknięcie i ponowne otwarcie,
     # czyli pełny spread; robienie tego dwa razy dziennie podwajało rachunek
     # bez żadnej korzyści, bo cel między biegami prawie się nie zmienia.
@@ -1947,14 +2213,20 @@ def sync():
             zmiana_szczytu = (KILL_TRAILING
                               and szczyt > max(szczyt_stary * 1.005,
                                                szczyt_stary + 0.01))
-            wyk_stare = sig.get("wykonanie") or {}
             wyk_nowe = scal_wykonanie(wyk_stare, wykonanie, sig)
-            zmiana_wyk = ({k: wyk_nowe.get(k) for k in ("reakcje", "taktyczne")}
-                          != {k: wyk_stare.get(k) for k in ("reakcje", "taktyczne")})
+
+            def _widok(w):
+                widok = {k: (w.get(k) or {}) for k in ("reakcje", "taktyczne", "stopy")}
+                widok.update({k: w.get(k) for k in ("soft", "kill")})
+                return widok
+            zmiana_wyk = _widok(wyk_nowe) != _widok(wyk_stare)
             if zmiana_wyk:
                 wyk_nowe["aktualizacja"] = date.today().isoformat()
                 sig["wykonanie"] = wyk_nowe
                 rep["wykonanie"] = wyk_nowe
+            # Wznowienie po kill przepisuje szczyt W DÓŁ — zwykły warunek
+            # "nowy szczyt o 0,5%" by tego nie zapisał.
+            zmiana_szczytu = zmiana_szczytu or wznowienie
             if nowe != stare or zmiana_szczytu or zmiana_wyk:
                 sig["fills"] = nowe
                 if KILL_TRAILING:
@@ -1981,6 +2253,12 @@ def sync():
         ostrzezenia.append("⚠ KONTROLA KAPITAŁU")
     if rep.get("stopy"):
         ostrzezenia.append(f"⛔ STOP x{len(rep['stopy'])}")
+    if rep.get("zatrzymane_stopem"):
+        ostrzezenia.append("⏸ zatrzymane stopem: " + ",".join(rep["zatrzymane_stopem"]))
+    if rep.get("prog_miekki", {}).get("aktywny"):
+        ostrzezenia.append(f"⚠ PRÓG MIĘKKI (dd {rep['prog_miekki']['dd_od_szczytu_pct']:.1f}%)")
+    if wznowienie:
+        ostrzezenia.append("▶ WZNOWIENIE po kill switchu")
     zlagodzone = [r for r in slad if r.get("wykonane") != r.get("wpis")]
     if zlagodzone:
         ostrzezenia.append(f"↓ bramka x{len(zlagodzone)}")
@@ -2090,7 +2368,7 @@ for _nazwa in ("gunicorn.access", "werkzeug"):
 
 @app.get("/health")
 def health():
-    return jsonify(ok=True, wersja="1.7.3", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
+    return jsonify(ok=True, wersja="1.12.0", dry_run=DRY_RUN, tryb=("DEMO" if CAPITAL_DEMO else "LIVE"), live_odblokowany=LIVE_ODBLOKOWANY)
 
 
 @app.route("/generate", methods=["GET", "POST"])
@@ -2144,7 +2422,30 @@ def status_ep():
         if HEDGE_MODE == "index" and HEDGE_EPIC:
             managed.add(HEDGE_EPIC)
         wszystkie = cap.positions()   # jedno pobranie dla wszystkich pól
+        # PROCES v2: kill switch i próg miękki policzone tak samo jak w /run
+        # (tylko odczyt), żeby rutyny nie liczyły zapasu "z pamięci".
+        wyk = _slownik(sig.get("wykonanie"))
+        kill_info = _slownik(wyk.get("kill"))
+        szczyt = float(sig.get("equity_peak") or 0) or START_EQUITY
+        if KILL_TRAILING and eq > szczyt:
+            szczyt = eq
+        podloga = 0.0 if kill_info.get("wznowiono") else START_EQUITY
+        odn = max(szczyt, podloga) if KILL_TRAILING else START_EQUITY
+        prog = odn * KILL_LEVEL
+        dd = (1.0 - eq / odn) if odn > 0 else None
+        kill_switch = {"odniesienie": round(odn, 2), "prog": round(prog, 2),
+                       "zapas_pct": round((eq - prog) / eq * 100, 2) if eq else None,
+                       "dd_od_szczytu_pct": round(dd * 100, 2) if dd is not None else None,
+                       "kroczacy": KILL_TRAILING, "podloga_start_equity": bool(podloga),
+                       "slad": kill_info or None}
+        prog_miekki = {"wlaczony": DD_SOFT > 0, "prog_pct": DD_SOFT * 100,
+                       "reset_pct": DD_SOFT_RESET * 100, "pary": SOFT_PARY,
+                       "aktywny": bool(_slownik(wyk.get("soft")).get("aktywny")),
+                       "stan": wyk.get("soft")}
         return jsonify(blad_przelaczenia_rachunku=cap.switch_error,
+                       kill_switch=kill_switch,
+                       prog_miekki=prog_miekki,
+                       wykonanie=wyk,
                        konta_wszystkie=konta,
                        sygnaly={k: sig[k] for k in
                                 ("version", "status", "long", "short",
@@ -2164,15 +2465,26 @@ def status_ep():
                        equity_peak=sig.get("equity_peak"),
                        ustawienia={"alloc_pct": ALLOC_PCT,
                                    "alloc_pct_safe": ALLOC_PCT_SAFE,
+                                   "alloc_restart": ALLOC_RESTART,
                                    "reduce_factor": REDUCE_FACTOR,
                                    "reduce_fallback": REDUCE_FALLBACK,
                                    "react_gate": REACT_GATE,
                                    "react_reduce_pct": REACT_REDUCE_PCT,
                                    "react_close_pct": REACT_CLOSE_PCT,
                                    "stop_loss_pct": STOP_LOSS_PCT,
+                                   "stop_loss_pct_long": STOP_LOSS_PCT_LONG,
+                                   "stop_loss_pct_short": STOP_LOSS_PCT_SHORT,
+                                   "stop_reopen": STOP_REOPEN,
+                                   "dd_soft": DD_SOFT,
+                                   "dd_soft_reset": DD_SOFT_RESET,
+                                   "soft_pary": SOFT_PARY,
                                    "kill_trailing": KILL_TRAILING,
                                    "kill_level": KILL_LEVEL,
+                                   "kill_resume_days": KILL_RESUME_DAYS,
+                                   "start_equity": START_EQUITY,
+                                   "max_overshoot": MAX_OVERSHOOT,
                                    "max_exposure_step": MAX_EXPOSURE_STEP,
+                                   "tactical_enabled": TACTICAL_ENABLED,
                                    "tactical_alloc_pct": TACTICAL_ALLOC_PCT,
                                    "margin_budget": MARGIN_BUDGET,
                                    "rebalance_tol": REBALANCE_TOL,
