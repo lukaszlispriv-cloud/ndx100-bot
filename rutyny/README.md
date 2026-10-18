@@ -6,8 +6,8 @@ zmieniło, a nadpisanie zadania przez pomyłkę odtwarza się jednym kopiuj-wkle
 
 | Plik | Zadanie | Kiedy | Co pisze do `signals.json` | Co produkuje |
 |---|---|---|---|---|
-| `dzienna.md` | „Puls NDX100" | codziennie ok. 12:40 UTC | tylko `status`, `exclude`, `tactical`, `last_daily` | `reports/puls-RRRR-MM-DD.html` |
-| `tygodniowa.md` | „Ranking NDX100 — raport tygodniowy" | sobota ok. 07:30 UTC | `version`, `long`, `short`, `d0`, `generated`, `exclude=[]`, `tactical=[]`, wpis do `history` | `reports/raport-2026-WX.html` |
+| `dzienna.md` | „Puls NDX100" | dni robocze ok. 12:30 UTC | tylko `status`, `exclude` (v2: nowe wpisy wyłącznie basis news), `tactical` (v2: `[]`), `last_daily` | `reports/puls-RRRR-MM-DD.html` |
+| `tygodniowa.md` | „Ranking NDX100 — raport tygodniowy" | sobota ok. 07:30 UTC | `version`, `status`, `long`, `short`, `d0`, `generated`, `exclude=[]`, `tactical=[]`, wpis do `history` (obcięte do 26), `epics` tylko dopisanie | `reports/raport-2026-WX.html` |
 
 Żadna z nich nie dotyka `fills`, `equity_peak` ani `wykonanie` — te pisze bot. `wykonanie` mówi, które REDUCE i pozycje taktyczne naprawdę zadziałały na rachunku; rozliczenie tygodniowe liczy wynik tylko z nich.
 
@@ -175,3 +175,101 @@ Nie zmieniono: twardy wyzwalacz z 24 h, wsparcie elity dla SELL, limit
 bota (`MAX_OVERSHOOT`, `TACTICAL_ALLOC_PCT`), kod bota. Po zmianie pliku
 wklej do zadania „Puls NDX100” cały tekst poniżej linii — albo tylko akapit
 WYKONALNOŚĆ (jedyna różnica względem kopii z 12.10.2026 (b)).
+
+## Zmiany wprowadzone 18.10.2026 — proces v2 (`tygodniowa.md` (d), `dzienna.md` (d))
+
+Podstawa: `rutyny/ANALIZA-2026-10-18-wyniki-i-metoda.md` (sześć analiz, pięć
+testów wstecznych na 5 latach, dziewięć weryfikacji adwersaryjnych, trzy
+projekty, trzech sędziów) i `rutyny/PROPOZYCJA-2026-10-18-proces-v2.md`.
+Wniosek analizy: wynik W1–W7 był zakładem czynnikowym (półprzewodniki) przy
+sizingu 240 %, scoring Modelu 3.0 nie miał mocy predykcyjnej, a pętla reguł
+dopisywała reguły po n = 1. Proces v2 zamienia typowanie na pomiar.
+
+### `tygodniowa.md`
+
+1. **Zasada nadrzędna** — skład koszyka = `scripts/ranking.py`, konstrukcja E
+   (5 par branżowych z budżetem |b_SOX net| ≤ 0,5); rutyna nie zmienia składu.
+2. **KROK 0** — czyta `rutyny/reguly.md` (OBOWIĄZUJĄCE / WYJĄTKI z datą /
+   KANDYDACI) i `data/ranking-<rozliczana version>.json`.
+3. **KROK 0b** — TV zawężone do 7–10 wywołań (screener, kalendarze, ohlcv
+   reżimu); bez `get-forecasts`, `get-financial-history`, newsów.
+4. **KROK A** — prerejestrowana tabela A1–A9: obie serie spreadu, taktyczne
+   i reakcje z wykonanych, **koszyki cienie** (`scripts/koszyki_cienie.py`,
+   log `data/koszyki-cienie.jsonl`), dekompozycja czynnikowa i kalibracja σ,
+   **KOSZT REGUŁ I NADPISAŃ**, zdanie o mocy (t, n), kandydaci na papierze,
+   kontrola rachunku z zapasem do kill w σ i obsunięciem od szczytu
+   historycznego.
+5. **KROK B0** — reżim tylko jako wyłącznik P2; P1 = flaga; bez eskalacji
+   uznaniowej.
+6. **KROK B** — snapshot B1 → lista `--exclude` z zamkniętych źródeł →
+   weryfikacja dat wyników → `ranking.py` → koszyk = `konstrukcje.E_pary_budzet_sox`;
+   opcjonalny cień uznaniowy U w pliku ranking (nigdy w `signals.json`).
+   Usunięte: Model 3.0 (B1/B2), elita (B3), panel fundamentów (B0b), p,
+   pre-mortem, deklaracje D1–D3.
+7. **KROK C** — stała kolejność sekcji; kryteria decyzji po 12/26/52 oknach
+   od 12. okna.
+8. **KROK D** — te same pola `signals.json`; `dane_b1: "yahoo"`; dodatkowe
+   pliki `data/ranking-<version>.json`, `data/koszyki-cienie.jsonl`.
+
+### `dzienna.md`
+
+1. **Zasada nadrzędna** — Puls = raport kontrolny; bramka cenowa 4 %/8 % jest
+   POMIAREM (sekcja BRAMKA — POMIAR), nie tworzy wpisów.
+2. **KROK 0b** — TV ≤ 10 wywołań (3 batche, 2 ohlcv, 2 kalendarze; rezerwa
+   ≤ 2 po dokument źródłowy).
+3. **KROK 1** — research tylko w kategoriach listy zamkniętej R3/R11 oraz
+   kalendarz; bez elity, FINRA, makro-narracji; pre-market informacyjnie.
+4. **KROK 1b** — kontrola rachunku rozszerzona: `wykonanie.stopy/soft/kill`
+   (bot v2), zapas do kill w σ dziennej, obsunięcie od szczytu historycznego,
+   przestrzały lotów, parametry wyłącznie z `/status.ustawienia`.
+5. **REŻIM** — P1 flaga (bez REDUCE), P2 `NIEAKTUALNA`; bez eskalacji.
+6. **KROK 2** — `exclude` tylko `basis="news"` z dokumentem; `tactical=[]`;
+   zakaz wpisów cena/rekom/short/rezim; moduł taktyczny i blokada sektorowa
+   usunięte.
+7. **KROK 3** — sekcje w stałej kolejności, stopka z parametrami z `/status`.
+
+Bez zmian w obu: pola `signals.json`, które wolno pisać, walidator, guard
+podwójnego biegu, harmonogram, `kursy.py` jako źródło nr 1, kontrola przez
+`/status`. Pliki towarzyszące: `rutyny/reguly.md` (rejestr), `rutyny/tradingview.md`
+§0a, `data/tv-config.json` 2026-10-18d, `CLAUDE.md` sekcja „Proces v2".
+Po scaleniu do `main` wklej oba teksty poniżej linii do zadań na
+claude.ai/code/routines; `app.py` wymaga osobnej decyzji właściciela
+(PROPOZYCJA §3).
+
+### 18.10.2026 — poprawki po przeglądzie adwersaryjnym (6 recenzentów, 98 ustaleń)
+
+Najważniejsze zmiany względem pierwszej wersji v2 z tego samego dnia:
+
+- `scripts/waliduj_signals.py`: usunięte zakleszczenie przy 26 wpisach
+  `history` (oczekiwane = stare + nowy, obcięte do 26 ostatnich — jak w bocie);
+  reguły v2 dla Pulsu (nowy wpis `exclude` tylko `basis="news"`, `tactical=[]`;
+  `--v1` dla starszej rutyny). Testy w `scripts/test_app.py`.
+- `scripts/ranking.py`: dopełnianie par przy < 5 grupach (`+dopelnione`),
+  tryb `bez_czynnika` (brak bety SOX), percentyl σ wobec losowych koszyków
+  z uniwersum PO vetach, `--exclude TICKER=POWÓD` + cień `E_bez_exclude`,
+  `--faktyczny-long/-short` → konstrukcja `FAKTYCZNY` z ryzykiem, pole
+  `earnings_date` i liczniki dat, ostrzeżenie przy D0 spoza danych, SMH w
+  cache; `data/ranking-2026-W8.json` przeliczony (FAKTYCZNY = koszyk W8).
+- `scripts/koszyki_cienie.py`: σ zrealizowana i ex ante w wierszu logu,
+  cień `ETF_SMH_XLP`, pomijanie konstrukcji bez list (U „pominięty”),
+  ostrzeżenie i brak logu przy sesji spoza cache, `--pokrycie`,
+  `--podsumowanie` (CI, σ-ratio, test F bez scipy, E netto, kalibracja).
+- `tygodniowa.md`: linia KOLEJNOŚĆ WYKONANIA; bieg 1 z `--fetch` do
+  scratchpadu i bieg końcowy z `--closes`; `za_malo_par` → FALLBACK (nie
+  „koszyk nadal E”); bez snapshotu → E bez taksonomii + daty z FMP/TV;
+  kontrole wyjścia (d0, czynniki, liczniki dat); A5 jednoczynnikowa; A6
+  z definicjami operacyjnymi; A7/A9 pełne ścieżki pól; guard po nazwie
+  raportu NOWEJ wersji; `dane_b1` „tv” za W8 / „yahoo” od W9; history
+  obcięte do 26; komenda na szczyt historyczny z `git log -p`; `--faza 2`;
+  cień U obowiązkowy albo jawnie pominięty.
+- `dzienna.md`: σ ex ante tylko z konstrukcji pasującej do `signals.json`
+  (W8 = FAKTYCZNY), REDUCE basis news zamknięte do dwu przypadków, wpisy tylko
+  dla aktualnych nóg, budżet WebSearch i czas (13:20/13:35 UTC), ROZJAZD
+  ŹRÓDEŁ vs NIEZGODNOŚĆ D0 (wyjątek split/ex-date), `--faza 2`, MAX_OVERSHOOT 1,6.
+- `tradingview.md`: nagłówek (3) w brzmieniu v2, §0a doprecyzowany, markery
+  [v2: ZAWIESZONE] na §5.3–5.5, §6.2, §6.4, lista plików §8; `tv-zestaw-b1.json`
+  pole konsensus; `tv-config.json` opisy.
+- Dokumenty: budżet TV ujednolicony do ≤ 10 (zwykle 7); stan rachunku w
+  dokumentach wyłącznie jako zaokrąglone wskaźniki (CLAUDE.md —
+  doprecyzowanie reguły); `PROPOZYCJA` §0/§1/§4 i `ANALIZA` §0/§1.1/§4.2/§6/§7
+  spójne z kodem; `reguly.md` K2'/R3/K0/R8 doprecyzowane.

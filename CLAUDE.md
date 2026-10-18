@@ -10,8 +10,9 @@ zleceń i nie dotykają pól pisanych przez bota (`fills`, `equity_peak`,
 ## Co wolno, czego nie wolno
 
 - Puls pisze w `signals.json` tylko `status`, `exclude`, `tactical`,
-  `last_daily`; raport tygodniowy — `version`, `long`, `short`, `d0`,
-  `generated`, `exclude=[]`, `tactical=[]`, wpis do `history`. Nic więcej:
+  `last_daily`; raport tygodniowy — `version`, `status`, `long`, `short`,
+  `d0`, `generated`, `exclude=[]`, `tactical=[]`, wpis do `history`
+  (+ `epics`: wyłącznie dopisanie nowej spółki z indeksu). Nic więcej:
   bot waliduje plik przed każdym biegiem i przy złym pliku wstrzymuje handel.
 - Zmiany treści rutyn: najpierw plik w `rutyny/`, potem wklejenie do zadania
   na claude.ai/code/routines (historia gita mówi, co się zmieniło).
@@ -120,7 +121,7 @@ ograniczenie wielkości rachunku, nie awarię.
 - Stan rachunku nie opuszcza raportów: kapitał i wynik w USD tylko w sekcji
   kontroli rachunku / problemów, nigdy w powiadomieniu push ani w commicie.
 
-## TradingView MCP (od 12.10.2026 — FAZA 2, pełne użycie)
+## TradingView MCP (od 12.10.2026 — FAZA 2; OD 18.10.2026 ZAWĘŻONE przez proces v2 — sekcja „Proces v2” niżej i `rutyny/tradingview.md` §0a; punkty o pełnym użyciu, flagach b1_z_tv/kryterium_event_remis/event_blokada_taktycznej i budżetach 40/50 są HISTORYCZNE)
 
 Właściciel 12.10.2026 wyraził zgodę na wdrożenie wg
 `WDROZENIE-TRADINGVIEW-2026-10-12.md` (plan po inwentaryzacji na żywo;
@@ -168,3 +169,59 @@ starcie. Skrót:
   progów ani pól `signals.json` na podstawie TV, nie blokować rotacji przy
   rozjeździe źródeł, nie uśredniać kursów, nie wołać narzędzi zapisu, nie
   robić inwentaryzacji w rutynie ani w oknach biegów).
+
+## Proces v2 (decyzja 18.10.2026 — gałąź `claude/gifted-lamport-iwzpop`, obowiązuje po scaleniu do `main`)
+
+Źródła: `rutyny/ANALIZA-2026-10-18-wyniki-i-metoda.md` (dlaczego),
+`rutyny/PROPOZYCJA-2026-10-18-proces-v2.md` (co i jak, warianty decyzji na
+19.10, specyfikacja bota), `rutyny/reguly.md` (rejestr reguł — czytany przez
+obie rutyny, edytowany tylko commitem właściciela). Materiał dowodowy:
+`analiza/2026-10-18/`.
+
+- **Skład koszyka** liczy `scripts/ranking.py` (konstrukcja
+  `E_pary_budzet_sox`: 5 par branżowych, momentum 6M relatywne, budżet
+  |b_SOX net| ≤ 0,5; veta: exclude, EVENT, σ, cena 1 280 USD, K13). Parametry
+  są prerejestrowane w nagłówku skryptu — rutyna ich nie nadpisuje, nie liczy
+  progu cenowego z kapitału rachunku i nie zmienia składu „ręcznie". Wynik:
+  `data/ranking-<version>.json` (+ opcjonalny cień `U_uznaniowy`), serie
+  roczne w scratchpadzie (`data/ranking-cache.csv` jest w `.gitignore`).
+- **Pomiar**: `scripts/koszyki_cienie.py` → `data/koszyki-cienie.jsonl`
+  (A, B, C, D, E, U, FAKTYCZNY), prerejestrowana tabela A1–A9 w rutynie
+  sobotniej; wnioski o wariancji po 12 oknach, o średniej nie przed 26;
+  kryteria decyzji po 12/26/52 oknach — decyduje właściciel.
+- **Pola `signals.json` pisane przez rutyny — bez zmian** (patrz „Co wolno").
+  Nowe w praktyce: Puls pisze w `exclude` wyłącznie wpisy `basis="news"`
+  z listy zamkniętej R3/R11 (bramka cenowa 4 %/8 % jest tylko POMIAREM
+  w raporcie), `tactical` jest zawsze `[]` (moduł wyłączony), reżim P1 to
+  flaga, P2 nadal `NIEAKTUALNA`. Wpis `history` ma `dane_b1: "yahoo"`.
+  Walidator (`waliduj_signals.py`) obowiązuje jak dotąd.
+- **Pliki dopuszczone w commitach rutyn** (uzupełnienie): sobota — także
+  `data/ranking-<version>.json` i `data/koszyki-cienie.jsonl`; żaden plik
+  w `data/` nie zawiera liczb z rachunku.
+- **Bot (`app.py`) nie został zmieniony w tej gałęzi.** Specyfikacja zmian
+  (stop 15 % LONG / 10 % SHORT bez ponownego otwarcia, próg miękki od
+  kroczącego szczytu, ślad kill switcha i polityka wznowienia; nowe podklucze
+  `wykonanie.stopy/soft/kill` są POLAMI BOTA, rutyny ich nie piszą) jest
+  w PROPOZYCJI §3 — wymaga decyzji właściciela, testów i deployu. Do deployu
+  rutyny opisują stan faktyczny bota (10 %, ponowne otwarcie) i czytają
+  `ustawienia` z `/status`, nie z pamięci.
+- **Zmienne Rendera z decyzji 18.10** (ustawia właściciel; rutyny ich nie
+  dotykają): `ALLOC_PCT=0.08`, `ALLOC_PCT_SAFE=0.04`, `TACTICAL_ENABLED=false`,
+  `TACTICAL_ALLOC_PCT=0`, `REDUCE_FALLBACK=close`, `START_EQUITY=<kapitał>`
+  (razem z commitem właściciela `equity_peak := kapitał` — wariant B z
+  PROPOZYCJI §1).
+- **TradingView w v2**: ≤ 10 wywołań na bieg, tylko kursy/taksonomia/daty
+  wyników ze snapshotu B1, reżim i kalendarze (`rutyny/tradingview.md` §0a);
+  `get-forecasts`, `get-financial-history`, newsy per spółka — zawieszone.
+- **Liczby z rachunku — doprecyzowanie (18.10.2026)**: zakaz obejmuje kwoty
+  w walucie, wielkości pozycji ORAZ stosunki do `equity_peak`/`START_EQUITY`
+  z precyzją większą niż 2 cyfry znaczące (z nich odtwarza się kwotę).
+  Dozwolone w dokumentach: zaokrąglone wskaźniki względne (%, p.p., „≈ 0,8 ×
+  START_EQUITY”). Pełne liczby tylko w raportach HTML.
+- **Walidator w v2** (`waliduj_signals.py`): dla Pulsu każdy NOWY wpis
+  `exclude` musi mieć `basis="news"`, a `tactical` musi być `[]` (starsza
+  rutyna → `--v1`); `history` = stare wpisy + dokładnie jeden nowy, lista
+  obcięta do 26 OSTATNICH (jak w bocie). `data/koszyki-cienie.jsonl` powstaje
+  przy pierwszym biegu v2 (`--log` tworzy plik; wcześniej n = 0).
+- **Testy**: `python3 scripts/test_app.py` (walidator włącznie) i
+  `python3 scripts/test_ranking.py` (bez sieci).

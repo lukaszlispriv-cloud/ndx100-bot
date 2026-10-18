@@ -819,12 +819,12 @@ def _pelny(**kw):
     return s
 
 
-def waliduj(baza, nowy, rutyna):
+def waliduj(baza, nowy, rutyna, extra=()):
     with tempfile.TemporaryDirectory() as d:
         pb, pn = os.path.join(d, "baza.json"), os.path.join(d, "nowy.json")
         json.dump(baza, open(pb, "w")); json.dump(nowy, open(pn, "w"))
         out = subprocess.run(PY + [os.path.join(REPO, "scripts", "waliduj_signals.py"),
-                                   "--base", pb, "--plik", pn, "--rutyna", rutyna],
+                                   "--base", pb, "--plik", pn, "--rutyna", rutyna] + list(extra),
                              capture_output=True, text=True)
         return out.returncode, out.stdout
 
@@ -878,6 +878,32 @@ sprawdz("walidator: usunięcie spółki z epics jest odrzucane", kod == 1 and "e
 n = copy.deepcopy(sob); n["equity_peak"] = 1.0
 kod, out = waliduj(baza, n, "sobota")
 sprawdz("walidator: equity_peak nie wolno ruszać sobocie", kod == 1 and "equity_peak" in out)
+
+# proces v2 (18.10.2026): history przy 26 wpisach, reguły Pulsu
+baza26 = copy.deepcopy(baza)
+baza26["history"] = [dict(baza["history"][0], week=f"2026-W{i}") for i in range(26)]
+sob26 = copy.deepcopy(sob)
+sob26["history"] = (baza26["history"] + [dict(sob["history"][-1], week=baza26["version"])])[-26:]
+kod, out = waliduj(baza26, sob26, "sobota")
+sprawdz("walidator: przy 26 wpisach history dopisanie + obcięcie do 26 OSTATNICH przechodzi", kod == 0, out)
+n = copy.deepcopy(sob26); n["history"] = baza26["history"] + [sob26["history"][-1]]
+kod, out = waliduj(baza26, n, "sobota")
+sprawdz("walidator: 27 wpisów history jest odrzucane", kod == 1 and "history" in out)
+n = copy.deepcopy(sob26); n["history"] = baza26["history"][:5] + baza26["history"][6:] + [sob26["history"][-1]]
+kod, out = waliduj(baza26, n, "sobota")
+sprawdz("walidator: usunięcie wpisu ze środka history jest odrzucane", kod == 1 and "history" in out)
+n = copy.deepcopy(baza); n["last_daily"] = "2026-10-12"
+n["exclude"] = [{"ticker": "MU", "action": "REDUCE", "basis": "cena", "reason": "x", "date": "2026-10-12"}]
+kod, out = waliduj(baza, n, "puls")
+sprawdz("walidator v2: nowy wpis exclude o basis=cena jest odrzucany", kod == 1 and "v2" in out)
+kod, out = waliduj(baza, n, "puls", ["--v1"])
+sprawdz("walidator: ten sam wpis z --v1 (starsza rutyna) przechodzi", kod == 0, out)
+n = copy.deepcopy(baza); n["last_daily"] = "2026-10-12"
+n["tactical"] = [{"ticker": "GNRC", "direction": "BUY", "epic": "GNRC", "entry_date": "2026-10-12", "reason": "x"}]
+kod, out = waliduj(baza, n, "puls")
+sprawdz("walidator v2: puls z pozycją taktyczną jest odrzucany", kod == 1 and "tactical" in out)
+kod, out = waliduj(baza, n, "puls", ["--v1"])
+sprawdz("walidator: taktyczna z --v1 przechodzi", kod == 0, out)
 
 # tv_porownaj — fixture z kształtami odpowiedzi narzędzi z 12.10.2026
 with tempfile.TemporaryDirectory() as d:

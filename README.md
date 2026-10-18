@@ -23,12 +23,21 @@ egzekucję robi usługa na Renderze (`app.py`, endpoint `/run`).
 - **`scripts/waliduj_signals.py`** — bramka przed commitem `signals.json`
   (obce klucze, pola bota, zmiany poza rutyną); **`scripts/tv_porownaj.py`**
   — porównanie kursów TradingView vs Yahoo vs FMP.
+- **`scripts/ranking.py`** — (proces v2 od 2026-W9) deterministyczny ranking
+  momentum i konstrukcja koszyka 5 par branżowych z budżetem czynnikowym;
+  **`scripts/koszyki_cienie.py`** — rozliczenie koszyków cieni
+  (`data/koszyki-cienie.jsonl`); **`scripts/test_ranking.py`** — testy obu.
+- **`rutyny/reguly.md`** — rejestr reguł (obowiązujące / kandydaci / wyjątki /
+  uchylone); **`rutyny/ANALIZA-2026-10-18-wyniki-i-metoda.md`** i
+  **`rutyny/PROPOZYCJA-2026-10-18-proces-v2.md`** — analiza i decyzje procesu
+  v2; **`analiza/2026-10-18/`** — skrypty i notatki dowodowe.
 
 ## Szybki start
 
 ```bash
 pip install -r requirements.txt
 python3 scripts/test_app.py     # musi przejść 151/151
+python3 scripts/test_ranking.py # 23/23, bez sieci
 python3 scripts/kursy.py        # kursy + sekcja REŻIM
 ```
 

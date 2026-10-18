@@ -1,23 +1,23 @@
 {
-  "_opis": "Konfiguracja konektora TradingView MCP dla rutyn ndx100-bot. Brak pliku lub enabled=false = rutyny pomijają wszystkie kroki TV. Zasady: rutyny/tradingview.md. Bez liczb z rachunku. Faza 2 od startu — decyzja właściciela 12.10.2026 (pełne użycie TV, bez bramki licencyjnej); walidacje danych (D0 0,5%, zakaz uśredniania, brak FALLBACK na rozjazd) pozostają twarde.",
+  "_opis": "Konfiguracja konektora TradingView MCP dla rutyn ndx100-bot. Brak pliku lub enabled=false = rutyny pomijają wszystkie kroki TV. Zasady: rutyny/tradingview.md. Bez liczb z rachunku. Faza 2 od startu — decyzja właściciela 12.10.2026 (pełne użycie TV, bez bramki licencyjnej); walidacje danych (D0 0,5%, zakaz uśredniania, brak FALLBACK na rozjazd) pozostają twarde. OD 18.10.2026 użycie ZAWĘŻONE (proces v2) — patrz klucz _proces_v2 i rutyny/tradingview.md §0a.",
   "enabled": true,
   "faza": 2,
-  "wersja_konfiguracji": "2026-10-12b",
+  "wersja_konfiguracji": "2026-10-18d",
   "narzedzia_prefix": "mcp__TradingView__mcp-tv-",
   "budzet": {
     "puls": {
-      "wywolania": 40,
-      "czas_s": 600,
+      "wywolania": 10,
+      "czas_s": 300,
       "twarda_granica_utc": "13:15"
     },
     "sobota": {
-      "wywolania": 50,
-      "czas_s": 1200,
+      "wywolania": 10,
+      "czas_s": 600,
       "twarda_granica_utc": null
     }
   },
   "flagi": {
-    "_opis": "Decyzje właściciela 12.10.2026 (pełne użycie TV). sektor_tv i wstrzymanie_przy_rozjezdzie zostają false: pierwsza zmienia taksonomię bez dowodu ex post, druga łagodzi prerejestrowane wyzwalacze.",
+    "_opis": "Decyzje właściciela 12.10.2026 (pełne użycie TV). sektor_tv i wstrzymanie_przy_rozjezdzie zostają false: pierwsza zmienia taksonomię bez dowodu ex post, druga łagodzi prerejestrowane wyzwalacze. Stan 12.10; w procesie v2 (od 18.10.2026) znaczenie ma wyłącznie rezim_surowszy — pozostałe flagi są bez wpływu.",
     "sektor_tv": false,
     "kryterium_event_remis": true,
     "event_blokada_taktycznej": true,
@@ -33,9 +33,9 @@
     "wycena_brokera_pct": 1.0
   },
   "kolejnosc_ciec": [
-    "newsy",
-    "skan",
+    "rezerwa news/dokumenty",
     "kalendarze"
   ],
-  "nigdy_nie_tnij": "kursy koszyka"
+  "nigdy_nie_tnij": "kursy koszyka",
+  "_proces_v2": "Od 18.10.2026 (proces v2, rutyny/tradingview.md §0a): rutyny używają TV wyłącznie do kursów (batch/screener), taksonomii branżowej i dat wyników ze snapshotu B1, reżimu (ohlcv NDX/VIX) i kalendarzy; get-forecasts, get-financial-history, get-news/get-documents (poza rezerwą po dokument źródłowy w Pulsie) nie są wołane. Flagi b1_z_tv, kryterium_event_remis, event_blokada_taktycznej, sektor_tv, wstrzymanie_przy_rozjezdzie są bez znaczenia w v2 (czynniki liczy ranking.py z Yahoo, raport w oknie = veto, moduł taktyczny wyłączony, blokada sektorowa i wpisy cenowe nie istnieją); rezim_surowszy obowiązuje."
 }
