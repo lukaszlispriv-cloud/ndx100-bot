@@ -222,15 +222,6 @@
     "MRNA": "MRNA"
   },
   "fills": {
-    "SBUX": {
-      "cena": 95.99,
-      "kierunek": "SELL",
-      "wielkosc": 2.2,
-      "data": "2026-10-06",
-      "wersja": "2026-W8",
-      "epic": "SBUX",
-      "cena_brokera": 95.99
-    },
     "APP": {
       "cena": 277.22,
       "kierunek": "SELL",
@@ -240,80 +231,62 @@
       "epic": "APP",
       "cena_brokera": 277.22
     },
-    "CMCSA": {
-      "cena": 21.46,
-      "kierunek": "SELL",
-      "wielkosc": 10.0,
-      "data": "2026-10-06",
-      "wersja": "2026-W8",
-      "epic": "CMCSA",
-      "cena_brokera": 21.46
-    },
-    "CSCO": {
-      "cena": 115.53,
-      "kierunek": "BUY",
-      "wielkosc": 1.8,
-      "data": "2026-10-12",
-      "wersja": "2026-W8",
-      "epic": "CSCO",
-      "cena_brokera": 115.53
-    },
-    "PEP": {
-      "cena": 126.91,
-      "kierunek": "SELL",
-      "wielkosc": 1.8,
-      "data": "2026-10-12",
-      "wersja": "2026-W8",
-      "epic": "PEP",
-      "cena_brokera": 126.91
-    },
-    "TMUS": {
-      "cena": 152.79,
-      "kierunek": "SELL",
-      "wielkosc": 1.5,
-      "data": "2026-10-12",
-      "wersja": "2026-W8",
-      "epic": "TMUS",
-      "cena_brokera": 152.79
-    },
-    "MU": {
-      "cena": 935.73,
+    "GOOGL": {
+      "cena": 343.27,
       "kierunek": "BUY",
       "wielkosc": 0.2,
-      "data": "2026-10-13",
+      "data": "2026-10-19",
       "wersja": "2026-W8",
-      "epic": "MU",
-      "cena_brokera": 935.73
+      "epic": "GOOGL",
+      "cena_brokera": 343.27
     },
-    "MRVL": {
-      "cena": 235.93,
+    "GILD": {
+      "cena": 156.63,
       "kierunek": "BUY",
-      "wielkosc": 0.9,
-      "data": "2026-10-15",
+      "wielkosc": 0.4,
+      "data": "2026-10-19",
       "wersja": "2026-W8",
-      "epic": "MRVL",
-      "cena_brokera": 235.93
+      "epic": "GILD",
+      "cena_brokera": 156.63
     },
-    "ERIC": {
-      "cena": 10.4,
+    "MSFT": {
+      "cena": 531.43,
       "kierunek": "BUY",
-      "wielkosc": 17.0,
-      "data": "2026-10-15",
+      "wielkosc": 0.13,
+      "data": "2026-10-19",
       "wersja": "2026-W8",
-      "epic": "ERIC",
-      "cena_brokera": 10.4
+      "epic": "MSFT",
+      "cena_brokera": 531.43
     },
-    "PANW": {
-      "cena": 341.71,
+    "QCOM": {
+      "cena": 177.08,
       "kierunek": "BUY",
-      "wielkosc": 0.3,
-      "data": "2026-10-16",
+      "wielkosc": 0.4,
+      "data": "2026-10-19",
       "wersja": "2026-W8",
-      "epic": "PANW",
-      "cena_brokera": 341.71
+      "epic": "QCOM",
+      "cena_brokera": 177.08
+    },
+    "DASH": {
+      "cena": 186.72,
+      "kierunek": "SELL",
+      "wielkosc": 0.4,
+      "data": "2026-10-19",
+      "wersja": "2026-W8",
+      "epic": "DASH",
+      "cena_brokera": 186.72
+    },
+    "FER": {
+      "cena": 43.48,
+      "kierunek": "SELL",
+      "wielkosc": 1.6,
+      "data": "2026-10-19",
+      "wersja": "2026-W8",
+      "epic": "FER",
+      "cena_brokera": 43.48
     }
   },
-  "equity_peak": 832.56,
+  "equity_peak": 853.6,
   "wykonanie": {
     "reakcje": {},
     "taktyczne": {},
