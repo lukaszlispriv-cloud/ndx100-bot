@@ -1,0 +1,138 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Puls NDX100 — 2026-10-19</title>
+<style>
+body{margin:0;background:#F6F7F4;color:#1b1b1b;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45}
+header{background:#10243E;color:#fff;padding:18px 16px}header h1{margin:0 0 6px;font-size:20px}.hdr{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.sub{font-size:13px;opacity:.85}
+.ndx{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px}.badge{display:inline-block;padding:8px 12px;border-radius:8px;font-weight:700;background:#0E7C4A;color:#fff}.badge small{display:block;font-weight:400;font-size:12px}
+.stamp{display:inline-block;border:3px solid #0E7C4A;color:#0E7C4A;padding:4px 12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transform:rotate(-2.5deg);background:#fff;border-radius:4px}
+main{max-width:1100px;margin:0 auto;padding:12px 16px 40px}section{background:#fff;border-radius:10px;padding:12px 14px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.06)}h2{font-size:17px;margin:0 0 8px;color:#10243E}h3{font-size:15px;margin:10px 0 4px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid #e3e5e0;padding:6px 6px;text-align:left;vertical-align:top}th{background:#eef0ea;font-weight:600}
+.m{font-family:ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}.g{color:#0E7C4A}.r{color:#C4372E}.hl td{background:#fff8e6}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:#10243E;color:#fff;margin-right:4px}.tag.w{background:#C4372E}.tag.s{background:#7a5c00}.tag.b{background:#0E7C4A}
+.spread{display:flex;flex-wrap:wrap;gap:10px}.spread div{flex:1 1 180px;background:#eef0ea;border-radius:8px;padding:8px 10px}.spread b{display:block;font-family:ui-monospace,monospace;font-size:20px}
+ul{padding-left:20px;margin:6px 0}li{margin:4px 0}footer{font-size:12px;color:#555;padding:10px 4px}small{color:#555}
+</style></head><body>
+<header><h1>Puls NDX100 — poniedziałek 19.10.2026 (D+0, wersja 2026-W8)</h1>
+<div class="sub">proces v2 — raport kontrolny · bieg ok. 12:32–12:45 UTC · stan rachunku SPRZED rotacji (rotacja koszyka W8 w biegu bota 13:45 UTC)</div>
+<div class="hdr" style="margin-top:10px"><span class="ndx">^NDX 29 187,55</span><small style="color:#cfd6df">zamknięcie 16.10.2026, Yahoo (kursy.py); sesja −2,50 %</small>
+<span class="badge">REŻIM P0<small>NDX +5,2 % vs MA200 (27 738) · −2,2 % vs MA50 (29 868) · drawdown −6,5 % od max 252 sesji · VIX 19,99 — potwierdzony dwoma źródłami (Yahoo, TradingView)</small></span>
+<span class="stamp">AKTUALNA</span></div></header>
+<main>
+
+<section><h2>1. Najważniejsze zmiany</h2><ul>
+<li><span class="tag">REŻIM</span> P0 z obu źródeł: ^NDX 29 187,55 &gt; MA200 27 738,0 (TV: 27 738,0), drawdown −6,52 % od maksimum 252 sesji (31 224,7), VIX 19,99 (Yahoo) = 19,99 (TV, świeca 16.10). Sesja 16.10: −2,50 %, VIX +21 % d/d. ^NDX jest poniżej MA50 (29 868) — to nie jest przesłanka P1 (P1 = poniżej MA200 lub dd &gt; 10 % lub VIX &gt; 28).</li>
+<li><span class="tag b">BOT</span> Stan SPRZED rotacji: w pliku `version` 2026-W8, na rachunku 10 pozycji koszyka W7 (+ taktyczna ERIC). Rotację wykona pierwszy bieg po zmianie wersji — dziś 13:45 UTC. Z nowego koszyka na rachunku jest tylko APP SELL (noga kontynuowana, cena tezy 277,22 z 06.10).</li>
+<li><span class="tag b">BOT</span> Bot biegł także w sobotę 17.10 i niedzielę 18.10 (commity „bot: ceny wejścia” 13:45/17:05 UTC) — poza harmonogramem dni roboczych; 18.10 w biegu 13:45 włączył próg miękki (dd_start 23,75 % od dawnego szczytu), a po commicie właściciela `equity_peak := kapitał` wyłączył go w biegu 17:05 (dd_koniec 0,0). Żadna noga W8 nie została zamknięta (nie było ich na rachunku). Brak wpisów `stopy` i `kill`.</li>
+<li><span class="tag s">WYNIKI</span> Brak nogi z raportem w 2 najbliższych sesjach. Najbliższe: GOOGL, MSFT 28.10 po sesji; ADP 28.10 przed sesją (niepotwierdzone); GILD 29.10 po sesji; ALNY 29.10 przed sesją (niepotwierdzone). Pełny kalendarz w sekcji 8.</li>
+<li><span class="tag">NEWS</span> Lista zamknięta R3/R11: nic. Nogi z |ruchem d/d| ≥ 3 % (AXON −6,45 %, APP −4,71 %, QCOM −3,53 %) sprawdzone po 1 zapytaniu — żadnej oferty przejęcia, delistingu, raportu/cięcia guidance z dokumentem ani decyzji regulatora z 16–19.10; ruchy mieszczą się w szerokiej wyprzedaży z 16.10 (^NDX −2,5 %, półprzewodniki −5…−7 %). Nowych wpisów `exclude` nie ma.</li>
+<li><span class="tag">MAKRO</span> Dziś (19.10) brak publikacji wysokiej wagi (TradingView, min_importance=1). Jutro 20.10: Housing Starts i Building Permits (wrzesień) o 08:30 ET / 12:30 UTC.</li>
+</ul></section>
+
+<section><h2>2. Koszyki W8 — stan na zamknięcie 16.10.2026 (D0)</h2>
+<p><small>D0 = 16.10.2026 = ostatnia zakończona sesja, więc zwroty od D0 wynoszą 0,00 % dla każdej nogi (D+0). Kurs wejścia (`fills`) ma tylko APP; pozostałe nogi otworzą się w rotacji 13:45 UTC — do tego czasu „od wejścia” = b.d. Grupa: `data/ranking-2026-W8.json`, pole `ranking`. Pre-market: TradingView MCP (get-symbol-data-batch, odczyt ok. 12:37 UTC, dane opóźnione, nie wchodzi do pomiaru).</small></p>
+<h3>KOSZYK LONG</h3><div class="tw"><table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>kurs wejścia</th><th>kurs D0</th><th>kurs ostatni (16.10)</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>d/d 16.10</th><th>EVENT</th><th>pre-market (TV, 12:37 UTC)</th></tr>
+<tr><td>GOOGL</td><td>BUY</td><td>Technology Services</td><td class="m">b.d.</td><td class="m">340,59</td><td class="m">340,59</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−2,47 %</td><td>— (28.10)</td><td class="m g">+0,65 %</td></tr>
+<tr><td>GILD</td><td>BUY</td><td>Health Technology</td><td class="m">b.d.</td><td class="m">156,19</td><td class="m">156,19</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−0,75 %</td><td>— (29.10)</td><td class="m r">−0,21 %</td></tr>
+<tr><td>MSFT</td><td>BUY</td><td>Technology Services</td><td class="m">b.d.</td><td class="m">529,05</td><td class="m">529,05</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−1,93 %</td><td>— (28.10)</td><td class="m g">+0,09 %</td></tr>
+<tr><td>QCOM</td><td>BUY</td><td>Electronic Technology</td><td class="m">b.d.</td><td class="m">172,11</td><td class="m">172,11</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−3,53 %</td><td>— (11.11)</td><td class="m g">+2,58 %</td></tr>
+<tr><td>ADP</td><td>BUY</td><td>Technology Services</td><td class="m">b.d.</td><td class="m">288,90</td><td class="m">288,90</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m g">+1,14 %</td><td>— (28.10)</td><td class="m g">+0,02 %</td></tr>
+</table></div>
+<h3>KOSZYK SHORT</h3><div class="tw"><table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>kurs wejścia</th><th>kurs D0</th><th>kurs ostatni (16.10)</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>d/d 16.10</th><th>EVENT</th><th>pre-market (TV, 12:37 UTC)</th></tr>
+<tr><td>AXON</td><td>SELL</td><td>Electronic Technology</td><td class="m">b.d.</td><td class="m">390,29</td><td class="m">390,29</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−6,45 %</td><td>— (10.11)</td><td class="m g">+1,20 %</td></tr>
+<tr><td>DASH</td><td>SELL</td><td>Technology Services</td><td class="m">b.d.</td><td class="m">189,15</td><td class="m">189,15</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−2,02 %</td><td>— (04.11)</td><td class="m g">+0,46 %</td></tr>
+<tr><td>ALNY</td><td>SELL</td><td>Health Technology</td><td class="m">b.d.</td><td class="m">231,83</td><td class="m">231,83</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−0,94 %</td><td>— (29.10)</td><td class="m g">+0,03 %</td></tr>
+<tr class="hl"><td>APP</td><td>SELL</td><td>Technology Services</td><td class="m">277,22 (06.10)</td><td class="m">266,13</td><td class="m">266,13</td><td class="m g">−4,00 % (zysk shorta +4,0 %)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m r">−4,71 %</td><td>— (04.11)</td><td class="m g">+1,08 %</td></tr>
+<tr><td>FER</td><td>SELL</td><td>Producer Manufacturing</td><td class="m">b.d.</td><td class="m">49,41</td><td class="m">49,41</td><td class="m">b.d.</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td class="m g">+1,13 %</td><td>— (04.03.2027)</td><td class="m r">−0,43 %</td></tr>
+</table></div>
+<p><small>Wiersz APP wyróżniony: różnica „od wejścia” vs „od D0” = 4,0 pp wynika z kontynuacji nogi z W7 (cena tezy 06.10, nowa `wersja` 2026-W8) — wynik rachunku liczy się od 277,22, jakość prognozy W8 od 266,13. Grupy wg `ranking-2026-W8.json`: GOOGL/MSFT/ADP/DASH/APP = Technology Services, GILD/ALNY = Health Technology, QCOM/AXON = Electronic Technology, FER = Producer Manufacturing.</small></p>
+</section>
+
+<section><h2>3. Spread koszyka</h2><div class="spread">
+<div>od cen wejścia<b>b.d.</b><small>1/10 nóg z ceną wejścia (APP +4,0 %); spread liczony po rotacji</small></div>
+<div>od D0 (16.10)<b>0,00 pp</b><small>D+0 — LONG śr. 0,00 %, SHORT śr. 0,00 %, ^NDX 0,00 %</small></div>
+<div>różnica<b>b.d.</b><small>pojawi się od D+1</small></div>
+<div>σ ex ante (konstrukcja FAKTYCZNY)<b>4,12 pp/tydz.</b><small>sigma60_tyg_unit_pp; σ dzienna jednostki 1,845 %; b_sox_net 0,053</small></div></div>
+<p><small>Ruch dzienny spreadu: 0,00 pp = 0,0 σ ex ante (σ dzienna 1,85 pp). Koszyk W8 w pliku ranking odpowiada konstrukcji FAKTYCZNY (zbiory long/short zgodne z signals.json); konstrukcja E_pary_budzet_sox ma inny skład i jej σ nie dotyczy tego koszyka.</small></p></section>
+
+<section><h2>4. Bramka — pomiar (4 % / 8 %, wpis nie powstaje)</h2><div class="tw"><table>
+<tr><th>noga</th><th>od ceny odniesienia</th><th>ruch bezwzgl.</th><th>ruch wzgl. vs ^NDX</th><th>sesje za progiem</th><th>werdykt protokołu (papier)</th></tr>
+<tr><td>GOOGL BUY</td><td>D0 340,59 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>GILD BUY</td><td>D0 156,19 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>MSFT BUY</td><td>D0 529,05 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>QCOM BUY</td><td>D0 172,11 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>ADP BUY</td><td>D0 288,90 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>AXON SELL</td><td>D0 390,29 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>DASH SELL</td><td>D0 189,15 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>ALNY SELL</td><td>D0 231,83 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>APP SELL</td><td>fills 277,22 (06.10)</td><td class="m g">−4,00 % (na korzyść shorta)</td><td class="m">b.d. (^NDX od 06.10 nie liczony dla W7)</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+<tr><td>FER SELL</td><td>D0 49,41 (brak fills)</td><td class="m">0,00 %</td><td class="m">0,00 pp</td><td>0</td><td>nic — pomiar, wpis nie powstaje</td></tr>
+</table></div><p><small>Stop bota (15 % LONG / 10 % SHORT, bez ponownego otwarcia w tej wersji) wyprzedza każdą reakcję Pulsu — Puls go nie dubluje.</small></p></section>
+
+<section><h2>5. Kill switch i próg miękki</h2><ul>
+<li><b>Kill switch</b> (/status.kill_switch, bot v2): odniesienie 851,33 USD (kroczący szczyt = bieżący kapitał; podłoga START_EQUITY 832,55 aktywna), próg 638,50 USD (kill_level 0,75), <b>zapas 25,0 %</b>, obsunięcie od szczytu bieżącego 0,0 %. Zatrzask: nie. Wznowienie oczekujące: nie. Restart ręczny od kapitału: 702,35 USD (nie dotyczy — zatrzask nieaktywny). Ślad `wykonanie.kill`: brak.</li>
+<li>σ dzienna kapitału ≈ 5 × alloc_pct 0,08 × σ60 jednostki 1,845 % (konstrukcja FAKTYCZNY) ≈ <b>0,74 %</b> → zapas 25,0 % ≈ <b>34 σ dziennych</b>.</li>
+<li><b>Obsunięcie od szczytu historycznego</b>: najwyższy `equity_peak` w historii gita pliku = 1 104,36 USD → kapitał 851,33 = <b>−22,9 %</b> (po resecie `equity_peak := kapitał` z 18.10 obsunięcie od szczytu bieżącego wynosi 0,0 %). `equity_peak` w pliku 832,56 &lt; kapitał 851,33 — bot zapisze nowy szczyt w najbliższym biegu.</li>
+<li><b>Próg miękki</b> (dd_soft 10 % od szczytu, reset 5 %, 2 pary): stan ZAPISANY — nieaktywny (włączony 18.10 w biegu 13:45 przy dd_start 23,75 % od dawnego szczytu, wyłączony 18.10 w biegu 17:05 po resecie szczytu; dd_koniec 0,0). Stan PRZEWIDYWANY — nie włączy się w najbliższym biegu. Nogi pierwszych 2 par: AXON, DASH, GILD, GOOGL. `zamkniete_progiem_miekkim`: brak.</li>
+</ul></section>
+
+<section><h2>6. Kontrola rachunku — stan SPRZED rotacji (bot v2, /status ok. 12:33 UTC)</h2><ul>
+<li><b>Konto</b> (BOT - Nasdaq 100, USD): kapitał 851,33; gotówka 882,95; wycena pozycji −31,62; depozyt zabezpieczający 882,95; dostępne do handlu 451,25. `equity_peak` plik 832,56 (bot zapisze 851,33). Rachunek aktywny dla bota = tak, `blad_przelaczenia_rachunku` = null, `dry_run` = false.</li>
+<li><b>Kontrola kapitału</b>: `zgodne = false` z powodu ERIC BUY 17,0 (pozycja taktyczna W7 spoza książki /status) — ERIC jest w `ceny_wejscia` (10,40, 15.10), więc to nie alarm. Różnica 2,05 vs tolerancja 17,03 (w normie), suma upl pozycji bota −33,67, wycena z API −31,62, `pozycje_bez_wyceny` = []. `tactical` w pliku = [] — bot zamknie ERIC w najbliższym biegu (moduł taktyczny wyłączony; TV close 16.10: 10,55 vs wejście 10,40).</li>
+<li><b>Pokrycie koszyka W8</b> (pokrycie_koszyka): LONG 0/5 na rachunku (brakujące GOOGL, GILD, MSFT, QCOM, ADP), SHORT 1/5 (APP; brakujące AXON, DASH, ALNY, FER) — <b>stan SPRZED rotacji</b>, nie EKSPOZYCJA_NIEPELNA: `wersja` wpisów `ceny_wejscia` to 2026-W8 nadana w biegach weekendowych, ale nazwy to koszyk W7; rotację wykona bieg 13:45 UTC. `zatrzymane_stopem` = [], `zamkniete_progiem_miekkim` = [], `wykluczone_przez_puls` = [], hedge_mode = classic, pozycje taktyczne wg bota = [].</li>
+<li><b>Pozycje spoza koszyka W8</b> (9 + ERIC, wszystkie W7, do zamknięcia w rotacji) i kontrola wyceny brokera (poziom bieżący = wejście ± upl/size, „wyprowadzony z upl”; close TV 16.10):</li></ul>
+<div class="tw"><table><tr><th>epic</th><th>kier.</th><th>size</th><th>wejście (broker)</th><th>upl USD</th><th>poziom bieżący (z upl)</th><th>close TV 16.10</th><th>Δ</th><th>uwaga</th></tr>
+<tr><td>PANW</td><td>BUY</td><td class="m">0,3</td><td class="m">341,71</td><td class="m g">+2,29</td><td class="m">349,33</td><td class="m">342,00</td><td class="m r">−2,10 %</td><td>wycena brokera do sprawdzenia — zgodna z pre-marketem TV +2,29 %</td></tr>
+<tr><td>APP</td><td>SELL</td><td class="m">0,8</td><td class="m">277,22</td><td class="m g">+6,30</td><td class="m">269,35</td><td class="m">266,13</td><td class="m r">−1,20 %</td><td>wycena brokera do sprawdzenia — pre-market TV +1,08 %; noga kontynuowana w W8</td></tr>
+<tr><td>CSCO</td><td>BUY</td><td class="m">1,8</td><td class="m">115,53</td><td class="m r">−12,98</td><td class="m">108,32</td><td class="m">107,39</td><td class="m">−0,86 %</td><td>pre-market TV +1,08 %</td></tr>
+<tr><td>SBUX</td><td>SELL</td><td class="m">2,2</td><td class="m">95,99</td><td class="m r">−3,96</td><td class="m">97,79</td><td class="m">97,52</td><td class="m">−0,28 %</td><td>OK</td></tr>
+<tr><td>PEP</td><td>SELL</td><td class="m">1,8</td><td class="m">126,91</td><td class="m r">−8,69</td><td class="m">131,74</td><td class="m">131,49</td><td class="m">−0,19 %</td><td>OK</td></tr>
+<tr><td>TMUS</td><td>SELL</td><td class="m">1,5</td><td class="m">152,79</td><td class="m r">−9,69</td><td class="m">159,25</td><td class="m">159,10</td><td class="m">−0,09 %</td><td>OK</td></tr>
+<tr><td>CMCSA</td><td>SELL</td><td class="m">10,0</td><td class="m">21,46</td><td class="m r">−4,00</td><td class="m">21,86</td><td class="m">21,90</td><td class="m">+0,18 %</td><td>OK</td></tr>
+<tr><td>MU</td><td>BUY</td><td class="m">0,2</td><td class="m">935,73</td><td class="m r">−5,20</td><td class="m">909,72</td><td class="m">878,84</td><td class="m r">−3,39 %</td><td>wycena brokera do sprawdzenia — zgodna z pre-marketem TV +3,61 %</td></tr>
+<tr><td>MRVL</td><td>BUY</td><td class="m">0,9</td><td class="m">235,93</td><td class="m g">+2,27</td><td class="m">238,45</td><td class="m">227,83</td><td class="m r">−4,45 %</td><td>wycena brokera do sprawdzenia — zgodna z pre-marketem TV +4,76 %</td></tr>
+<tr><td>ERIC</td><td>BUY</td><td class="m">17,0</td><td class="m">10,40</td><td class="m">b.d. (/status nie wycenia epiców spoza `epics`)</td><td class="m">b.d.</td><td class="m">10,55</td><td class="m">b.d.</td><td>taktyczna W7, do zamknięcia</td></tr>
+</table></div>
+<ul><li>Rozjazdy &gt; 1 % (PANW, APP, MU, MRVL) odpowiadają co do kierunku i rzędu wielkości pre-marketowi z TV o 12:37 UTC — broker (CFD) kwotuje po pre-markecie, TV podaje zamknięcie 16.10; formalnie „wycena brokera do sprawdzenia”, bez przesłanki awarii.</li>
+<li><b>Przestrzały lotów</b>: limit max_overshoot 1,6 × alloc_pct 0,08 × kapitał = 108,97 USD; wartość 8 z 9 pozycji W7 (182–239 USD) go przekracza, bo zostały otwarte przy dawnym alloc_pct 0,24 — to pozostałość W7 zamykana w rotacji, nie awaria i nie ograniczenie lotu. Po rotacji cel nogi W8 = 0,08 × 851,33 ≈ 68 USD; przy minimalnych lotach brokera część nóg może zostać nieotwarta („nieotwarta — …” w `wykonanie.taktyczne`/pokryciu) — ograniczenie wielkości rachunku, do opisu jutro.</li>
+<li><b>Parametry bota</b> (/status.ustawienia): alloc_pct 0,08; alloc_pct_safe 0,04; tactical_alloc_pct 0,0 (tactical_enabled false); kill_level 0,75; stop_loss_pct_long 0,15; stop_loss_pct_short 0,10; stop_reopen false; dd_soft 0,10; dd_soft_reset 0,05; soft_pary 2; kill_resume_days 14; alloc_restart 0,04; kill_rearm_pct 0,10; max_overshoot 1,6; start_equity 832,55; reduce_fallback close; margin_budget 0,6. Zmienne Rendera z decyzji 18.10 są wdrożone.</li>
+<li>Inne rachunki Capital.com (nieaktywne dla bota): Konto B, BOT - Strategia 50, BOT Strategia 4h MIX, BOT-WIG20 (PLN).</li></ul></section>
+
+<section><h2>7. Źródła i problemy</h2>
+<p><b>STAN ŹRÓDEŁ</b> (wiersz data/tv-log.jsonl, 2026-10-19, puls-ndx): stan OK, 7 wywołań TradingView MCP (3 × get-symbol-data-batch, 2 × get-ohlcv NDX 260 / VIX 30, 1 × get-earnings-calendar, 1 × get-economic-calendar), ok. 150 s, 11 porównań, max |Δ| 0,00 %, mediana 0,00 %, rozjazdów &gt; 0,5 % brak, adnotacji &gt; 0,1 % brak, missing: NASDAQ:WBD, NASDAQ:KHC (poza indeksem), faza 2, werdykt zmieniony: nie, blok nieprzerwany czasem. Rezerwa news/dokumenty TV: niewykorzystana (brak kandydata basis news).</p>
+<div class="tw"><table><tr><th>ticker</th><th>Yahoo (16.10)</th><th>FMP</th><th>TV</th><th>Δ % TV</th></tr>
+<tr><td>^NDX</td><td class="m">29 187,55</td><td class="m">b.d.</td><td class="m">29 187,55</td><td class="m">0,00</td></tr>
+<tr><td>GOOGL</td><td class="m">340,59</td><td class="m">340,59</td><td class="m">340,59</td><td class="m">0,00</td></tr>
+<tr><td>GILD</td><td class="m">156,19</td><td class="m">b.d. (ACCESS DENIED)</td><td class="m">156,19</td><td class="m">0,00</td></tr>
+<tr><td>MSFT</td><td class="m">529,05</td><td class="m">529,05</td><td class="m">529,05</td><td class="m">0,00</td></tr>
+<tr><td>QCOM</td><td class="m">172,11</td><td class="m">b.d.</td><td class="m">172,11</td><td class="m">0,00</td></tr>
+<tr><td>ADP</td><td class="m">288,90</td><td class="m">b.d.</td><td class="m">288,90</td><td class="m">0,00</td></tr>
+<tr><td>AXON</td><td class="m">390,29</td><td class="m">b.d.</td><td class="m">390,29</td><td class="m">0,00</td></tr>
+<tr><td>DASH</td><td class="m">189,15</td><td class="m">b.d.</td><td class="m">189,15</td><td class="m">0,00</td></tr>
+<tr><td>ALNY</td><td class="m">231,83</td><td class="m">b.d.</td><td class="m">231,83</td><td class="m">0,00</td></tr>
+<tr><td>APP</td><td class="m">266,13</td><td class="m">b.d.</td><td class="m">266,13</td><td class="m">0,00</td></tr>
+<tr><td>FER</td><td class="m">49,41</td><td class="m">b.d.</td><td class="m">49,41</td><td class="m">0,00</td></tr></table></div>
+<ul>
+<li>kursy.py (Yahoo): komplet, bez problemów, walidacja D0 OK dla 10/10 nóg i ^NDX (zamknięcia 16.10 = d0.prices). Wygenerowano 2026-10-19 08:33 ET.</li>
+<li>FMP: historical-price-eod-light 2/10 (GOOGL, MSFT; 8 × ACCESS DENIED — plan); earnings-calendar odpowiada, ale lista jest niekompletna (10 dużych spółek, żadnej nogi) — daty nóg z TradingView.</li>
+<li>TradingView: ohlcv NDX — ostatnia świeca 16.10 (bieżącej sesji jeszcze nie ma); ohlcv VIX — świeca 19.10 (18,61, w trakcie) odrzucona, do reżimu użyto 16.10 = 19,99. MA200/MA50 z dokładnie 200/50 zakończonych zamknięć: 27 738,0 / 29 868,0 — rozjazd z kursy.py 0,00 %.</li>
+<li>/status: bez błędów (HTTP 200, odpowiedź w kilka sekund). `zgodne=false` wyjaśnione przez ERIC (patrz sekcja 6).</li>
+<li>Repozytorium: biegi bota 17.10 i 18.10 (weekend) — do wyjaśnienia przez właściciela (cron-job.org ma mieć tylko dni robocze); skutków dla koszyka W8 brak.</li>
+<li>WebSearch (3 zapytania: AXON, QCOM, APP): bez zdarzeń z listy R3/R11 datowanych 16–19.10.</li>
+</ul></section>
+
+<section><h2>8. Kalendarz</h2>
+<div class="tw"><table><tr><th>noga</th><th>wyniki (TradingView get-earnings-calendar, 12:37 UTC)</th><th>potwierdzone</th><th>EVENT (≤ 2 sesje)</th></tr>
+<tr><td>GOOGL</td><td>28.10.2026, po sesji (20:00 UTC)</td><td>tak</td><td>nie</td></tr>
+<tr><td>MSFT</td><td>28.10.2026, po sesji (20:00 UTC)</td><td>tak</td><td>nie</td></tr>
+<tr><td>ADP</td><td>28.10.2026, przed sesją (11:00 UTC)</td><td>nie</td><td>nie</td></tr>
+<tr><td>GILD</td><td>29.10.2026, po sesji (20:01 UTC)</td><td>tak</td><td>nie</td></tr>
+<tr><td>ALNY</td><td>29.10.2026, przed sesją (12:00 UTC)</td><td>nie</td><td>nie</td></tr>
+<tr><td>DASH</td><td>04.11.2026, po sesji (21:00 UTC)</td><td>tak</td><td>nie</td></tr>
+<tr><td>APP</td><td>04.11.2026, po sesji (21:05 UTC)</td><td>tak</td><td>nie</td></tr>
+<tr><td>AXON</td><td>10.11.2026 (12:00 UTC, pora niepewna)</td><td>nie</td><td>nie</td></tr>
+<tr><td>QCOM</td><td>11.11.2026 (12:00 UTC, pora niepewna)</td><td>nie</td><td>nie</td></tr>
+<tr><td>FER</td><td>04.03.2027 (poza oknem; ostatni raport 28.07.2026)</td><td>—</td><td>nie</td></tr></table></div>
+<p><b>Makro USA</b> (TradingView get-economic-calendar, importance=1): 19.10 — brak; 20.10 — Housing Starts (wrzesień, prognoza 1,31 mln, poprzednio 1,275 mln) i Building Permits (prognoza 1,40 mln, poprzednio 1,403 mln), 08:30 ET / 12:30 UTC. Inne raporty w tygodniu (FMP earnings-calendar, poza koszykiem): NFLX 20.10, TSLA i META 21.10.</p></section>
+
+<footer>Ustawienia bota z /status.ustawienia: alloc_pct 0,08 · alloc_pct_safe 0,04 · tactical_alloc_pct 0,0 · kill_level 0,75 · stop 15 % LONG / 10 % SHORT bez ponownego otwarcia · próg miękki 10 %/5 %, 2 pary. Źródła: kursy.py (Yahoo, zamknięcia 16.10.2026), TradingView MCP (odczyt ok. 12:37 UTC, dane opóźnione), FMP (wyrywkowo), /status bota (ok. 12:33 UTC), WebSearch. Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej. Raport wygenerowany automatycznie przez AI (rutyna „Puls NDX100”, proces v2).</footer>
+</main></body></html>
