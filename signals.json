@@ -225,11 +225,11 @@
     "APP": {
       "cena": 277.22,
       "kierunek": "SELL",
-      "wielkosc": 0.8,
+      "wielkosc": 0.3,
       "data": "2026-10-06",
       "wersja": "2026-W8",
       "epic": "APP",
-      "cena_brokera": 277.22
+      "cena_brokera": 266.87
     },
     "GOOGL": {
       "cena": 343.27,
@@ -284,6 +284,24 @@
       "wersja": "2026-W8",
       "epic": "FER",
       "cena_brokera": 43.48
+    },
+    "ADP": {
+      "cena": 287.22,
+      "kierunek": "BUY",
+      "wielkosc": 0.2,
+      "data": "2026-10-19",
+      "wersja": "2026-W8",
+      "epic": "ADP",
+      "cena_brokera": 287.22
+    },
+    "ALNY": {
+      "cena": 234.66,
+      "kierunek": "SELL",
+      "wielkosc": 0.3,
+      "data": "2026-10-19",
+      "wersja": "2026-W8",
+      "epic": "ALNY",
+      "cena_brokera": 234.66
     }
   },
   "equity_peak": 853.6,
