@@ -167,6 +167,19 @@ def test_v2_poprawki():
             and "E_bez_exclude" in wx["konstrukcje"] and E_long0 not in wx["konstrukcje"]["E_pary_budzet_sox"]["long"]
             and E_long0 in wx["konstrukcje"]["E_bez_exclude"]["long"] and wx["exclude_powody"] == {E_long0: "R8"})
     sprawdz("bez exclude: brak konstrukcji E_bez_exclude", "E_bez_exclude" not in w["konstrukcje"] and w["exclude_powody"] == {})
+    # 24.10.2026: tabela md przy niepustej liście --exclude (E_bez_exclude ma wybor → musi mieć pula_par) — regresja KeyError
+    sprawdz("E_bez_exclude: ma pole pula_par", wx["konstrukcje"]["E_bez_exclude"].get("pula_par") == ranking.PAIR_POOL)
+    try:
+        mdx = ranking.tabela_md(wx)
+        sprawdz("tabela md z --exclude: generuje się i opisuje E_bez_exclude", "E_bez_exclude" in mdx and mdx.count("wybór E") >= 2)
+    except Exception as e:  # noqa: BLE001
+        sprawdz("tabela md z --exclude: generuje się", False, repr(e))
+    wx["konstrukcje"]["E_bez_exclude"].pop("pula_par")
+    try:
+        ranking.tabela_md(wx)
+        sprawdz("tabela md: odporna na brak pula_par w konstrukcji z wybor", True)
+    except Exception as e:  # noqa: BLE001
+        sprawdz("tabela md: odporna na brak pula_par w konstrukcji z wybor", False, repr(e))
     d0 = date.fromisoformat(daty[-1])
     in7, in8 = (d0 + timedelta(days=7)).isoformat(), (d0 + timedelta(days=8)).isoformat()
     we = ranking.policz(daty, dane, tick, tv6, earnings={"T00": in7, "T01": in8, "T02": "zła-data"})

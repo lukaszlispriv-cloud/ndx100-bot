@@ -65,9 +65,23 @@
     <div class="ndx-kurs">^NDX 28 957,53 <span class="zmiana-minus">−0,79 % w oknie 16.10→23.10</span><small>zamknięcie 23.10.2026 (Yahoo przez kursy.py; TV get-ohlcv identyczne 28 957,53)</small></div>
     <div class="badge-rezim"><b>REŻIM P0</b><br>^NDX 28 957,5 &gt; MA200 27 836,0 · obsunięcie od maks. 252 sesji −7,26 % · sesja −0,00 % · VIX 19,45<br>oba źródła (Yahoo, TradingView) zgodne co do 0,00 % · status <b>AKTUALNA</b></div>
     <div class="badge-rezim" style="background:#3A1F1F;border-color:var(--czerw);color:#F2A9A2"><b>EKSPOZYCJA_NIEPELNA</b><br>W8: SHORT AXON nie na rachunku (bez wpisu exclude/stopu) — sekcja 6</div>
+    <div class="badge-rezim" style="background:#0E3A2A;border-color:#7FD6A4;color:#D9F7E6"><b>WYNIK TYGODNIA: +22,40 USD (+2,69 %)</b><br>kapitał 832,75 → 855,15 USD (sobota 17.10 → sobota 24.10) — sekcja 0</div>
   </div>
 </header>
 <main>
+
+<section id="wynik-tygodnia" data-kapital-usd="855.15" data-odczyt="2026-10-24T07:10Z" data-kapital-poprzedni-usd="832.75" data-odczyt-poprzedni="2026-10-17T07:15Z" data-wynik-usd="22.40" data-wynik-pct="2.69">
+<h2>0. Wynik tygodnia na rachunku — ile zarobił / stracił bot (17.10 → 24.10.2026)</h2>
+<div class="spread" style="font-size:1.25rem; background:#0E7C4A;"><span><b>+22,40 USD</b> &nbsp;=&nbsp; <b>+2,69 % kapitału</b></span><span>kapitał (equity) 832,75 USD → <b>855,15 USD</b></span><span>sobota 17.10 07:15 UTC → sobota 24.10 07:10 UTC (/status)</span></div>
+<div class="tab-otoczka"><table>
+<tr><th>odcinek tygodnia</th><th>kapitał na początku</th><th>kapitał na końcu</th><th>wynik USD</th><th>% kapitału początkowego</th><th>co się działo</th></tr>
+<tr><td>sobota 17.10 → poniedziałek 19.10 12:33 UTC (przed rotacją)</td><td class="num">832,75</td><td class="num">851,33</td><td class="num plus">+18,58</td><td class="num plus">+2,23 %</td><td>wycena 10 pozycji koszyka W7 (wraz z taktyczną ERIC) między piątkowym a poniedziałkowym odczytem — odbicie półprzewodników po najgorszym tygodniu ^NDX; pozycje W7 domknięte w biegu 13:45 UTC</td></tr>
+<tr class="hl"><td><b>koszyk W8: rotacja 19.10 13:45 UTC → piątek 23.10 (zamknięcie)</b></td><td class="num">851,33</td><td class="num">855,15</td><td class="num plus"><b>+3,82</b></td><td class="num plus"><b>+0,45 %</b></td><td>9 z 10 nóg (AXON SHORT nieotwarty); otwarty wynik 9 pozycji na koniec tygodnia +2,79 USD, reszta to domknięcie W7 w poniedziałek po 12:33, wyrównanie APP i różnice kursowe FER (EUR)</td></tr>
+<tr><td>razem tydzień kalendarzowy</td><td class="num">832,75</td><td class="num">855,15</td><td class="num plus"><b>+22,40</b></td><td class="num plus"><b>+2,69 %</b></td><td>drugi dodatni tydzień z rzędu po stracie W7; wszystkie liczby z odczytów /status zapisanych w raportach (W8 17.10; Pulsy 19, 22, 23.10; ten raport 24.10)</td></tr>
+</table></div>
+<div class="karta"><p><b>Odniesienia:</b> od resetu odniesienia kill switcha 18.10 (START_EQUITY 832,55) kapitał wzrósł o <b>+22,60 USD (+2,71 %)</b>; od szczytu historycznego 1 104,36 (6.10, historia gita) kapitał jest <b>−249,21 USD (−22,6 %)</b>; zapas do progu kill switcha 25,0 % (sekcja 6). Dla porównania wynik modelowy koszyka W8 (równe wagi, bez kosztów) od cen wejścia +0,58 pp × gross 0,8 ≈ <b>+0,23 % kapitału</b>, bez nieotwartej nogi AXON (short, który by stracił) ≈ +1,1 % — rachunek zrobił +0,45 %, czyli mieścił się między tymi dwiema wartościami. Przebieg dzienny (Pulsy): 19.10 851,33 · 22.10 851,01 · 23.10 850,65 · 24.10 855,15.</p>
+<p class="bd">Definicja (stała od W9): wynik tygodnia = kapitał (equity) z sobotniego odczytu /status minus kapitał z poprzedniego sobotniego odczytu (sekcja 0 poprzedniego raportu, atrybuty data-* tej sekcji); procent liczony od kapitału początkowego. Wpłaty/wypłaty w tygodniu byłyby wykazane osobno (w tym tygodniu brak — gotówka zmienia się tylko wynikiem). To jedyny wynik w USD poza sekcją 6; nie trafia do commitów ani powiadomień.</p></div>
+</section>
 
 <section>
 <h2>1. Rozliczenie 2026-W8 — PEŁNE (D0 = 16.10 → D+5 = 23.10.2026, 5 sesji) — tabela prerejestrowana A1–A3</h2>
@@ -247,7 +261,7 @@
 <section>
 <h2>11. Stopka</h2>
 <div class="karta"><p><b>Ustawienia bota (/status.ustawienia, 24.10 07:10 UTC):</b> alloc_pct 0,08 · alloc_pct_safe 0,04 · tactical_alloc_pct 0,0 (tactical_enabled false) · kill_level 0,75 (trailing, resume 14 dni, rearm 0,10, alloc_restart 0,04) · stop 15 % LONG / 10 % SHORT bez reopen · próg miękki 10 %/5 %, 2 pary · max_overshoot 1,6 · reduce_fallback close. <b>Proces v2</b> (decyzja 18.10.2026; rutyny/reguly.md wersja 2026-10-18) — pierwsza rotacja koszykiem E. <b>Parametry ranking.py (pole parametry):</b> MOM_WIN 126 · MOM_SKIP 5 · SIGMA_WIN 60 · BETA_WIN 250 · SHORT_VETO_R10 −0,20 · SIGMA_VETO_MULT 3,0 · FACTOR_BUDGET 0,5 · MAX_SWAPS 6 · PAIR_POOL 8 · MAX_PRICE_USD 1 280 · EVENT_WINDOW_DAYS 7 · MIN_IND 4 · MIN_GROUP 3. Wpis history za W8: dane_b1 = "tv" (czynniki koszyka rozliczanego ze snapshotu TV, Model 3.0); od wpisu za W9: "yahoo". Kryteria decyzji (KROK C) raportowane od 12. okna cieni — obecnie n = 1.</p>
-<p class="bd">Materiał analityczno-edukacyjny, nie rekomendacja inwestycyjna. Liczby z rachunku wyłącznie w sekcji 6.</p></div>
+<p class="bd">Materiał analityczno-edukacyjny, nie rekomendacja inwestycyjna. Liczby z rachunku wyłącznie w sekcjach 0 i 6.</p></div>
 </section>
 </main>
 <footer>Raport NDX100 — proces v2 · wygenerowano 2026-10-24 ok. 07:40 UTC · źródła: scripts/kursy.py (Yahoo), TradingView MCP (dane opóźnione), FMP earnings-calendar, /status bota (odczyt), data/ranking-2026-W9.json, data/koszyki-cienie.jsonl.</footer>

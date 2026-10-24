@@ -119,7 +119,11 @@ ograniczenie wielkości rachunku, nie awarię.
 - Raport tygodniowy (sobota ok. 07:30 UTC): widzi pozycje ROZLICZANEGO
   tygodnia — porównuj je z koszykiem rozliczanym, nie z nowym.
 - Stan rachunku nie opuszcza raportów: kapitał i wynik w USD tylko w sekcji
-  kontroli rachunku / problemów, nigdy w powiadomieniu push ani w commicie.
+  kontroli rachunku / problemów oraz (od 24.10.2026, raport tygodniowy) w
+  sekcji 0 „WYNIK TYGODNIA NA RACHUNKU" (`rutyny/tygodniowa.md` A10: wynik
+  tygodnia w USD i % kapitału, sobota → sobota, atrybuty `data-*` na
+  `<section id="wynik-tygodnia">` czytane przez następną sobotę) — nigdy
+  w powiadomieniu push ani w commicie.
 
 ## TradingView MCP (od 12.10.2026 — FAZA 2; OD 18.10.2026 ZAWĘŻONE przez proces v2 — sekcja „Proces v2” niżej i `rutyny/tradingview.md` §0a; punkty o pełnym użyciu, flagach b1_z_tv/kryterium_event_remis/event_blokada_taktycznej i budżetach 40/50 są HISTORYCZNE)
 

@@ -52,6 +52,10 @@ wobec 1000 losowych koszyków 5/5 z uniwersum PO vetach) + tabela markdown.
 Skrypt NIE dotyka signals.json — rutyna przepisuje wybór do pól long/short.
 Wszystkie parametry mają wartości domyślne prerejestrowane 18.10.2026;
 zmiana = commit z datą w nagłówku tego pliku.
+Historia zmian (bez zmian parametrów ani logiki rankingu):
+  2026-10-24 — poprawka formatowania: konstrukcja E_bez_exclude dostaje pole
+    pula_par, a tabela_md() czyta pula_par/b_sox_net_ex_ante przez .get()
+    (bieg 24.10 kończył się KeyError po zapisaniu --out, przed --md).
 """
 import argparse
 import csv
@@ -570,7 +574,8 @@ def policz(daty, dane, uniwersum, tv_rows, d0=None, earnings=None, exclude=(), f
     if excl:
         lo2, sh2, pary2, bnet2, wybor2, dopeln2 = konstrukcja_E(score, grupa, kandyd_l_bx, kandyd_s_bx, bety, zw, daty_do)
         kons["E_bez_exclude"] = {"long": lo2, "short": sh2, "pary": pary2, "b_sox_net_ex_ante": bnet2, "wybor": wybor2,
-                                 "dopelnienia": dopeln2, "ryzyko": ryzyko_koszyka(zw, lo2, sh2, daty_do, bety, pula_los),
+                                 "dopelnienia": dopeln2, "pula_par": PAIR_POOL,
+                                 "ryzyko": ryzyko_koszyka(zw, lo2, sh2, daty_do, bety, pula_los),
                                  "_uwaga": "ten sam algorytm co E bez listy --exclude; koszt listy = spread(E_bez_exclude) − spread(E)"}
     if faktyczny and faktyczny[0] and faktyczny[1]:
         fl, fs = list(faktyczny[0]), list(faktyczny[1])
@@ -612,7 +617,7 @@ def tabela_md(wynik, n=15):
         if k.get("wymiany"):
             L.append("  wymiany (budżet czynnikowy): " + "; ".join(f"{w['strona']} {w['z']}→{w['na']}" for w in k["wymiany"]))
         if k.get("wybor"):
-            L.append(f"  wybór E: {k['wybor']} (b_SOX net ex ante {k['b_sox_net_ex_ante']}, pula {k['pula_par']} par"
+            L.append(f"  wybór E: {k['wybor']} (b_SOX net ex ante {k.get('b_sox_net_ex_ante', 'b.d.')}, pula {k.get('pula_par', 'b.d.')} par"
                      + (f"; dopełnienia: {', '.join(k['dopelnienia'])}" if k.get('dopelnienia') else "") + ")")
     L.append("")
     L.append("| # | Ticker | mom6 rel | pct | mom12−1 rel | r10 | σ60 dz. | β NDX | b_SOX | b_DEF | grupa | veto long | veto short |")
