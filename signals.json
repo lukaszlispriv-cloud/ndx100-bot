@@ -1,20 +1,20 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W8",
+  "version": "2026-W9",
   "status": "AKTUALNA",
   "long": [
-    "GOOGL",
-    "GILD",
-    "MSFT",
-    "QCOM",
-    "ADP"
+    "CRWD",
+    "MU",
+    "ABNB",
+    "TRI",
+    "KDP"
   ],
   "short": [
-    "AXON",
-    "DASH",
-    "ALNY",
     "APP",
-    "FER"
+    "AVGO",
+    "CMCSA",
+    "NFLX",
+    "PEP"
   ],
   "exclude": [],
   "tactical": [],
@@ -97,25 +97,37 @@
       "reaction_pp": 2.08,
       "rezim": "P0",
       "dane_b1": "tv"
+    },
+    {
+      "week": "2026-W8",
+      "spread_pp": 0.62,
+      "spread_fills_pp": 0.58,
+      "hit_top": "3/5",
+      "hit_bottom": "3/5",
+      "tactical_pp": null,
+      "managed_pp": 0.62,
+      "reaction_pp": 0.0,
+      "rezim": "P0",
+      "dane_b1": "tv"
     }
   ],
   "d0": {
-    "date": "2026-10-16",
-    "ndx": 29187.55,
+    "date": "2026-10-23",
+    "ndx": 28957.53,
     "prices": {
-      "GOOGL": 340.59,
-      "GILD": 156.19,
-      "MSFT": 529.05,
-      "QCOM": 172.11,
-      "ADP": 288.9,
-      "AXON": 390.29,
-      "DASH": 189.15,
-      "ALNY": 231.83,
-      "APP": 266.13,
-      "FER": 49.41
+      "CRWD": 257.57,
+      "MU": 877.55,
+      "ABNB": 172.01,
+      "TRI": 123.17,
+      "KDP": 34.68,
+      "APP": 260.25,
+      "AVGO": 321.68,
+      "CMCSA": 22.69,
+      "NFLX": 65.85,
+      "PEP": 135.77
     }
   },
-  "generated": "2026-10-17",
+  "generated": "2026-10-24",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",

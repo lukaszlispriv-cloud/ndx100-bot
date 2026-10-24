@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raport tygodniowy NDX100 — proces v2 — 2026-W9</title>
+<style>
+  :root{
+    --tlo:#F6F7F4; --granat:#10243E; --ziel:#0E7C4A; --czerw:#C4372E;
+    --bursztyn:#B7791F; --karta:#FFFFFF; --ramka:#E3E5E0; --tekst:#1C2430;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--tlo); color:var(--tekst);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       font-size:16px; line-height:1.5; padding-bottom:2rem;}
+  .mono{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;}
+  header{background:var(--granat); color:#fff; padding:1.1rem 1rem 1.3rem;}
+  header .tytul{font-size:0.8rem; letter-spacing:0.12em; text-transform:uppercase; opacity:.75;}
+  header h1{font-size:1.35rem; margin-top:.15rem; font-weight:700;}
+  .pasek-idx{display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:center; margin-top:.8rem;}
+  .ndx-kurs{font-size:1.55rem; font-weight:700;}
+  .ndx-kurs small{font-size:.8rem; font-weight:400; opacity:.7; display:block;}
+  .zmiana-plus{color:#7FD6A4;} .zmiana-minus{color:#F2A9A2;}
+  .badge-rezim{display:inline-block; background:#123B26; border:2px solid var(--ziel);
+    color:#8FE3B4; border-radius:10px; padding:.45rem .8rem; font-size:.78rem; line-height:1.45;}
+  .badge-rezim b{font-size:1rem; color:#B9F2D2;}
+  main{max-width:900px; margin:0 auto; padding:0 .8rem;}
+  section{margin-top:1.4rem;}
+  h2{font-size:1.02rem; text-transform:uppercase; letter-spacing:.08em; color:var(--granat);
+     border-bottom:2px solid var(--granat); padding-bottom:.3rem; margin-bottom:.7rem;}
+  h3{font-size:.95rem; color:var(--granat); margin:.9rem 0 .4rem;}
+  .karta{background:var(--karta); border:1px solid var(--ramka); border-radius:10px;
+     padding:.8rem .9rem; margin-bottom:.6rem;}
+  .etyk{display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em;
+     padding:.14rem .45rem; border-radius:4px; color:#fff; margin-right:.4rem; vertical-align:1px;}
+  .e-wyniki{background:#28527A;} .e-makro{background:#6B4E9B;} .e-rezim{background:var(--ziel);}
+  .e-info{background:#5B6770;} .e-flaga{background:var(--czerw);}
+  .karta p{font-size:.92rem;}
+  .zrodlo{display:block; font-size:.74rem; color:#66707C; margin-top:.3rem;}
+  .tab-otoczka{overflow-x:auto; background:var(--karta); border:1px solid var(--ramka); border-radius:10px; margin-bottom:.6rem;}
+  table{border-collapse:collapse; width:100%; min-width:720px; font-size:.86rem;}
+  th{background:#EDEFEA; text-align:left; padding:.45rem .55rem; font-size:.7rem;
+     text-transform:uppercase; letter-spacing:.05em; color:#3C4654;}
+  td{padding:.45rem .55rem; border-top:1px solid var(--ramka); vertical-align:top;}
+  td.num{text-align:right; font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace; font-size:.83rem; white-space:nowrap;}
+  .plus{color:var(--ziel);} .minus{color:var(--czerw);}
+  .kier-long{color:var(--ziel); font-weight:700;} .kier-short{color:var(--czerw); font-weight:700;}
+  .bd{color:#8A939E;}
+  tr.hl td{background:#F3F7F4;}
+  .spread{background:var(--granat); color:#fff; border-radius:10px; padding:.75rem .9rem;
+     margin-top:.6rem; margin-bottom:.6rem; font-size:.92rem; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  .panel li{background:var(--karta); border:1px solid var(--ramka); border-radius:8px;
+     padding:.55rem .7rem; margin-bottom:.45rem; list-style:none; font-size:.9rem;}
+  .panel b{color:var(--granat);}
+  .alarm{color:var(--czerw); font-weight:700;} .ok{color:var(--ziel); font-weight:700;}
+  footer{max-width:900px; margin:1.6rem auto 0; padding:0 .8rem; font-size:.78rem; color:#66707C;}
+  @media (max-width:600px){ header h1{font-size:1.1rem;} table{min-width:640px;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="tytul">Raport tygodniowy NDX100 — proces v2</div>
+  <h1>2026-W9 · rozliczenie 2026-W8 · rotacja koszyka E (sobota 24.10.2026, ok. 07:10–07:40 UTC)</h1>
+  <div class="pasek-idx">
+    <div class="ndx-kurs">^NDX 28 957,53 <span class="zmiana-minus">−0,79 % w oknie 16.10→23.10</span><small>zamknięcie 23.10.2026 (Yahoo przez kursy.py; TV get-ohlcv identyczne 28 957,53)</small></div>
+    <div class="badge-rezim"><b>REŻIM P0</b><br>^NDX 28 957,5 &gt; MA200 27 836,0 · obsunięcie od maks. 252 sesji −7,26 % · sesja −0,00 % · VIX 19,45<br>oba źródła (Yahoo, TradingView) zgodne co do 0,00 % · status <b>AKTUALNA</b></div>
+    <div class="badge-rezim" style="background:#3A1F1F;border-color:var(--czerw);color:#F2A9A2"><b>EKSPOZYCJA_NIEPELNA</b><br>W8: SHORT AXON nie na rachunku (bez wpisu exclude/stopu) — sekcja 6</div>
+  </div>
+</header>
+<main>
+
+<section>
+<h2>1. Rozliczenie 2026-W8 — PEŁNE (D0 = 16.10 → D+5 = 23.10.2026, 5 sesji) — tabela prerejestrowana A1–A3</h2>
+<div class="tab-otoczka"><table>
+<tr><th>Noga</th><th>Kier.</th><th>D0 16.10</th><th>D+5 23.10</th><th>zwrot abs.</th><th>A1 pozycja vs ^NDX (pp)</th><th>cena wejścia (fills)</th><th>A2 pozycja od wejścia (pp)</th><th>hit</th></tr>
+<tr><td>GOOGL</td><td class="kier-long">LONG</td><td class="num">340,59</td><td class="num">320,21</td><td class="num minus">−5,98 %</td><td class="num minus">−5,20</td><td class="num">343,27 (19.10)</td><td class="num minus">−5,93</td><td>✗</td></tr>
+<tr><td>GILD</td><td class="kier-long">LONG</td><td class="num">156,19</td><td class="num">156,04</td><td class="num minus">−0,10 %</td><td class="num plus">+0,69</td><td class="num">156,63 (19.10)</td><td class="num plus">+0,41</td><td>✓</td></tr>
+<tr><td>MSFT</td><td class="kier-long">LONG</td><td class="num">529,05</td><td class="num">524,51</td><td class="num minus">−0,86 %</td><td class="num minus">−0,07</td><td class="num">531,43 (19.10)</td><td class="num minus">−0,51</td><td>✗</td></tr>
+<tr><td>QCOM</td><td class="kier-long">LONG</td><td class="num">172,11</td><td class="num">175,91</td><td class="num plus">+2,21 %</td><td class="num plus">+3,00</td><td class="num">177,08 (19.10)</td><td class="num plus">+0,13</td><td>✓</td></tr>
+<tr><td>ADP</td><td class="kier-long">LONG</td><td class="num">288,90</td><td class="num">304,16</td><td class="num plus">+5,28 %</td><td class="num plus">+6,07</td><td class="num">287,22 (19.10)</td><td class="num plus">+6,69</td><td>✓</td></tr>
+<tr><td>AXON</td><td class="kier-short">SHORT</td><td class="num">390,29</td><td class="num">420,37</td><td class="num plus">+7,71 %</td><td class="num minus">−8,50</td><td class="num bd">brak fills → D0</td><td class="num minus">−8,50</td><td>✗</td></tr>
+<tr><td>DASH</td><td class="kier-short">SHORT</td><td class="num">189,15</td><td class="num">179,38</td><td class="num minus">−5,17 %</td><td class="num plus">+4,38</td><td class="num">186,72 (19.10)</td><td class="num plus">+3,14</td><td>✓</td></tr>
+<tr><td>ALNY</td><td class="kier-short">SHORT</td><td class="num">231,83</td><td class="num">224,03</td><td class="num minus">−3,36 %</td><td class="num plus">+2,58</td><td class="num">234,66 (19.10)</td><td class="num plus">+3,74</td><td>✓</td></tr>
+<tr><td>APP</td><td class="kier-short">SHORT</td><td class="num">266,13</td><td class="num">260,25</td><td class="num minus">−2,21 %</td><td class="num plus">+1,42</td><td class="num">277,22 (06.10, noga kontynuowana z W7)</td><td class="num plus">+5,33</td><td>✓</td></tr>
+<tr><td>FER</td><td class="kier-short">SHORT</td><td class="num">49,41</td><td class="num">49,65</td><td class="num plus">+0,49 %</td><td class="num minus">−1,27</td><td class="num">49,25 (zamkn. USD 19.10; fills 43,48 jest w EUR)</td><td class="num minus">−1,60</td><td>✗</td></tr>
+</table></div>
+<div class="spread"><span><b>A1 spread_pp = +0,62 pp</b> (LONG śr. +0,90 · SHORT śr. −0,28 · ^NDX −0,79 %)</span><span><b>A2 spread_fills_pp = +0,58 pp</b> (LONG śr. +0,16 · SHORT śr. +0,42) · różnica A2−A1 = <b>−0,04 pp</b> (koszt poślizgu wejścia 19.10 i kontynuacji APP)</span><span>hit TOP5 <b>3/5</b> · BOTTOM5 <b>3/5</b></span></div>
+<div class="karta"><p><span class="etyk e-wyniki">A1</span> n = 5 sesji (19–23.10) od d0.date 16.10 — bieg sobotni, rozliczenie PEŁNE. Kursy: zamknięcia 23.10.2026 z <span class="mono">scripts/kursy.py</span> (Yahoo, odczyt 24.10 ok. 07:10 UTC; walidacja D0 OK dla 10/10 nóg, tolerancja 0,5 %). Dywidendy: TradingView MCP (get-dividends-calendar, odczyt 2026-10-24 07:19 UTC, dane opóźnione) — żadna z 10 nóg rozliczanych ani 10 nowych nie miała ex-date w oknie 19–23.10 (najbliższe: MU 14.10 przed D0, CMCSA 07.10); korekta = 0. Uczciwość: 5-sesyjne zwroty są w dużej mierze losowe — tabela nie dowodzi skuteczności.</p>
+<p><span class="etyk e-wyniki">A2</span> Odniesienie = pole <span class="mono">fills.cena</span>; AXON bez wpisu (noga nieotwarta) → D0 z adnotacją; FER: wpis fills 43,48 jest poziomem brokera w EUR (pozycja w EUR), więc jako cenę odniesienia przyjęto zamknięcie USD z 19.10 (49,25) — ta sama konwencja co w Pulsach 22–23.10. Bez AXON (9 nóg, SHORT śr. z 4) spread od wejścia wyniósłby +2,81 pp — nieotwarcie shorta AXON (+7,71 % w oknie) <i>poprawiło</i> wynik rachunku wobec koszyka z pliku.</p>
+<p><span class="etyk e-wyniki">A3</span> tactical_pp = <b>null</b> (moduł taktyczny wyłączony, <span class="mono">wykonanie.taktyczne</span> = {}); wykonanych reakcji 0 (<span class="mono">wykonanie.reakcje</span> = {}) → reaction_pp = <b>0,00</b>, managed_pp = spread_pp = <b>+0,62</b>. Wpisów <span class="mono">exclude</span> o basis="news" w oknie nie było (lista pusta przez cały tydzień; Pulsy 19, 22, 23.10). Skumulowane z history (W1–W7): reaction_pp −1,36 pp, tactical_pp +1,02 pp (3 tygodnie z wartością). BRAMKA — POMIAR z Pulsów: do 22.10 żaden wpis; GOOGL 1. zamknięcie za progiem 4 % od fills 22.10 (−5,55 %), 23.10 drugie z rzędu (−6,72 %) → na papierze „REDUCE od 26.10” — poza oknem pomiaru; AXON 22.10 +6,23 % od D0 (1. sesja za progiem) — bez wpisu (pomiar). Stopów bota w oknie: brak (<span class="mono">wykonanie.stopy</span> nie istnieje).</p></div>
+</section>
+
+<section>
+<h2>2. Koszyki cienie — A4 (scripts/koszyki_cienie.py, D0 16.10 → 23.10, 5 sesji, ^NDX −0,79 %, pokrycie 9/10)</h2>
+<div class="tab-otoczka"><table>
+<tr><th>koszyk</th><th>spread_pp</th><th>long śr.</th><th>short śr.</th><th>hit L</th><th>hit S</th><th>σ zreal. tyg.</th><th>σ ex ante</th><th>skład</th></tr>
+<tr><td>A_mom6_top5_bottom5</td><td class="num plus">+9,51</td><td class="num">+8,35</td><td class="num">+1,16</td><td>4/5</td><td>3/5</td><td class="num">9,09</td><td class="num">8,06</td><td>CRWD, DDOG, PANW, FTNT, AMD / FER, APP, ALNY, TMUS, PEP</td></tr>
+<tr><td>B_5_par_branzowych</td><td class="num plus">+3,33</td><td class="num">+3,02</td><td class="num">+0,31</td><td>3/5</td><td>4/5</td><td class="num">5,59</td><td class="num">5,97</td><td>CRWD, AMD, FTNT, AMGN, AMAT / APP, AVGO, PAYX, ALNY, PCAR</td></tr>
+<tr><td>C_neutralna_branzowo</td><td class="num plus">+5,07</td><td class="num">+3,91</td><td class="num">+1,16</td><td>3/5</td><td>3/5</td><td class="num">7,88</td><td class="num">6,83</td><td>CRWD, FTNT, AMD, STX, SHOP / FER, APP, ALNY, TMUS, PEP</td></tr>
+<tr><td>D_budzet_czynnikowy</td><td class="num plus">+9,15</td><td class="num">+7,99</td><td class="num">+1,16</td><td>4/5</td><td>3/5</td><td class="num">5,83</td><td class="num">6,40</td><td>MSFT, DDOG, PANW, FTNT, WDAY / FER, APP, ALNY, TMUS, PEP</td></tr>
+<tr class="hl"><td><b>E_pary_budzet_sox</b></td><td class="num plus">+1,77</td><td class="num">+2,70</td><td class="num">−0,93</td><td>3/5</td><td>3/5</td><td class="num">4,54</td><td class="num">5,19</td><td>CRWD, AMGN, FTNT, AMD, DXCM / APP, ALNY, PAYX, AVGO, GEHC</td></tr>
+<tr class="hl"><td><b>FAKTYCZNY</b> (koszyk W8, Model 3.0)</td><td class="num plus">+0,62</td><td class="num">+0,90</td><td class="num">−0,28</td><td>3/5</td><td>3/5</td><td class="num">1,40</td><td class="num">4,12</td><td>GOOGL, GILD, MSFT, QCOM, ADP / AXON, DASH, ALNY, APP, FER</td></tr>
+<tr><td>ETF_SMH_XLP</td><td class="num minus">−3,06</td><td class="num">−1,54</td><td class="num">−1,52</td><td>0/1</td><td>0/1</td><td class="num">10,20</td><td class="num bd">b.d.</td><td>SMH / XLP</td></tr>
+<tr><td>„bez nóg EVENT” (papier)</td><td class="num plus">+0,62</td><td colspan="7">żadna noga FAKTYCZNEGO nie miała raportu w oknie 17–23.10 (najbliższe: GOOGL 27/28.10, MSFT/ADP 28.10, GILD/ALNY 29.10) → tożsame z FAKTYCZNYM</td></tr>
+</table></div>
+<div class="karta"><p><span class="etyk e-info">--podsumowanie</span> <b>n = 1 okno</b> (2026-W8 … 2026-W8; plik <span class="mono">data/koszyki-cienie.jsonl</span> utworzony w tym biegu — pierwsze okno v2). Średnie: E +1,77 · A +9,51 · B +3,33 · C +5,07 · D +9,15 · FAKT +0,62 · ETF −3,06 p.p.; σ, CI 95 %, σ-ratio E/A i E/FAKT, test F: <b>b.d. — pierwsze okno</b>. E netto (koszt prerejestrowany 0,3 p.p./tydz.): +1,47, CI b.d. Kalibracja E (σ zreal./ex ante): n = 1, 0,87 — w paśmie [0,7; 1,4]. Pokrycie 10/10: 0/1 okien (W8: 9/10).</p>
+<p><b>Zdanie w stałej formie:</b> n = 1, różnica średnich E − A = −7,74 p.p. (CI b.d.) — nierozstrzygalna; σ-ratio b.d. (F = b.d., p = b.d.). Zgodnie z R14: o wariancji od 12 okien, o średniej nie przed 26. Uwaga: dla W8 FAKTYCZNY ≠ E (koszyk W8 wybrany jeszcze Modelem 3.0); od W9 FAKTYCZNY = E i różnica będzie mierzyć wyłącznie wykonanie. Cień U dla W8 nie istniał (plik ranking-2026-W8 bez klucza U_uznaniowy).</p></div>
+</section>
+
+<section>
+<h2>3. Dekompozycja czynnikowa i kalibracja — A5 (przybliżenie jednoczynnikowe)</h2>
+<div class="karta"><p>Okno 16.10→23.10: ^SOX −3,21 %, ^NDX −0,79 % → <b>SOX − NDX = −2,42 pp</b>. b_sox_net koszyka FAKTYCZNEGO (plik ranking-2026-W8) = 0,053 → część spreadu wyjaśniona czynnikiem SOX = 0,053 × (−2,42) = <b>−0,13 pp</b>; reszta = +0,62 − (−0,13) = <b>+0,75 pp</b>. Informacyjnie (nie sumować z betą SOX — regresje jednoczynnikowe, czynniki skorelowane): (XLP+XLU+XLV)/3 − QQQ = +1,77 pp, b_def_net FAKT = 0,150 → +0,26 pp. Dla porównania cień E (b_sox_net 0,263): część SOX −0,64 pp ze spreadu +1,77.</p>
+<p><b>Kalibracja σ:</b> FAKTYCZNY σ zreal. 1,40 vs σ60 ex ante 4,12 pp/tydz. → stosunek 0,34 (pojedyncze okno; tydzień o niskiej dyspersji w koszyku o niskiej becie netto −0,21); E 4,54 vs 5,19 → 0,87. Tabela KALIBRACJA (pasmo [0,7; 1,4]) ocenia dopiero średnią po 12 oknach.</p></div>
+</section>
+
+<section>
+<h2>4. Reguły — kontrola (A6, reguly.md pkt 4) — definicje operacyjne, bez uznania</h2>
+<div class="tab-otoczka"><table>
+<tr><th>pozycja</th><th>wartość</th><th>definicja / uwagi</th></tr>
+<tr><td>(a) koszt listy --exclude W8 łącznie</td><td class="num">0,00 pp</td><td>bieg rotacji W8 (18.10) nie miał listy --exclude (exclude = null w pliku ranking); konstrukcja E_bez_exclude nie istnieje → 0</td></tr>
+<tr><td>(b) veta imienne W8</td><td class="num bd">brak</td><td>żaden wpis veto_long/veto_short w pliku W8 nie zaczyna się od „exclude:”</td></tr>
+<tr><td>(c) veta systemowe W8 — EVENT (L / S)</td><td class="num">n = 12 · śr. +1,75 / −1,75 pp</td><td>NBIS, TXN, LRCX, WDC, META, CSX, TSLA, ROP, ISRG, HON, CMCSA, NFLX; zwrot pozycji, jaką miałyby nogi (informacyjnie; zmiana progów zabroniona)</td></tr>
+<tr><td>(c) K13 (short)</td><td class="num">n = 12 · śr. +4,17 pp</td><td>SNDK, ARM, INTC, STX, NBIS, AMAT, LITE, LRCX, WDC, TER, RKLB, CRWV — shorty po spadku ≤ −20 % wygrałyby średnio w tym oknie (zwroty +0,5…+12,0, dwie ujemne); jedno okno, n = 1 tydzień</td></tr>
+<tr><td>(c) σ60 (L / S)</td><td class="num">n = 2 · −5,35 / +5,35 pp</td><td>MRNA, NBIS</td></tr>
+<tr><td>(c) cena &gt; 1 280 USD (L / S)</td><td class="num">n = 3 · −2,63 / +2,63 pp</td><td>SNDK, ASML, MELI</td></tr>
+<tr class="hl"><td><b>(d) NADPISANIE = spread FAKT − spread E</b></td><td class="num minus">−1,15 pp</td><td>+0,62 − 1,77; dla W8 mierzy Model 3.0 vs E (ostatni tydzień z nadpisaniem uznaniowym); od W9 — wyłącznie wykonanie</td></tr>
+<tr><td>skumulowane (data/koszyki-cienie.jsonl)</td><td class="num">n = 1</td><td>bez wniosków przed 26 oknami</td></tr>
+</table></div>
+<div class="karta"><p><span class="etyk e-info">W9</span> Lista --exclude w tym biegu: <span class="mono">MSTR=R8 KHC=indeks WBD=indeks</span>. Żaden wpis nie zmienił składu (konstrukcja E_bez_exclude = E; MSTR miał dodatkowo veto EVENT 29.10, KHC/WBD są poza indeksem i bez pełnej historii) → ex-ante koszt listy = 0; rozliczenie 31.10.</p></div>
+</section>
+
+<section>
+<h2>5. Zdanie o mocy (A7) · kandydaci i deklaracje (A8)</h2>
+<div class="karta"><p><span class="etyk e-wyniki">A7</span> <b>Po 8 tygodniach średnia −0,38 p.p./tydz. (σ 10,46, t = −0,10), hit 39/80 = 48,8 % (Wilson 95 %: 38,1–59,5 %) — nieodróżnialne od losowości.</b> Percentyl σ koszyka FAKTYCZNEGO W8 wobec 1000 losowych koszyków 5/5 z uniwersum po vetach (n_pula 74): 61,0.</p>
+<p><span class="etyk e-info">A8 — KANDYDACI</span> H1 (shorty „ofiar substytucji”): brak definicji operacyjnej — nie rozliczane. H2 (long po dniu ≥ +12 % rel., 10 sesji): w oknie 19–23.10 żadna spółka uniwersum nie miała sesji ≥ +12 % relatywnie (największe: CRWD +8,25 %, PANW +7,22 % 23.10 — poniżej progu) → warunek nie wystąpił. H3 (momentum tylko przy VIX &gt; 20 na D0): VIX na D0 16.10 = 19,99 (TV) → tydzień klasy „VIX ≤ 20”; cień A dał +9,51 pp — jedno okno, bez wniosku, gross wg VIX nie jest sterowany. H4 (konstrukcja parowa B ma niższą σ): W8 σ zreal. B 5,59 vs A 9,09 — zgodne ze znakiem hipotezy, n = 1. H5 (budżet czynnikowy D obniża ogon): D +9,15 vs A +9,51 przy σ 5,83 vs 9,09 — n = 1.</p>
+<p><span class="etyk e-info">A8 — DEKLARACJE W8 (rozliczone jednorazowo 24.10, ostatnie)</span> <b>D1-W8</b> „GOOGL pobije ^NDX relatywnie 16.10→23.10”: GOOGL −5,98 % vs ^NDX −0,79 % (−5,20 pp) → <span class="alarm">SFALSYFIKOWANA</span>. <b>D2-W8</b> „SNDK nie pobije ^NDX”: SNDK −4,72 % (−3,93 pp rel.) → POTWIERDZONA; niezależnie od wyniku filtr K17 pozostaje UCHYLONY. <b>D3-W8</b> warunkowa: NFLX 21.10 −5,31 % (warunek ≤ −5 % spełniony); APP −1,67 % i DASH −3,77 % vs ^NDX +1,13 % w sesji 21.10 → obie przegrały z indeksem → POTWIERDZONA. Żadna falsyfikacja ani potwierdzenie nie tworzy reguły ani wpisu exclude; v2 nie tworzy nowych deklaracji.</p></div>
+</section>
+
+<section>
+<h2 class="alarm">6. Kontrola pokrycia rachunku (A9) — EKSPOZYCJA_NIEPELNA · /status odczyt 24.10.2026 07:10 UTC · stan PO biegu 17:05 UTC z 23.10 — pozycje ROZLICZANEGO tygodnia W8 (rotacja na W9 w poniedziałek 26.10 13:45 UTC)</h2>
+<div class="karta"><p><span class="etyk e-flaga">EKSPOZYCJA_NIEPELNA</span> Noga SHORT <b>AXON</b> nie była na rachunku przez całe okno (5 sesji) i nie wykluczył jej protokół (<span class="mono">exclude</span> = []), nie zatrzymał stop (<span class="mono">wykonanie.stopy</span> nie istnieje) ani próg miękki (<span class="mono">zamkniete_progiem_miekkim</span> = []); <span class="mono">/status.pokrycie_koszyka.short.brakujace</span> = [AXON]. Prawdopodobna przyczyna (Pulsy 22–23.10): minimalna transakcja u brokera — cel nogi 8 % × kapitał ≈ 68 USD przy kursie 390–420 USD, granica przestrzału 1,6× ≈ 109 USD; to ograniczenie wielkości rachunku, nie awaria, ale bot nie zapisuje powodu dla nóg koszyka w <span class="mono">signals.json</span> — potwierdzenie wymaga logu Rendera (odpowiedź <span class="mono">/run</span> 19.10, pole „pominiete”). AXON nie wchodzi do koszyka W9 → sprawa wygasa z rotacją 26.10. Koszt na papierze: brak shorta AXON (+7,71 %) poprawił wynik rachunku o ≈ 0,6 % kapitału względem koszyka z pliku.</p>
+<p><b>KILL SWITCH:</b> zatrzask = <span class="ok">false</span> — bot handluje normalnie. <span class="mono">kill_switch</span>: odniesienie 855,15 (kroczący; podłoga START_EQUITY 832,55 aktywna), próg 641,36, <b>zapas 25,0 %</b>, obsunięcie od szczytu bieżącego 0,0 %, wznowienie nie oczekuje, restart ręczny od kapitału 705,50; ślad kill: brak. Zapas w σ dziennej kapitału: σ dzienna ≈ 5 × alloc_pct 0,08 × sigma60_unit_dzienna FAKTYCZNEGO W8 1,845 % = <b>0,74 %</b> → zapas ≈ 34 σ dzienne. <b>Obsunięcie od szczytu historycznego:</b> najwyższy equity_peak w historii gita pliku (repo odpłycone w tym biegu) = 1 104,36 → kapitał 855,15 to <b>−22,6 %</b> od szczytu historycznego (obok 0,0 % od szczytu bieżącego po resecie szczytu 18.10 — wariant B z PROPOZYCJI §1).</p>
+<p><b>Konto</b> (BOT - Nasdaq 100, USD, <span class="mono">aktywne_dla_bota</span> = true, <span class="mono">blad_przelaczenia_rachunku</span> = null, <span class="mono">dry_run</span> = false, hedge_mode = classic): kapitał (equity) <b>855,15 USD</b>; gotówka 852,36; wycena pozycji +2,79; depozyt zabezpieczający 852,36; dostępne do handlu 730,65. <span class="mono">equity_peak</span>: /status 853,60 = plik 853,60 (zgodne; bot zapisze 855,15 jako nowy szczyt w najbliższym biegu — odniesienie kill switcha już go uwzględnia). Pozostałe rachunki Capital.com (nieaktywne dla bota): Konto B 222,27 USD; BOT - Strategia 50 396,50 USD; BOT Strategia 4h MIX 184,47 USD; BOT-WIG20 3 170,07 PLN.</p>
+<p><b>Pokrycie koszyka W8</b> (<span class="mono">pokrycie_koszyka</span>, wersja sygnałów 2026-W8 = <span class="mono">wersja</span> wszystkich 9 wpisów <span class="mono">ceny_wejscia</span>): LONG 5/5 (nogi_sygnalu 5, brakujące: brak); SHORT 4/5 (brakujące: AXON); wykluczone_przez_puls = [], zredukowane_przez_puls = [], zatrzymane_stopem = [], zamkniete_progiem_miekkim = [], pozycje_taktyczne = [], pozycje_spoza_koszyka = [], prog_miekki_aktywny = false. <b>k = 9/10</b> (w tym 0 nóg zamkniętych przez proces) → przekazane do A4 jako --pokrycie 9/10. <b>Kontrola kapitału</b>: zgodne = <span class="ok">true</span>; różnica −0,00 wobec tolerancji 17,10; pozycje_spoza_ksiazki = []; pozycje_bez_wyceny = []; suma upl pozycji bota +2,79 = wycena z API +2,79. <b>Próg miękki</b> (<span class="mono">prog_miekki</span>): włączony, nieaktywny; stan zapisany: od 18.10 (dd_start 23,75 % wobec starego szczytu, wyłączony 18.10 po resecie szczytu, dd_koniec 0,0), nie włączy się w najbliższym biegu (obsunięcie 0,0 % ≪ 10 %); nogi pierwszych 2 par W8: AXON, DASH, GILD, GOOGL. <span class="mono">wykonanie</span>: reakcje {}, taktyczne {}, soft (jak wyżej), aktualizacja 18.10; <b>brak kluczy stopy i kill</b> (nic nie zatrzymało stopu, kill nie wystąpił).</p></div>
+<div class="tab-otoczka"><table>
+<tr><th>epic</th><th>kier.</th><th>size</th><th>wejście (broker)</th><th>cena odniesienia tezy (fills)</th><th>upl (USD)</th><th>otwarta</th><th>size × kurs 23.10</th></tr>
+<tr><td>GOOGL</td><td class="kier-long">BUY</td><td class="num">0,20</td><td class="num">343,27</td><td class="num">343,27 (19.10)</td><td class="num minus">−4,43</td><td>19.10 13:45</td><td class="num">64,0</td></tr>
+<tr><td>GILD</td><td class="kier-long">BUY</td><td class="num">0,40</td><td class="num">156,63</td><td class="num">156,63 (19.10)</td><td class="num minus">−0,51</td><td>19.10 13:45</td><td class="num">62,4</td></tr>
+<tr><td>MSFT</td><td class="kier-long">BUY</td><td class="num">0,13</td><td class="num">531,43</td><td class="num">531,43 (19.10)</td><td class="num minus">−1,05</td><td>19.10 13:45</td><td class="num">68,2</td></tr>
+<tr><td>QCOM</td><td class="kier-long">BUY</td><td class="num">0,40</td><td class="num">177,08</td><td class="num">177,08 (19.10)</td><td class="num minus">−0,55</td><td>19.10 13:45</td><td class="num">70,4</td></tr>
+<tr><td>ADP</td><td class="kier-long">BUY</td><td class="num">0,20</td><td class="num">287,22</td><td class="num">287,22 (19.10)</td><td class="num plus">+3,33</td><td>19.10 17:05</td><td class="num">60,8</td></tr>
+<tr><td>AXON</td><td class="kier-short">SELL</td><td class="num bd">—</td><td class="num bd">nieotwarta</td><td class="num bd">brak</td><td class="num bd">—</td><td class="bd">—</td><td class="num bd">—</td></tr>
+<tr><td>DASH</td><td class="kier-short">SELL</td><td class="num">0,40</td><td class="num">186,72</td><td class="num">186,72 (19.10)</td><td class="num plus">+2,88</td><td>19.10 13:45</td><td class="num">71,8</td></tr>
+<tr><td>ALNY</td><td class="kier-short">SELL</td><td class="num">0,30</td><td class="num">234,66</td><td class="num">234,66 (19.10)</td><td class="num plus">+2,96</td><td>19.10 17:05</td><td class="num">67,2</td></tr>
+<tr><td>APP</td><td class="kier-short">SELL</td><td class="num">0,30</td><td class="num">266,87</td><td class="num">277,22 (06.10, W7→W8)</td><td class="num plus">+1,72</td><td>19.10 17:05 (wyrównanie)</td><td class="num">78,1</td></tr>
+<tr><td>FER</td><td class="kier-short">SELL</td><td class="num">1,60</td><td class="num">43,48 (EUR)</td><td class="num">43,48 EUR (19.10)</td><td class="num minus">−1,54</td><td>19.10 13:45</td><td class="num">79,4 (po kursie USD)</td></tr>
+</table></div>
+<div class="karta"><p><b>Przestrzały lotów:</b> granica = max_overshoot 1,6 × alloc_pct 0,08 × kapitał 855,15 ≈ 109,5 USD; największe pozycje FER ≈ 79 USD i APP ≈ 78 USD → <span class="ok">żadna nie przekracza granicy</span>. Cel nogi ≈ 68 USD. Noga nieotwarta z powodu minimalnej transakcji: prawdopodobnie AXON (wyżej). <b>Ustawienia bota</b> (<span class="mono">/status.ustawienia</span>, stan faktyczny po deployu v2): alloc_pct 0,08 · alloc_pct_safe 0,04 · tactical_enabled false · tactical_alloc_pct 0,0 · kill_level 0,75 · kill_trailing true · kill_resume_days 14 · kill_rearm_pct 0,10 · alloc_restart 0,04 · stop_loss_pct 0,10 (ogólny) · stop_loss_pct_long 0,15 · stop_loss_pct_short 0,10 · stop_reopen false · dd_soft 0,10 · dd_soft_reset 0,05 · soft_pary 2 · max_overshoot 1,6 · reduce_factor 0,5 · reduce_fallback close · react_gate true (react_reduce_pct 0,04, react_close_pct 0,08) · rebalance_tol 0,35 · margin_budget 0,6 · max_exposure_step 0,25 · start_equity 832,55. Zmienne Rendera z decyzji 18.10 są wdrożone (ALLOC_PCT 0,08, ALLOC_PCT_SAFE 0,04, TACTICAL_ENABLED false, REDUCE_FALLBACK close, START_EQUITY ustawione).</p>
+<p><span class="etyk e-info">W9 na rachunku</span> Rotacja na koszyk W9 wykona się w biegu 26.10 13:45 UTC. σ dzienna kapitału dla E W9 ≈ 5 × 0,08 × 1,507 % = <b>0,60 %</b>. Noga MU (kurs 877,55 USD): cel ≈ 68 USD → lot 0,1 akcji ≈ 88 USD mieści się w granicy przestrzału (109 USD) — do obserwacji w poniedziałkowym Pulsie; AVGO (321,68) lot 0,1 ≈ 32 USD bez problemu.</p></div>
+</section>
+
+<section>
+<h2>7. Reżim (B0) — wyłącznik płynności, nie bramka selekcji</h2>
+<div class="tab-otoczka"><table>
+<tr><th>wielkość</th><th>kursy.py (Yahoo)</th><th>TradingView MCP (get-ohlcv NASDAQ:NDX 1D 260 · CBOE:VIX 1D 30, odczyt 2026-10-24 07:14 UTC, dane opóźnione)</th><th>rozjazd</th></tr>
+<tr><td>^NDX zamknięcie 23.10</td><td class="num">28 957,53</td><td class="num">28 957,53</td><td class="num">0,00 %</td></tr>
+<tr><td>MA200 (200 zakończonych zamknięć)</td><td class="num">27 836,0</td><td class="num">27 836,0</td><td class="num">0,00 %</td></tr>
+<tr><td>MA50</td><td class="num">29 829,2</td><td class="num">29 829,2</td><td class="num">0,00 %</td></tr>
+<tr><td>obsunięcie od maks. 252 sesji (31 224,69)</td><td class="num">−7,26 %</td><td class="num">−7,26 %</td><td class="num">0,00 pp</td></tr>
+<tr><td>sesja 23.10</td><td class="num">−0,00 %</td><td class="num">−0,00 %</td><td class="num">—</td></tr>
+<tr><td>VIX</td><td class="num">19,45</td><td class="num">19,45</td><td class="num">0,00 pkt</td></tr>
+</table></div>
+<div class="karta"><p><span class="etyk e-rezim">P0</span> P1 (^NDX &lt; MA200 lub obsunięcie &gt; 10 % lub VIX &gt; 28): nie. P2 (obsunięcie &gt; 20 % lub VIX &gt; 40 lub sesja ≤ −5 %): nie. rezim_surowszy = true → poziom = surowszy z dwóch źródeł = <b>P0</b> z obu. Licznik histerezy: nie dotyczy (nie było P2; dziennik Pulsu bez wpisów reżimowych). ^NDX poniżej MA50 (29 829) — informacyjnie, nie jest przesłanką. <b>Działanie:</b> status = <b>AKTUALNA</b>, bez redukcji i bez zmiany parametrów; żadnej eskalacji uznaniowej (R5'').</p></div>
+</section>
+
+<section>
+<h2>8. Nowy koszyk 2026-W9 — konstrukcja E_pary_budzet_sox (scripts/ranking.py, D0 = 23.10.2026, okno pomiaru do 30.10 — 5 sesji)</h2>
+<div class="tab-otoczka"><table>
+<tr><th>#</th><th>grupa (TV industry)</th><th>LONG</th><th>mom6 rel</th><th>pct</th><th>σ60 dz.</th><th>b_SOX</th><th>raport</th><th>SHORT</th><th>mom6 rel</th><th>pct</th><th>σ60 dz.</th><th>b_SOX</th><th>raport</th><th>różnica mom</th><th>σ60 pary</th></tr>
+<tr><td>1</td><td>Packaged Software</td><td class="kier-long">CRWD</td><td class="num">+105,1 %</td><td class="num">99,0</td><td class="num">4,63 %</td><td class="num">0,11</td><td>01.12.2026</td><td class="kier-short">APP</td><td class="num">−53,7 %</td><td class="num">1,0</td><td class="num">3,72 %</td><td class="num">0,19</td><td>04.11.2026 (potw.)</td><td class="num">1,588</td><td class="num">5,53 %</td></tr>
+<tr><td>2</td><td>Semiconductors</td><td class="kier-long">MU</td><td class="num">+83,7 %</td><td class="num">94,9</td><td class="num">3,36 %</td><td class="num">2,18</td><td>23.12.2026</td><td class="kier-short">AVGO</td><td class="num">−28,6 %</td><td class="num">9,1</td><td class="num">2,34 %</td><td class="num">0,96</td><td>10.12.2026</td><td class="num">1,123</td><td class="num">3,12 %</td></tr>
+<tr><td>3</td><td>Consumer Services</td><td class="kier-long">ABNB</td><td class="num">+13,3 %</td><td class="num">77,8</td><td class="num">3,03 %</td><td class="num">−0,10</td><td>05.11.2026 (potw.)</td><td class="kier-short">CMCSA</td><td class="num">−34,8 %</td><td class="num">5,1</td><td class="num">1,86 %</td><td class="num">−0,31</td><td>28.01.2027</td><td class="num">0,481</td><td class="num">3,05 %</td></tr>
+<tr><td>4</td><td>Internet Software/Services</td><td class="kier-long">TRI</td><td class="num">+7,8 %</td><td class="num">71,7</td><td class="num">3,18 %</td><td class="num">−0,79</td><td>03.11.2026</td><td class="kier-short">NFLX</td><td class="num">−36,9 %</td><td class="num">4,0</td><td class="num">2,21 %</td><td class="num">−0,38</td><td>26.01.2027</td><td class="num">0,447</td><td class="num">2,98 %</td></tr>
+<tr><td>5</td><td>Consumer Non-Durables</td><td class="kier-long">KDP</td><td class="num">+21,1 %</td><td class="num">84,8</td><td class="num">1,73 %</td><td class="num">−0,12</td><td>03.11.2026</td><td class="kier-short">PEP</td><td class="num">−26,0 %</td><td class="num">14,1</td><td class="num">1,23 %</td><td class="num">−0,24</td><td>11.02.2027</td><td class="num">0,471</td><td class="num">1,46 %</td></tr>
+</table></div>
+<div class="karta"><p><b>Listy do signals.json (kolejność par, od najwyższej σ60 pary):</b> LONG <span class="mono">CRWD, MU, ABNB, TRI, KDP</span> · SHORT <span class="mono">APP, AVGO, CMCSA, NFLX, PEP</span>. <b>wybor = budzet</b> (norma), b_sox_net_ex_ante 0,214 (budżet |b_SOX net| ≤ 0,5 osiągnięty), kompletna = true, dopełnienia: brak, pula 8 par. Składy kolejnych biegów: bieg 1 (--fetch, exclude MSTR=R8 KHC=indeks WBD=indeks) = bieg końcowy (--closes, ta sama lista, bez --earnings) — skład nie zmienił się; K6' nie dodało wpisów.</p>
+<p><b>RYZYKO KOSZYKA</b> (konstrukcje.E_pary_budzet_sox.ryzyko): sigma60_tyg_unit_pp <b>3,37</b> · percentyl σ wobec losowych 5/5 z uniwersum po vetach (n_pula 52): <b>28,1</b> · b_sox_net 0,214 · b_def_net −0,270 · beta_ndx_net 0,322 · rho60_par_long 0,010 · n_eff_long 4,80 · alloc_pct_proponowany 0,12 (DIAGNOSTYKA, vol-target; alloc_pct bota = 0,08 z /status — S2, bez zmian) · σ dzienna kapitału = 5 × 0,08 × 1,507 % = <b>0,60 %</b>. Dla porównania cienie W9: A σ60 6,92 (percentyl 99,6, b_SOX 0,81), C 4,33, D 4,77; FAKTYCZNY W9 = E.</p>
+<p><b>Veta, które zadziałały (bieg końcowy):</b> EVENT (raport w oknie 24–30.10): FTNT, ADP, MSFT, GOOGL/GOOG, STX, DXCM, INTC, MNST, GILD, MDLZ, PYPL, NXPI, REGN, NBIS, CDNS, LIN, AMZN, SBUX, ORLY, AEP, XEL, GEHC, BKR, KLAC, EXC, PCAR, ODFL, TER, MPWR, MSTR, TMUS, ALNY, SNDK · K13 (short, r10 ≤ −20 %): ALAB −24,9 %, SNDK −21,7 %, ARM −21,0 %, NBIS −28,2 %, AMAT −25,6 %, LRCX −27,8 %, KLAC −25,5 %, LITE −31,5 %, TER −23,3 %, RKLB −22,9 %, CRWV −33,9 % · σ60 &gt; 3× mediany (2,3 %): MRNA 23,5 % · cena &gt; 1 280 USD: ASML 1 572, MELI 1 810 · exclude: MSTR (R8), KHC (indeks), WBD (indeks). Kontrole wyjścia: d0 2026-10-23 = ostatnia sesja kursy.py ✓ · n_z_historia 100/103 (bez historii: HONA, SPCX, WBD) ✓ · problemy_pobierania [] · ostrzezenia [] · czynniki sox/def = true ✓ · zrodlo_earnings tv-snapshot (101 dat), earnings_n_ok 99, earnings_n_blad [] ✓ · long/short po 5, rozłączne ✓.</p>
+<p><b>Weryfikacja dat raportów (B3):</b> FMP earnings-calendar (okno 24–30.10, odpowiedź 27 spółek — lista wyrywkowa): z 17 weryfikowanych tickerów żaden w oknie; potwierdza GOOGL/MSFT 28.10, INTC/AMZN/SBUX 29.10, PYPL 27.10 zgodnie ze snapshotem. TradingView get-earnings-calendar (2 wywołania, odczyt 2026-10-24 07:19 UTC): 10 nóg — daty identyczne ze snapshotem (CRWD 01.12, MU 23.12, ABNB 05.11 potwierdzona, TRI 03.11, KDP 03.11, APP 04.11 potwierdzona, AVGO 10.12, CMCSA 28.01.2027, NFLX 26.01.2027, PEP 11.02.2027) — wszystkie poza oknem D0+1…D0+7, więc brak <span class="mono">--earnings</span>; 7 kandydatów z puli (PANW 12.11, DDOG 04.11, AMD 03.11 potw., WDAY 01.12, SHOP 03.11, FER 04.03.2027, PDD 19.11) także poza oknem. Ryzyko rachunku (nie pomiaru): TRI i KDP raportują 03.11, APP 04.11, ABNB 05.11 — po oknie pomiaru i po poniedziałku rotacji 02.11 (D0+10), czyli już w koszyku W10, jeśli zostaną wybrane ponownie.</p>
+<p><span class="etyk e-makro">MAKRO USA w oknie (TradingView get-economic-calendar, importance = 1, odczyt 07:14 UTC; informacyjnie)</span> 27.10 Durable Goods (wrz., prog. +0,6 %); <b>28.10 18:00 UTC decyzja FOMC</b> (prog. 4,00 %, bez zmian) + konferencja 18:30; 29.10 12:30 UTC PKB Q3 (adv., prog. +3,0 % kw/kw), Core PCE (wrz., prog. +0,3 %), dochody/wydatki osobiste. Kontekst (jeden akapit, oddzielony od składu): reżim P0, ^NDX 7,3 % pod szczytem z początku października i pod MA50, VIX 19,5 — tydzień FOMC i raportów megacapów (GOOGL, MSFT, AMZN), których veto EVENT trzyma poza koszykiem.</p></div>
+<h3>Cień U (uznaniowy, B5 — tylko na papierze, data/ranking-2026-W9.json)</h3>
+<div class="karta"><p>LONG <span class="mono">CRWD, PANW, WDAY, AMD, DDOG</span> · SHORT <span class="mono">APP, FER, PDD, INTU, CPRT</span> — wybór z TOP15/BOTTOM15 bez veta; uzasadnienia jednozdaniowe w pliku. Rozliczany 31.10 jak inne cienie; mierzy wartość nakładki uznaniowej na tych samych kandydatach co E. Nie trafia do signals.json.</p></div>
+</section>
+
+<section>
+<h2>9. Ranking TOP15 / BOTTOM15 (momentum 6M relatywne, skip 5; 100/103 spółek z historią)</h2>
+<div class="tab-otoczka"><table>
+<tr><th>#</th><th>ticker</th><th>mom6 rel</th><th>pct</th><th>r10</th><th>σ60 dz.</th><th>β NDX</th><th>b_SOX</th><th>b_DEF</th><th>grupa</th><th>veto long</th><th>veto short</th></tr>
+<tr><td>1</td><td>MRNA</td><td class="num">+296,4 %</td><td class="num">100,0</td><td class="num">−11,1 %</td><td class="num">23,47 %</td><td class="num">1,13</td><td class="num">0,05</td><td class="num">−0,09</td><td>Health Technology</td><td>σ60 &gt; 3× mediany</td><td>σ60 &gt; 3× mediany</td></tr>
+<tr class="hl"><td>2</td><td>CRWD</td><td class="num">+105,1 %</td><td class="num">99,0</td><td class="num">−6,4 %</td><td class="num">4,63 %</td><td class="num">1,11</td><td class="num">0,11</td><td class="num">−1,00</td><td>Packaged Software</td><td>—</td><td>—</td></tr>
+<tr><td>3</td><td>FTNT</td><td class="num">+97,2 %</td><td class="num">98,0</td><td class="num">−7,6 %</td><td class="num">2,92 %</td><td class="num">0,71</td><td class="num">−0,02</td><td class="num">−0,64</td><td>Technology Services</td><td>EVENT 28.10</td><td>EVENT 28.10</td></tr>
+<tr><td>4</td><td>PANW</td><td class="num">+94,3 %</td><td class="num">97,0</td><td class="num">−9,1 %</td><td class="num">3,95 %</td><td class="num">0,86</td><td class="num">0,01</td><td class="num">−0,76</td><td>Packaged Software</td><td>—</td><td>—</td></tr>
+<tr><td>5</td><td>DDOG</td><td class="num">+85,7 %</td><td class="num">96,0</td><td class="num">−8,1 %</td><td class="num">4,49 %</td><td class="num">0,91</td><td class="num">−0,09</td><td class="num">−0,90</td><td>Packaged Software</td><td>—</td><td>—</td></tr>
+<tr class="hl"><td>6</td><td>MU</td><td class="num">+83,7 %</td><td class="num">94,9</td><td class="num">−14,7 %</td><td class="num">3,36 %</td><td class="num">2,84</td><td class="num">2,18</td><td class="num">−2,16</td><td>Semiconductors</td><td>—</td><td>—</td></tr>
+<tr><td>7</td><td>AMD</td><td class="num">+80,5 %</td><td class="num">93,9</td><td class="num">−15,0 %</td><td class="num">3,48 %</td><td class="num">2,55</td><td class="num">1,73</td><td class="num">−1,92</td><td>Semiconductors</td><td>—</td><td>—</td></tr>
+<tr><td>8</td><td>ALAB</td><td class="num">+54,8 %</td><td class="num">92,9</td><td class="num">−24,9 %</td><td class="num">5,24 %</td><td class="num">3,07</td><td class="num">2,20</td><td class="num">−2,40</td><td>Semiconductors</td><td>—</td><td>K13 (−24,9 %)</td></tr>
+<tr><td>9</td><td>MRVL</td><td class="num">+53,7 %</td><td class="num">91,9</td><td class="num">−17,0 %</td><td class="num">4,43 %</td><td class="num">2,56</td><td class="num">2,02</td><td class="num">−1,92</td><td>Semiconductors</td><td>—</td><td>—</td></tr>
+<tr><td>10</td><td>WDAY</td><td class="num">+44,7 %</td><td class="num">90,9</td><td class="num">+12,5 %</td><td class="num">3,43 %</td><td class="num">−0,11</td><td class="num">−0,88</td><td class="num">0,10</td><td>Technology Services</td><td>—</td><td>—</td></tr>
+<tr><td>11</td><td>ADP</td><td class="num">+34,7 %</td><td class="num">89,9</td><td class="num">+12,3 %</td><td class="num">1,46 %</td><td class="num">−0,28</td><td class="num">−0,50</td><td class="num">0,28</td><td>Packaged Software</td><td>EVENT 28.10</td><td>EVENT 28.10</td></tr>
+<tr><td>12</td><td>SNDK</td><td class="num">+31,6 %</td><td class="num">88,9</td><td class="num">−21,7 %</td><td class="num">5,07 %</td><td class="num">3,32</td><td class="num">2,57</td><td class="num">−2,47</td><td>Electronic Technology</td><td>EVENT 29.10</td><td>EVENT 29.10; K13</td></tr>
+<tr><td>13</td><td>ARM</td><td class="num">+27,2 %</td><td class="num">87,9</td><td class="num">−21,0 %</td><td class="num">5,00 %</td><td class="num">2,60</td><td class="num">1,69</td><td class="num">−1,94</td><td>Semiconductors</td><td>—</td><td>K13 (−21,0 %)</td></tr>
+<tr><td>14</td><td>DXCM</td><td class="num">+25,0 %</td><td class="num">86,9</td><td class="num">−7,3 %</td><td class="num">2,52 %</td><td class="num">0,23</td><td class="num">−0,09</td><td class="num">−0,01</td><td>Medical Specialties</td><td>EVENT 29.10</td><td>EVENT 29.10</td></tr>
+<tr><td>15</td><td>INTC</td><td class="num">+21,7 %</td><td class="num">85,9</td><td class="num">−16,9 %</td><td class="num">3,98 %</td><td class="num">2,55</td><td class="num">1,89</td><td class="num">−1,90</td><td>Semiconductors</td><td>EVENT 29.10</td><td>EVENT 29.10</td></tr>
+<tr><td colspan="12" class="bd">… (pozycje 16–85 w data/ranking-2026-W9.json; w tym KDP #16 pct 84,8, ABNB #23 pct 77,8, TRI #29 pct 71,7 — longi par 3–5 wybrane jako najlepsze w swojej grupie branżowej, nie z TOP15)</td></tr>
+<tr><td>86</td><td>PEP</td><td class="num">−26,0 %</td><td class="num">14,1</td><td class="num">+7,8 %</td><td class="num">1,23 %</td><td class="num">−0,29</td><td class="num">−0,24</td><td class="num">0,43</td><td>Consumer Non-Durables</td><td>—</td><td>—</td></tr>
+<tr><td>87</td><td>CPRT</td><td class="num">−26,1 %</td><td class="num">13,1</td><td class="num">+6,1 %</td><td class="num">2,48 %</td><td class="num">−0,17</td><td class="num">−0,38</td><td class="num">0,29</td><td>Specialty Stores</td><td>—</td><td>—</td></tr>
+<tr><td>88</td><td>INTU</td><td class="num">−26,7 %</td><td class="num">12,1</td><td class="num">+13,4 %</td><td class="num">2,72 %</td><td class="num">−0,07</td><td class="num">−0,76</td><td class="num">0,10</td><td>Packaged Software</td><td>—</td><td>—</td></tr>
+<tr><td>89</td><td>MPWR</td><td class="num">−27,0 %</td><td class="num">11,1</td><td class="num">−17,8 %</td><td class="num">3,34 %</td><td class="num">1,89</td><td class="num">1,50</td><td class="num">−1,35</td><td>Semiconductors</td><td>EVENT 29.10</td><td>EVENT 29.10</td></tr>
+<tr><td>90</td><td>MSTR</td><td class="num">−27,3 %</td><td class="num">10,1</td><td class="num">−5,4 %</td><td class="num">5,44 %</td><td class="num">1,95</td><td class="num">0,54</td><td class="num">−1,22</td><td>Pozostałe</td><td>exclude: R8; EVENT 29.10</td><td>exclude: R8; EVENT 29.10</td></tr>
+<tr class="hl"><td>91</td><td>AVGO</td><td class="num">−28,6 %</td><td class="num">9,1</td><td class="num">−11,0 %</td><td class="num">2,34 %</td><td class="num">1,58</td><td class="num">0,96</td><td class="num">−1,23</td><td>Semiconductors</td><td>—</td><td>—</td></tr>
+<tr><td>92</td><td>TMUS</td><td class="num">−28,9 %</td><td class="num">8,1</td><td class="num">−1,4 %</td><td class="num">2,65 %</td><td class="num">−0,40</td><td class="num">−0,36</td><td class="num">0,42</td><td>Pozostałe</td><td>EVENT 28.10</td><td>EVENT 28.10</td></tr>
+<tr><td>93</td><td>PDD</td><td class="num">−32,2 %</td><td class="num">7,1</td><td class="num">−2,8 %</td><td class="num">1,69 %</td><td class="num">0,43</td><td class="num">0,06</td><td class="num">−0,24</td><td>Retail Trade</td><td>—</td><td>—</td></tr>
+<tr><td>94</td><td>ALNY</td><td class="num">−34,6 %</td><td class="num">6,1</td><td class="num">−3,7 %</td><td class="num">2,86 %</td><td class="num">0,04</td><td class="num">−0,20</td><td class="num">0,25</td><td>Health Technology</td><td>EVENT 29.10</td><td>EVENT 29.10</td></tr>
+<tr class="hl"><td>95</td><td>CMCSA</td><td class="num">−34,8 %</td><td class="num">5,1</td><td class="num">+9,8 %</td><td class="num">1,86 %</td><td class="num">−0,20</td><td class="num">−0,31</td><td class="num">0,33</td><td>Consumer Services</td><td>—</td><td>—</td></tr>
+<tr class="hl"><td>96</td><td>NFLX</td><td class="num">−36,9 %</td><td class="num">4,0</td><td class="num">−6,3 %</td><td class="num">2,21 %</td><td class="num">0,02</td><td class="num">−0,38</td><td class="num">0,15</td><td>Internet Software/Services</td><td>—</td><td>—</td></tr>
+<tr><td>97</td><td>FER</td><td class="num">−40,9 %</td><td class="num">3,0</td><td class="num">−1,0 %</td><td class="num">1,38 %</td><td class="num">0,57</td><td class="num">0,33</td><td class="num">−0,28</td><td>Pozostałe</td><td>—</td><td>—</td></tr>
+<tr><td>98</td><td>RKLB</td><td class="num">−49,5 %</td><td class="num">2,0</td><td class="num">−22,9 %</td><td class="num">3,82 %</td><td class="num">2,60</td><td class="num">1,33</td><td class="num">−1,76</td><td>Electronic Technology</td><td>—</td><td>K13 (−22,9 %)</td></tr>
+<tr class="hl"><td>99</td><td>APP</td><td class="num">−53,7 %</td><td class="num">1,0</td><td class="num">−6,1 %</td><td class="num">3,72 %</td><td class="num">1,42</td><td class="num">0,19</td><td class="num">−1,11</td><td>Packaged Software</td><td>—</td><td>—</td></tr>
+<tr><td>100</td><td>CRWV</td><td class="num">−56,9 %</td><td class="num">0,0</td><td class="num">−33,9 %</td><td class="num">5,95 %</td><td class="num">2,56</td><td class="num">1,59</td><td class="num">−1,98</td><td>Packaged Software</td><td>—</td><td>K13 (−33,9 %)</td></tr>
+</table></div>
+<span class="zrodlo">mom12−1 rel = b.d. dla wszystkich (cache roczny 251 sesji — za krótki na 12M; parametr nieużywany w konstrukcji E). Kolumna „grupa” = TV industry ze snapshotu B1 (MSTR, TMUS, FER: „Pozostałe” — grupa poniżej MIN_IND 4).</span>
+</section>
+
+<section>
+<h2>10. Problemy, stan źródeł i kontrola danych</h2>
+<ul class="panel">
+<li><b>STAN ŹRÓDEŁ (data/tv-log.jsonl):</b> 2026-10-24 · sobota-ndx · stan OK · 7 wywołań TradingView MCP (run-screener 1, get-ohlcv 2, get-economic-calendar 1, get-earnings-calendar 2, get-dividends-calendar 1) · ≈ 480 s · n_porownan 101 · max |Δ| 0,001 % · mediana 0,00 % · rozjazdy &gt; 0,5 %: brak · adnotacje &gt; 0,1 %: brak · missing: brak · faza 2 · werdykt_zmieniony: nie · blok nieprzerwany. Snapshot B1: <span class="mono">data/tv-screen-2026-W9.json</span> (totalCount 101, update_mode streaming, odczyt 07:14 UTC, commit lokalny przed ranking.py). Budżet: 7/10 wywołań.</li>
+<li><b>ZGODNOŚĆ 21 KURSÓW (Yahoo vs TV, zamknięcia 23.10):</b> 10 nóg W8 (GOOGL 320,21 · GILD 156,04 · MSFT 524,51 · QCOM 175,91 · ADP 304,16 · AXON 420,37 · DASH 179,38 · ALNY 224,03 · APP 260,25 · FER 49,65), 10 nóg W9 (CRWD 257,57 · MU 877,55 · ABNB 172,01 · TRI 123,17 · KDP 34,68 · APP 260,25 · AVGO 321,68 · CMCSA 22,69 · NFLX 65,85 · PEP 135,77) i ^NDX 28 957,53 (TV przez get-ohlcv) — <b>kursy: Yahoo+TV zgodne 21/21</b>, Δ = 0,00 % dla każdego; rozjazdów &gt; 0,1 % brak. FMP historical-price-eod-light: nie wołano (drugie źródło pełne z TV; FMP earnings-calendar odpowiedział, ale listą wyrywkową 27 spółek).</li>
+<li><b>Skład indeksu do weryfikacji (B1):</b> w TV, a nie w epics: brak; w epics, a nie w TV: <b>KHC, WBD</b> (poza indeksem od inwentaryzacji 12.10; przekazane jako <span class="mono">--exclude …=indeks</span>; epics bez zmian). Skład 101 nazw identyczny z snapshotem W8. GOOGL/GOOG = jedna spółka.</li>
+<li><b>Błąd skryptu (nie wejścia):</b> <span class="mono">ranking.py</span> zapisuje JSON poprawnie, po czym przerywa się w <span class="mono">tabela_md()</span> z <span class="mono">KeyError: 'pula_par'</span> — konstrukcja E_bez_exclude ma pole <span class="mono">wybor</span>, lecz nie ma <span class="mono">pula_par</span> (ujawnia się tylko przy niepustej liście --exclude; bieg W8 jej nie miał). Rutyna nie edytuje logiki skryptu: tabela markdown wygenerowana w scratchpadzie z tego samego JSON (import tabela_md z domyślnym pula_par). <b>Kandydat do poprawki przez właściciela</b> (jedna linia: <span class="mono">k.get('pula_par')</span>), nie zmienia rankingu.</li>
+<li><b>Pokrycie W8 = 9/10 (EKSPOZYCJA_NIEPELNA):</b> AXON SHORT nieotwarty przez 5 sesji bez wpisu w fills/exclude/stopy — przyczyna do potwierdzenia w logu Rendera (odpowiedź <span class="mono">/run</span> 19.10, pole „pominiete”). Wygasa z rotacją 26.10 (AXON poza W9).</li>
+<li><b>Dane:</b> WBD bez kursu Yahoo od 05.10 (ostatnia sesja w kursy.py 2026-10-05) i bez historii w cache — poza indeksem, bez wpływu; HONA i SPCX bez pełnej historii rocznej (n_z_historia 100/103). Raporty Pulsu z 20.10 i 21.10 nie istnieją w repo (okno dzienne: 19, 22, 23.10) — luka w dzienniku, bez wpływu na rozliczenie (liczone z zamknięć).</li>
+<li><b>Walidator:</b> <span class="mono">waliduj_signals.py --diff HEAD --rutyna sobota</span> → OK (zmienione pola: d0, generated, history, long, short, version; exclude/tactical = []; fills/equity_peak/wykonanie nietknięte). Pliki w commicie rotacji: signals.json, reports/raport-2026-W9.html, data/ranking-2026-W9.json (+U), data/koszyki-cienie.jsonl (1 wiersz), data/tv-log.jsonl (1 wiersz); snapshot w commicie poprzedzającym. Kontrola liczb z rachunku w data/ i poza sekcją 6: wykonana przed commitem.</li>
+</ul>
+</section>
+
+<section>
+<h2>11. Stopka</h2>
+<div class="karta"><p><b>Ustawienia bota (/status.ustawienia, 24.10 07:10 UTC):</b> alloc_pct 0,08 · alloc_pct_safe 0,04 · tactical_alloc_pct 0,0 (tactical_enabled false) · kill_level 0,75 (trailing, resume 14 dni, rearm 0,10, alloc_restart 0,04) · stop 15 % LONG / 10 % SHORT bez reopen · próg miękki 10 %/5 %, 2 pary · max_overshoot 1,6 · reduce_fallback close. <b>Proces v2</b> (decyzja 18.10.2026; rutyny/reguly.md wersja 2026-10-18) — pierwsza rotacja koszykiem E. <b>Parametry ranking.py (pole parametry):</b> MOM_WIN 126 · MOM_SKIP 5 · SIGMA_WIN 60 · BETA_WIN 250 · SHORT_VETO_R10 −0,20 · SIGMA_VETO_MULT 3,0 · FACTOR_BUDGET 0,5 · MAX_SWAPS 6 · PAIR_POOL 8 · MAX_PRICE_USD 1 280 · EVENT_WINDOW_DAYS 7 · MIN_IND 4 · MIN_GROUP 3. Wpis history za W8: dane_b1 = "tv" (czynniki koszyka rozliczanego ze snapshotu TV, Model 3.0); od wpisu za W9: "yahoo". Kryteria decyzji (KROK C) raportowane od 12. okna cieni — obecnie n = 1.</p>
+<p class="bd">Materiał analityczno-edukacyjny, nie rekomendacja inwestycyjna. Liczby z rachunku wyłącznie w sekcji 6.</p></div>
+</section>
+</main>
+<footer>Raport NDX100 — proces v2 · wygenerowano 2026-10-24 ok. 07:40 UTC · źródła: scripts/kursy.py (Yahoo), TradingView MCP (dane opóźnione), FMP earnings-calendar, /status bota (odczyt), data/ranking-2026-W9.json, data/koszyki-cienie.jsonl.</footer>
+</body>
+</html>
