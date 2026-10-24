@@ -339,7 +339,9 @@ z atrybutów `data-*` elementu `<section id="wynik-tygodnia">` poprzedniego
 raportu; dla raportów sprzed W9 z tekstu sekcji kontroli rachunku), tabela
 odcinków (sobota → poniedziałek przed rotacją / rotacja → piątek / razem),
 odniesienia do `START_EQUITY` i szczytu historycznego, porównanie z wynikiem
-modelowym (`spread_fills_pp × 2 × alloc_pct`), badge w nagłówku. Liczby te
+modelowym (`spread_fills_pp × 2 × alloc_pct`), **benchmark ^NDX** w tym samym
+odcinku (zwrot indeksu, USD z kapitału początkowego w indeksie, różnica
+rachunek − indeks w pp i USD), badge w nagłówku. Liczby te
 nadal nie trafiają do commitów, powiadomień ani plików `data/` (`CLAUDE.md`).
 Pierwszy raport z sekcją 0: `reports/raport-2026-W9.html` (dopisana 24.10
 po biegu). Tego samego dnia poprawka `scripts/ranking.py` (pole `pula_par`
