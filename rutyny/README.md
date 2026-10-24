@@ -328,3 +328,20 @@ pisanych do `signals.json`):
 
 Do zrobienia przez właściciela: wkleić obie rutyny do zadań na
 claude.ai/code/routines po scaleniu gałęzi.
+
+## Zmiany wprowadzone 24.10.2026 — wynik tygodnia na rachunku (`tygodniowa.md` (e))
+
+Polecenie właściciela po pierwszym biegu v2: raport tygodniowy ma na pierwszym
+miejscu (sekcja 0) **bardzo wyraźnie** pokazywać, ile bot zarobił lub stracił
+w tygodniu w USD i w % kapitału. Nowy krok **A10** w `tygodniowa.md`: wynik =
+`konto.kapital` z dzisiejszego `/status` − kapitał z poprzedniej soboty (czytany
+z atrybutów `data-*` elementu `<section id="wynik-tygodnia">` poprzedniego
+raportu; dla raportów sprzed W9 z tekstu sekcji kontroli rachunku), tabela
+odcinków (sobota → poniedziałek przed rotacją / rotacja → piątek / razem),
+odniesienia do `START_EQUITY` i szczytu historycznego, porównanie z wynikiem
+modelowym (`spread_fills_pp × 2 × alloc_pct`), badge w nagłówku. Liczby te
+nadal nie trafiają do commitów, powiadomień ani plików `data/` (`CLAUDE.md`).
+Pierwszy raport z sekcją 0: `reports/raport-2026-W9.html` (dopisana 24.10
+po biegu). Tego samego dnia poprawka `scripts/ranking.py` (pole `pula_par`
+w `E_bez_exclude`, odporny `tabela_md`) z testem regresji w
+`scripts/test_ranking.py` — bez zmiany parametrów i logiki rankingu.
