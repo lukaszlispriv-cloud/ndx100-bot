@@ -239,7 +239,7 @@
       "kierunek": "SELL",
       "wielkosc": 0.3,
       "data": "2026-10-06",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "APP",
       "cena_brokera": 266.87
     },
@@ -248,7 +248,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.2,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "GOOGL",
       "cena_brokera": 343.27
     },
@@ -257,7 +257,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.4,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "GILD",
       "cena_brokera": 156.63
     },
@@ -266,7 +266,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.13,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "MSFT",
       "cena_brokera": 531.43
     },
@@ -275,7 +275,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.4,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "QCOM",
       "cena_brokera": 177.08
     },
@@ -284,7 +284,7 @@
       "kierunek": "SELL",
       "wielkosc": 0.4,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "DASH",
       "cena_brokera": 186.72
     },
@@ -293,7 +293,7 @@
       "kierunek": "SELL",
       "wielkosc": 1.6,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "FER",
       "cena_brokera": 43.48
     },
@@ -302,7 +302,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.2,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "ADP",
       "cena_brokera": 287.22
     },
@@ -311,12 +311,12 @@
       "kierunek": "SELL",
       "wielkosc": 0.3,
       "data": "2026-10-19",
-      "wersja": "2026-W8",
+      "wersja": "2026-W9",
       "epic": "ALNY",
       "cena_brokera": 234.66
     }
   },
-  "equity_peak": 853.6,
+  "equity_peak": 855.15,
   "wykonanie": {
     "reakcje": {},
     "taktyczne": {},
