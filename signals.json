@@ -243,80 +243,89 @@
       "epic": "APP",
       "cena_brokera": 266.87
     },
-    "GOOGL": {
-      "cena": 343.27,
+    "CRWD": {
+      "cena": 261.67,
       "kierunek": "BUY",
-      "wielkosc": 0.2,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "GOOGL",
-      "cena_brokera": 343.27
-    },
-    "GILD": {
-      "cena": 156.63,
-      "kierunek": "BUY",
-      "wielkosc": 0.4,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "GILD",
-      "cena_brokera": 156.63
-    },
-    "MSFT": {
-      "cena": 531.43,
-      "kierunek": "BUY",
-      "wielkosc": 0.13,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "MSFT",
-      "cena_brokera": 531.43
-    },
-    "QCOM": {
-      "cena": 177.08,
-      "kierunek": "BUY",
-      "wielkosc": 0.4,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "QCOM",
-      "cena_brokera": 177.08
-    },
-    "DASH": {
-      "cena": 186.72,
-      "kierunek": "SELL",
-      "wielkosc": 0.4,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "DASH",
-      "cena_brokera": 186.72
-    },
-    "FER": {
-      "cena": 43.48,
-      "kierunek": "SELL",
-      "wielkosc": 1.6,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "FER",
-      "cena_brokera": 43.48
-    },
-    "ADP": {
-      "cena": 287.22,
-      "kierunek": "BUY",
-      "wielkosc": 0.2,
-      "data": "2026-10-19",
-      "wersja": "2026-W9",
-      "epic": "ADP",
-      "cena_brokera": 287.22
-    },
-    "ALNY": {
-      "cena": 234.66,
-      "kierunek": "SELL",
       "wielkosc": 0.3,
-      "data": "2026-10-19",
+      "data": "2026-10-26",
       "wersja": "2026-W9",
-      "epic": "ALNY",
-      "cena_brokera": 234.66
+      "epic": "CRWD",
+      "cena_brokera": 261.67
+    },
+    "MU": {
+      "cena": 892.61,
+      "kierunek": "BUY",
+      "wielkosc": 0.1,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "MU",
+      "cena_brokera": 892.61
+    },
+    "ABNB": {
+      "cena": 171.62,
+      "kierunek": "BUY",
+      "wielkosc": 0.4,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "ABNB",
+      "cena_brokera": 171.62
+    },
+    "TRI": {
+      "cena": 123.57,
+      "kierunek": "BUY",
+      "wielkosc": 0.6,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "TRI",
+      "cena_brokera": 123.57
+    },
+    "KDP": {
+      "cena": 34.56,
+      "kierunek": "BUY",
+      "wielkosc": 2.0,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "KDP",
+      "cena_brokera": 34.56
+    },
+    "AVGO": {
+      "cena": 326.98,
+      "kierunek": "SELL",
+      "wielkosc": 0.2,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "AVGO",
+      "cena_brokera": 326.98
+    },
+    "CMCSA": {
+      "cena": 22.32,
+      "kierunek": "SELL",
+      "wielkosc": 3.0,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "CMCSA",
+      "cena_brokera": 22.32
+    },
+    "NFLX": {
+      "cena": 64.96,
+      "kierunek": "SELL",
+      "wielkosc": 1.05,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "NFLX",
+      "cena_brokera": 64.96
+    },
+    "PEP": {
+      "cena": 136.49,
+      "kierunek": "SELL",
+      "wielkosc": 0.5,
+      "data": "2026-10-26",
+      "wersja": "2026-W9",
+      "epic": "PEP",
+      "cena_brokera": 136.49
     }
   },
-  "equity_peak": 855.15,
+  "equity_peak": 855.66,
   "wykonanie": {
     "reakcje": {},
     "taktyczne": {},
