@@ -1,0 +1,116 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Puls NDX100 — 2026-10-28</title>
+<style>
+body{margin:0;background:#F6F7F4;color:#1b1b1b;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45}
+header{background:#10243E;color:#fff;padding:18px 16px}header h1{margin:0 0 6px;font-size:20px}.hdr{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.sub{font-size:13px;opacity:.85}
+.ndx{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px}.badge{display:inline-block;padding:8px 12px;border-radius:8px;font-weight:700;background:#0E7C4A;color:#fff}.badge small{display:block;font-weight:400;font-size:12px}
+.stamp{display:inline-block;border:3px solid #0E7C4A;color:#0E7C4A;padding:4px 12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transform:rotate(-2.5deg);background:#fff;border-radius:4px}
+main{max-width:1100px;margin:0 auto;padding:12px 16px 40px}section{background:#fff;border-radius:10px;padding:12px 14px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.06)}h2{font-size:17px;margin:0 0 8px;color:#10243E}h3{font-size:15px;margin:10px 0 4px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid #e3e5e0;padding:6px 6px;text-align:left;vertical-align:top}th{background:#eef0ea;font-weight:600}
+.m{font-family:ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}.g{color:#0E7C4A}.r{color:#C4372E}.hl td{background:#fff8e6}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:#10243E;color:#fff;margin-right:4px}.tag.w{background:#C4372E}.tag.s{background:#7a5c00}.tag.b{background:#0E7C4A}
+.spread{display:flex;flex-wrap:wrap;gap:10px}.spread div{flex:1 1 180px;background:#eef0ea;border-radius:8px;padding:8px 10px}.spread b{display:block;font-family:ui-monospace,monospace;font-size:20px}
+ul{padding-left:20px;margin:6px 0}li{margin:4px 0}footer{font-size:12px;color:#555;padding:10px 4px}small{color:#555}
+</style></head><body>
+<header><h1>Puls NDX100 — środa 28.10.2026 (D+2, wersja 2026-W9)</h1>
+<div class="sub">proces v2 — raport kontrolny · bieg 12:46–13:00 UTC · <b>stan PO rotacji</b>: 10/10 wpisów `ceny_wejscia` ma `wersja` = 2026-W9 = `sygnaly.version`; Puls widzi stan po biegu /run 17:05 UTC z 27.10 · ostatnia zakończona sesja: wtorek 27.10.2026 (D+2 od D0 = 23.10)</div>
+<div class="hdr" style="margin-top:10px"><span class="ndx">^NDX 29 651,44</span><small style="color:#cfd6df">zamknięcie 27.10.2026, Yahoo (kursy.py); sesja +1,29 %; od D0 (23.10, 28 957,53) +2,40 %</small>
+<span class="badge">REŻIM P0<small>NDX +6,4 % vs MA200 (27 874,3) · −0,5 % vs MA50 (29 806,9) · drawdown −5,04 % od max 252 sesji (31 224,69) · VIX 17,52 — potwierdzony dwoma źródłami (Yahoo, TradingView)</small></span>
+<span class="stamp">AKTUALNA</span></div></header>
+<main>
+
+<section><h2>1. Najważniejsze zmiany</h2><ul>
+<li><span class="tag">REŻIM</span> P0 z obu źródeł (rezim_surowszy = true → surowszy = P0): ^NDX 29 651,44 &gt; MA200 27 874,3 (Yahoo, kursy.py) = 27 874,3 (TradingView MCP get-ohlcv NASDAQ:NDX 1D, 200 zakończonych zamknięć, ostatnia świeca 27.10, odczyt 12:48 UTC, dane opóźnione); MA50 29 806,9 (oba źródła); drawdown −5,04 % od maksimum 252 sesji 31 224,69 (oba źródła); sesja 27.10 +1,29 %; VIX 17,52 (Yahoo) = 17,52 (TV CBOE:VIX, świeca 27.10; formująca się świeca 28.10 — 17,41 — odrzucona). Żaden warunek P1 (NDX &lt; MA200, dd &gt; 10 %, VIX &gt; 28) ani P2. Licznik histerezy nie dotyczy (P0).</li>
+<li><span class="tag b">BOT</span> Bez zmian po biegach 27.10: pokrycie LONG 5/5, SHORT 5/5, `pozycje_spoza_koszyka` = []. Stopy: brak (`wykonanie.stopy` nieobecne); próg miękki: nieaktywny, nie włączy się w najbliższym biegu; kill: brak śladu, zatrzask = false.</li>
+<li><span class="tag">NEWS</span> Brak zdarzeń z listy zamkniętej R3/R11. Kandydaci do sprawdzenia (|ruch d/d| ≥ 3 %, Yahoo 27.10): <b>TRI −4,64 %</b> (LONG) i <b>AVGO +4,00 %</b> (SHORT) — po 1 zapytaniu WebSearch (12:50 UTC): dla TRI brak 8-K/komunikatu spółki, w wynikach tylko komentarze analityków i ceny docelowe (poza wejściem v2); dla AVGO brak komunikatu spółki — ruch w szerokim wzroście półprzewodników 27.10 (AMD +5,45 %, MRVL +4,19 %, ADI +4,27 %, Yahoo). Żaden nie jest kategorią R3. |Pre-market| ≥ 5 %: brak (największy MU +3,17 %, luka +4,02 % — TradingView MCP get-symbol-data-batch, odczyt 12:47 UTC, dane opóźnione; MU poniżej progu, bez zdarzenia R11). <code>exclude</code> = [] (bez zmian).</li>
+<li><span class="tag s">WYNIKI</span> Brak nóg z raportem w 2 najbliższych sesjach (28–29.10). Najbliższe: TRI i KDP 03.11 przed sesją (niepotw.), APP 04.11 po sesji (potw.), ABNB 05.11 po sesji (potw.) — TradingView MCP get-earnings-calendar, odczyt 12:48 UTC.</li>
+<li><span class="tag">MAKRO</span> Dziś 28.10 14:00 ET (18:00 UTC): decyzja FOMC (prog. 4,00 %, poprz. 4,00 %) i komunikat; 14:30 ET (18:30 UTC) konferencja prezesa Fed. Jutro 29.10 08:30 ET (12:30 UTC): PKB III kw. wstępny k/k (prog. 3,2 %, poprz. 2,2 %), bazowy PCE IX m/m (prog. 0,3 %), dochody (prog. 0,3 %) i wydatki osobiste (prog. 0,6 %) — TradingView MCP get-economic-calendar (US, wysoka ważność), odczyt 12:48 UTC.</li>
+</ul></section>
+
+<section><h2>2. Koszyki (kolejność z signals.json — pary od najwyższej σ60)</h2>
+<p><small>Kursy ostatnie: zamknięcia 27.10.2026, Yahoo (kursy.py), potwierdzone TradingView MCP (Δ 0,00 %). Kurs wejścia = `fills.cena` (signals.json / `/status.ceny_wejscia`); 9 nóg otwartych 26.10 ok. 14:45 UTC, APP — 06.10. „Zwrot od wejścia” = wynik rachunku, „od D0” = jakość prognozy. Relatywnie = zwrot od D0 minus ^NDX od D0 (+2,40 %). Pre-market: TradingView MCP get-symbol-data-batch (premarket_change), odczyt 12:47 UTC, dane opóźnione — nie jest zamknięciem. Grupa: data/ranking-2026-W9.json (konstrukcja E_pary_budzet_sox = signals.long/short jako zbiory).</small></p>
+<h3>KOSZYK LONG</h3><div class="tw"><table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>wejście</th><th>D0</th><th>ostatni</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>EVENT</th><th>pre-market (TV, 12:47 UTC)</th></tr>
+<tr><td><b>CRWD</b></td><td>BUY</td><td>Packaged Software</td><td class="m">261,67</td><td class="m">257,57</td><td class="m">268,02</td><td class="m g">+2,43 %</td><td class="m g">+4,06 %</td><td class="m g">+1,66 p.p.</td><td>— <small>(wyniki 01.12 (niepotw.))</small></td><td class="m r">−0,08 %</td></tr>
+<tr><td><b>MU</b></td><td>BUY</td><td>Semiconductors</td><td class="m">892,61</td><td class="m">877,55</td><td class="m">928,76</td><td class="m g">+4,05 %</td><td class="m g">+5,84 %</td><td class="m g">+3,44 p.p.</td><td>— <small>(wyniki 23.12 (niepotw.))</small></td><td class="m g">+3,17 %</td></tr>
+<tr><td><b>ABNB</b></td><td>BUY</td><td>Consumer Services</td><td class="m">171,62</td><td class="m">172,01</td><td class="m">168,82</td><td class="m r">−1,63 %</td><td class="m r">−1,85 %</td><td class="m r">−4,25 p.p.</td><td>— <small>(wyniki 05.11 po sesji (potw.))</small></td><td class="m r">−0,05 %</td></tr>
+<tr><td><b>TRI</b></td><td>BUY</td><td>Internet Software/Services</td><td class="m">123,57</td><td class="m">123,17</td><td class="m">116,41</td><td class="m r">−5,79 %</td><td class="m r">−5,49 %</td><td class="m r">−7,88 p.p.</td><td>— <small>(wyniki 03.11 przed sesją (niepotw.))</small></td><td class="m">b.d.</td></tr>
+<tr><td><b>KDP</b></td><td>BUY</td><td>Consumer Non-Durables</td><td class="m">34,56</td><td class="m">34,68</td><td class="m">34,86</td><td class="m g">+0,87 %</td><td class="m g">+0,52 %</td><td class="m r">−1,88 p.p.</td><td>— <small>(wyniki 03.11 przed sesją (niepotw.))</small></td><td class="m r">−0,17 %</td></tr>
+</table></div>
+<h3>KOSZYK SHORT</h3><div class="tw"><table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>wejście</th><th>D0</th><th>ostatni</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>EVENT</th><th>pre-market (TV, 12:47 UTC)</th></tr>
+<tr class="hl"><td><b>APP</b> <small>(wejście 06.10, noga kontynuowana z W8)</small></td><td>SELL</td><td>Packaged Software</td><td class="m">277,22</td><td class="m">260,25</td><td class="m">262,82</td><td class="m r">−5,19 %</td><td class="m g">+0,99 %</td><td class="m r">−1,41 p.p.</td><td>— <small>(wyniki 04.11 po sesji (potw.))</small></td><td class="m r">−2,27 %</td></tr>
+<tr><td><b>AVGO</b></td><td>SELL</td><td>Semiconductors</td><td class="m">326,98</td><td class="m">321,68</td><td class="m">342,33</td><td class="m g">+4,69 %</td><td class="m g">+6,42 %</td><td class="m g">+4,02 p.p.</td><td>— <small>(wyniki 10.12 (niepotw.))</small></td><td class="m g">+1,76 %</td></tr>
+<tr><td><b>CMCSA</b></td><td>SELL</td><td>Consumer Services</td><td class="m">22,32</td><td class="m">22,69</td><td class="m">21,84</td><td class="m r">−2,15 %</td><td class="m r">−3,75 %</td><td class="m r">−6,14 p.p.</td><td>— <small>(wyniki 28.01.2027)</small></td><td class="m r">−0,46 %</td></tr>
+<tr><td><b>NFLX</b></td><td>SELL</td><td>Internet Software/Services</td><td class="m">64,96</td><td class="m">65,85</td><td class="m">62,52</td><td class="m r">−3,76 %</td><td class="m r">−5,06 %</td><td class="m r">−7,45 p.p.</td><td>— <small>(wyniki 26.01.2027)</small></td><td class="m r">−0,69 %</td></tr>
+<tr><td><b>PEP</b></td><td>SELL</td><td>Consumer Non-Durables</td><td class="m">136,49</td><td class="m">135,77</td><td class="m">133,50</td><td class="m r">−2,19 %</td><td class="m r">−1,67 %</td><td class="m r">−4,07 p.p.</td><td>— <small>(wyniki 11.02.2027)</small></td><td class="m r">−0,82 %</td></tr>
+</table></div>
+<p><small>Wyróżniony wiersz APP: różnica „od wejścia” vs „od D0” = 6,2 p.p. — noga kontynuowana z W8 zachowuje cenę tezy 277,22 z 06.10, D0 = 260,25 z 23.10. Dla SHORT spadek kursu (wartość ujemna) jest korzystny. Pozostałe nogi: różnice ≤ 2 p.p. (otwarcie 26.10 w trakcie sesji zamiast po kursie D0). TRI: pre-market pusty w batchu (b.d.).</small></p>
+</section>
+
+<section><h2>3. Spread koszyka (D+2)</h2><div class="spread">
+<div>od cen wejścia<b class="g">+1,70 p.p.</b><small>LONG −0,02 % − SHORT −1,72 % (fills → zamknięcie 27.10)</small></div>
+<div>od D0<b class="g">+1,23 p.p.</b><small>LONG +0,61 % − SHORT −0,61 % (23.10 → 27.10)</small></div>
+<div>różnica<b>+0,47 p.p.</b><small>głównie APP (cena tezy z 06.10)</small></div>
+<div>σ ex ante (tydz.)<b>3,37 p.p.</b><small>sigma60_tyg_unit_pp, E_pary_budzet_sox, data/ranking-2026-W9.json; b_SOX net 0,214</small></div>
+</div>
+<p>Ruch dzienny spreadu 27.10 (od D0: +1,52 → +1,23 p.p.) −0,28 p.p. = −0,19 σ dziennej ex ante (sigma60_unit_dzienna 1,507 %). Zwroty równoważone (średnia nóg). Puls nie ocenia koszyka — pomiar jakości robi sobota.</p></section>
+
+<section><h2>4. Bramka — pomiar (protokół 4 %/8 % z potwierdzeniem drugą sesją; wpisy nie powstają)</h2>
+<div class="tw"><table><tr><th>spółka</th><th>noga</th><th>ruch od wejścia (w kierunku pozycji)</th><th>ruch względny vs ^NDX od D0 (w kierunku pozycji)</th><th>sesje za progiem</th><th>werdykt protokołu</th></tr>
+<tr><td><b>CRWD</b></td><td>LONG</td><td class="m g">+2,43 %</td><td class="m g">+1,66 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>MU</b></td><td>LONG</td><td class="m g">+4,05 %</td><td class="m g">+3,44 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>ABNB</b></td><td>LONG</td><td class="m r">−1,63 %</td><td class="m r">−4,25 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr class="hl"><td><b>TRI</b></td><td>LONG</td><td class="m r">−5,79 %</td><td class="m r">−7,88 p.p.</td><td class="m">1 (27.10)</td><td>próg 4 % przekroczony 1. sesję — bez potwierdzenia: nic; „REDUCE od 28.10”, jeśli zamknięcie 28.10 utrzyma ≤ −4 % <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>KDP</b></td><td>LONG</td><td class="m g">+0,87 %</td><td class="m r">−1,88 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>APP</b></td><td>SHORT</td><td class="m g">+5,19 %</td><td class="m g">+1,41 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr class="hl"><td><b>AVGO</b></td><td>SHORT</td><td class="m r">−4,69 %</td><td class="m r">−4,02 p.p.</td><td class="m">1 (27.10)</td><td>próg 4 % przekroczony 1. sesję — bez potwierdzenia: nic; „REDUCE od 28.10”, jeśli zamknięcie 28.10 utrzyma ≥ +4 % nad wejściem <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>CMCSA</b></td><td>SHORT</td><td class="m g">+2,15 %</td><td class="m g">+6,14 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>NFLX</b></td><td>SHORT</td><td class="m g">+3,76 %</td><td class="m g">+7,45 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+<tr><td><b>PEP</b></td><td>SHORT</td><td class="m g">+2,19 %</td><td class="m g">+4,07 p.p.</td><td class="m">0</td><td>nic <small>(pomiar, wpis nie powstaje)</small></td></tr>
+</table></div>
+<p><small>Wartość dodatnia = ruch korzystny dla pozycji. Dwie nogi przekroczyły 4 % niekorzystnie od wejścia w zamknięciu 27.10: TRI (LONG −5,79 %) i AVGO (SHORT, kurs +4,69 %); żadna nie zbliża się do 8 %. Stop bota v2: 15 % LONG / 10 % SHORT (`/status.ustawienia`) — dla TRI ok. 105,03, dla AVGO ok. 359,68 (wyliczenie Pulsu: wejście × (1 ∓ stop); bot liczy własny poziom).</small></p></section>
+
+<section><h2>5. Kill switch i próg miękki</h2><ul>
+<li><b>Kill switch</b> (`/status.kill_switch`, odczyt 12:46 UTC): odniesienie 860,63 USD (szczyt kroczący = bieżący kapitał, podłoga START_EQUITY aktywna), próg 645,47 USD, <b>zapas 25,0 %</b>, obsunięcie od szczytu bieżącego 0,0 %. Zatrzask: <b>nie</b>; wznowienie nie oczekuje; restart ręczny od kapitału 710,02 USD (dotyczy tylko po kill); ślad: brak.</li>
+<li>σ dzienna kapitału ≈ 5 × alloc_pct 0,08 × sigma60_unit_dzienna 0,01507 ≈ 0,60 % → <b>zapas ≈ 41 σ dziennych</b> (E_pary_budzet_sox, data/ranking-2026-W9.json).</li>
+<li>Obsunięcie od szczytu historycznego: najwyższy `equity_peak` w historii gita signals.json = 1 104,36 USD (historia pobrana w pełni) → kapitał 860,63 USD to <b>−22,1 %</b> od szczytu historycznego. `equity_peak` w pliku 855,66 USD = /status 855,66; kapitał 860,63 wyżej — bot zapisze nowy szczyt w najbliższym biegu (pole bota, rutyna go nie pisze).</li>
+<li><b>Próg miękki</b> (`/status.prog_miekki`): włączony, próg 10 %, reset 5 %, 2 pary; stan ZAPISANY: aktywny = false (wyłączony 18.10); PRZEWIDYWANY: wlaczy_sie_w_najblizszym_biegu = false. Nogi pierwszych 2 par: APP, AVGO, CRWD, MU.</li>
+</ul></section>
+
+<section><h2>6. Kontrola rachunku</h2>
+<p><small>Źródło: `$NDX_BOT_URL/status` (tylko odczyt), odczyt 28.10.2026 12:46 UTC; dry_run = false; aktywny rachunek „BOT - Nasdaq 100” (aktywne_dla_bota = true), blad_przelaczenia_rachunku = null.</small></p>
+<ul>
+<li>Kapitał 860,63 USD · gotówka 853,64 · wycena pozycji +6,99 · depozyt zabezpieczający 853,64 (wartość z API równa gotówce — tak raportuje pole) · dostępne do handlu 715,21 · waluta USD. equity_peak: plik 855,66 = /status 855,66.</li>
+<li>Kontrola kapitału: <b>zgodne = true</b>; różnica 0,00 USD wobec tolerancji 17,21 USD; suma upl pozycji bota 6,99 = wycena z API 6,99; pozycje_spoza_ksiazki = [], pozycje_bez_wyceny = [].</li>
+<li>Pokrycie (bot `pokrycie_koszyka`, wersja 2026-W9, hedge_mode classic): LONG 5/5 (CRWD, MU, ABNB, TRI, KDP BUY), SHORT 5/5 (APP, AVGO, CMCSA, NFLX, PEP SELL); brakujące: brak; zatrzymane stopem: brak; zamknięte progiem miękkim: brak; wykluczone/zredukowane przez Puls: brak; taktyczne: brak; spoza koszyka: brak. <b>Pokrycie 10/10.</b></li>
+<li>Wykonanie: `wykonanie.stopy` nieobecne (żaden stop nie zadziałał), `wykonanie.kill` nieobecne, `wykonanie.soft` = nieaktywny od 18.10; reakcje i taktyczne puste.</li>
+<li>Kontrola wyceny brokera (poziom bieżący = wejście ± upl/size, „wyprowadzony z upl”, vs zamknięcie 27.10 TV/Yahoo): KDP 34,79 vs 34,86; CRWD 267,35 vs 268,02; APP 257,05 vs 262,82 (−2,2 %); MU 957,82 vs 928,76 (+3,1 %); ABNB 167,85 vs 168,82; AVGO 348,85 vs 342,33 (+1,9 %); CMCSA 21,87 vs 21,84; NFLX 62,23 vs 62,52; PEP 133,65 vs 133,50; TRI 116,24 vs 116,41. <b>Wycena brokera do sprawdzenia</b> (|Δ| &gt; 1 %): MU, APP, AVGO — kierunek i skala zgodne z pre-marketem 28.10 (MU +3,17 %, APP −2,27 %, AVGO +1,76 %; TV), czyli broker wycenia poza sesją, a nie błąd.</li>
+<li>Przestrzały lotów: limit max_overshoot 1,6 × alloc_pct 0,08 × kapitał ≈ 110,2 USD na nogę; największa ekspozycja MU ≈ 95,8 USD — brak przestrzałów.</li>
+</ul></section>
+
+<section><h2>7. Źródła i problemy</h2>
+<p><b>STAN ŹRÓDEŁ (data/tv-log.jsonl):</b> 28.10 puls-ndx · TradingView MCP: OK · 5 wywołań (batch 11 symboli, ohlcv NDX 260, ohlcv VIX 30, earnings-calendar, economic-calendar) · ok. 120 s · 11 porównań · max |Δ| 0,00 % · mediana 0,00 % · rozjazdów brak · adnotacji brak · missing brak · faza 2 · werdykt zmieniony: nie · depesze: nie · blok nieprzerwany. Budżet 10 wywołań / 13:15 UTC zachowany; rezerwa news/dokumenty nie użyta (brak kandydata R3).</p>
+<div class="tw"><table><tr><th>ticker</th><th>Yahoo (27.10)</th><th>FMP</th><th>TV</th><th>Δ %</th></tr>
+<tr><td>^NDX</td><td class="m">29 651,44</td><td>b.d.</td><td class="m">29 651,44</td><td class="m">0,00 (TV delayed_streaming_900)</td></tr>
+<tr><td>CRWD</td><td class="m">268,02</td><td>b.d.</td><td class="m">268,02</td><td class="m">0,00</td></tr>
+<tr><td>MU</td><td class="m">928,76</td><td>b.d.</td><td class="m">928,76</td><td class="m">0,00</td></tr>
+<tr><td>ABNB</td><td class="m">168,82</td><td>b.d.</td><td class="m">168,82</td><td class="m">0,00</td></tr>
+<tr><td>TRI</td><td class="m">116,41</td><td>b.d.</td><td class="m">116,41</td><td class="m">0,00</td></tr>
+<tr><td>KDP</td><td class="m">34,86</td><td>b.d.</td><td class="m">34,86</td><td class="m">0,00</td></tr>
+<tr><td>APP</td><td class="m">262,82</td><td>b.d.</td><td class="m">262,82</td><td class="m">0,00</td></tr>
+<tr><td>AVGO</td><td class="m">342,33</td><td>b.d.</td><td class="m">342,33</td><td class="m">0,00</td></tr>
+<tr><td>CMCSA</td><td class="m">21,84</td><td>b.d.</td><td class="m">21,84</td><td class="m">0,00</td></tr>
+<tr><td>NFLX</td><td class="m">62,52</td><td>b.d.</td><td class="m">62,52</td><td class="m">0,00</td></tr>
+<tr><td>PEP</td><td class="m">133,50</td><td>b.d.</td><td class="m">133,50</td><td class="m">0,00</td></tr>
+</table></div>
+<ul><li>kursy.py: 104/105 tickerów w 14 s (Yahoo), bez wyczerpania budżetu czasu; walidacja D0 (23.10, 0,5 %) — wszystkie 10 nóg i ^NDX OK. WBD: brak danych (poza indeksem, bez wpływu).</li>
+<li>FMP: nie wołany (drugie źródło zamknięć zastąpione TV; Yahoo = TV z Δ 0,00 %) — kolumna b.d.</li>
+<li>Research: 2 zapytania WebSearch (TRI, AVGO — ruch d/d ≥ 3 %), bez dokumentu źródłowego z listy R3.</li>
+<li>/status: odpowiedź poprawna, bez błędów autoryzacji.</li>
+<li>Bieg rozpoczęty o 12:46 UTC (harmonogram 12:31 UTC) — signals.json (tylko last_daily) scommitowany na main ok. 12:50 UTC, walidator OK, przed biegiem /run 13:45.</li></ul></section>
+
+<section><h2>8. Kalendarz</h2>
+<ul><li>Wyniki nóg (TradingView MCP get-earnings-calendar, odczyt 12:48 UTC): TRI 03.11 przed sesją (niepotw.) · KDP 03.11 przed sesją (niepotw.) · APP 04.11 po sesji, 21:05 UTC (potw.) · ABNB 05.11 po sesji, 21:00 UTC (potw.) · CRWD 01.12 (niepotw.) · AVGO 10.12 (niepotw.) · MU 23.12 (niepotw.) · NFLX 26.01.2027 · CMCSA 28.01.2027 · PEP 11.02.2027.</li>
+<li>Makro US (wysoka ważność): 28.10 14:00 ET / 18:00 UTC decyzja FOMC i komunikat · 28.10 14:30 ET / 18:30 UTC konferencja Fed · 29.10 08:30 ET / 12:30 UTC PKB III kw. (wstępny), bazowy PCE IX, dochody i wydatki osobiste IX.</li></ul></section>
+
+<footer>Ustawienia bota (`/status.ustawienia`, 28.10 12:46 UTC): alloc_pct 0,08, alloc_pct_safe 0,04, tactical_alloc_pct 0 (tactical_enabled = false), kill_level 0,75 (kroczący), stop 15 % LONG / 10 % SHORT bez ponownego otwarcia w wersji, próg miękki 10 % / reset 5 % / 2 pary, start_equity 832,55 USD. Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej. Raport przygotowany automatycznie przez AI (Claude, rutyna „Puls NDX100”, proces v2).</footer>
+</main></body></html>
