@@ -247,11 +247,11 @@
   },
   "fills": {
     "APP": {
-      "cena": 277.22,
+      "cena": 266.87,
       "kierunek": "SELL",
       "wielkosc": 0.3,
-      "data": "2026-10-06",
-      "wersja": "2026-W9",
+      "data": "2026-10-19",
+      "wersja": "2026-W10",
       "epic": "APP",
       "cena_brokera": 266.87
     },
@@ -260,7 +260,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.3,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "CRWD",
       "cena_brokera": 261.67
     },
@@ -269,7 +269,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.1,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "MU",
       "cena_brokera": 892.61
     },
@@ -278,7 +278,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.4,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "ABNB",
       "cena_brokera": 171.62
     },
@@ -287,7 +287,7 @@
       "kierunek": "BUY",
       "wielkosc": 0.6,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "TRI",
       "cena_brokera": 123.57
     },
@@ -296,7 +296,7 @@
       "kierunek": "BUY",
       "wielkosc": 2.0,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "KDP",
       "cena_brokera": 34.56
     },
@@ -305,7 +305,7 @@
       "kierunek": "SELL",
       "wielkosc": 0.2,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "AVGO",
       "cena_brokera": 326.98
     },
@@ -314,7 +314,7 @@
       "kierunek": "SELL",
       "wielkosc": 3.0,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "CMCSA",
       "cena_brokera": 22.32
     },
@@ -323,7 +323,7 @@
       "kierunek": "SELL",
       "wielkosc": 1.05,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "NFLX",
       "cena_brokera": 64.96
     },
@@ -332,7 +332,7 @@
       "kierunek": "SELL",
       "wielkosc": 0.5,
       "data": "2026-10-26",
-      "wersja": "2026-W9",
+      "wersja": "2026-W10",
       "epic": "PEP",
       "cena_brokera": 136.49
     }
