@@ -246,15 +246,6 @@
     "MRNA": "MRNA"
   },
   "fills": {
-    "APP": {
-      "cena": 266.87,
-      "kierunek": "SELL",
-      "wielkosc": 0.3,
-      "data": "2026-10-19",
-      "wersja": "2026-W10",
-      "epic": "APP",
-      "cena_brokera": 266.87
-    },
     "CRWD": {
       "cena": 261.67,
       "kierunek": "BUY",
@@ -273,68 +264,59 @@
       "epic": "MU",
       "cena_brokera": 892.61
     },
-    "ABNB": {
-      "cena": 171.62,
-      "kierunek": "BUY",
-      "wielkosc": 0.4,
-      "data": "2026-10-26",
-      "wersja": "2026-W10",
-      "epic": "ABNB",
-      "cena_brokera": 171.62
-    },
-    "TRI": {
-      "cena": 123.57,
-      "kierunek": "BUY",
-      "wielkosc": 0.6,
-      "data": "2026-10-26",
-      "wersja": "2026-W10",
-      "epic": "TRI",
-      "cena_brokera": 123.57
-    },
-    "KDP": {
-      "cena": 34.56,
-      "kierunek": "BUY",
-      "wielkosc": 2.0,
-      "data": "2026-10-26",
-      "wersja": "2026-W10",
-      "epic": "KDP",
-      "cena_brokera": 34.56
-    },
-    "AVGO": {
-      "cena": 326.98,
+    "ISRG": {
+      "cena": 438.68,
       "kierunek": "SELL",
-      "wielkosc": 0.2,
-      "data": "2026-10-26",
+      "wielkosc": 0.1,
+      "data": "2026-11-02",
       "wersja": "2026-W10",
-      "epic": "AVGO",
-      "cena_brokera": 326.98
+      "epic": "ISRG",
+      "cena_brokera": 438.68
     },
-    "CMCSA": {
-      "cena": 22.32,
+    "DXCM": {
+      "cena": 83.65,
+      "kierunek": "BUY",
+      "wielkosc": 0.7,
+      "data": "2026-11-02",
+      "wersja": "2026-W10",
+      "epic": "DXCM",
+      "cena_brokera": 83.65
+    },
+    "MPWR": {
+      "cena": 1254.45,
       "kierunek": "SELL",
-      "wielkosc": 3.0,
-      "data": "2026-10-26",
+      "wielkosc": 0.05,
+      "data": "2026-11-02",
       "wersja": "2026-W10",
-      "epic": "CMCSA",
-      "cena_brokera": 22.32
+      "epic": "MPWR",
+      "cena_brokera": 1254.45
     },
-    "NFLX": {
-      "cena": 64.96,
+    "RKLB": {
+      "cena": 53.69,
       "kierunek": "SELL",
-      "wielkosc": 1.05,
-      "data": "2026-10-26",
+      "wielkosc": 1.0,
+      "data": "2026-11-02",
       "wersja": "2026-W10",
-      "epic": "NFLX",
-      "cena_brokera": 64.96
+      "epic": "RKLB",
+      "cena_brokera": 53.69
     },
-    "PEP": {
-      "cena": 136.49,
+    "PAYX": {
+      "cena": 112.26,
       "kierunek": "SELL",
       "wielkosc": 0.5,
-      "data": "2026-10-26",
+      "data": "2026-11-02",
       "wersja": "2026-W10",
-      "epic": "PEP",
-      "cena_brokera": 136.49
+      "epic": "PAYX",
+      "cena_brokera": 112.26
+    },
+    "FTNT": {
+      "cena": 131.83,
+      "kierunek": "BUY",
+      "wielkosc": 0.4,
+      "data": "2026-11-02",
+      "wersja": "2026-W10",
+      "epic": "FTNT",
+      "cena_brokera": 131.83
     }
   },
   "equity_peak": 863.74,
