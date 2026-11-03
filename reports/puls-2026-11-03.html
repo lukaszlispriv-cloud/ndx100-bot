@@ -1,0 +1,134 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Puls NDX100 — 2026-11-03</title>
+<style>
+:root{--bg:#F6F7F4;--navy:#10243E;--pos:#0E7C4A;--neg:#C4372E;--amb:#B7791F;--line:#D9DCD3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#1d2430;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+header{background:var(--navy);color:#fff;padding:18px 16px 22px;position:relative}
+header h1{margin:0;font-size:20px}header .sub{opacity:.85;font-size:13px;margin-top:4px}
+.ndx{font:600 24px ui-monospace,Menlo,monospace;margin-top:10px}
+.badge{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:6px;font-size:13px;font-weight:600;background:var(--pos);color:#fff}
+.stamp{position:absolute;right:16px;top:18px;border:3px solid #7FD1A6;color:#7FD1A6;padding:4px 10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transform:rotate(-2.5deg)}
+main{max-width:1100px;margin:0 auto;padding:8px 16px 40px}
+section{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:14px 0;overflow-x:auto}
+h2{font-size:17px;margin:0 0 10px;color:var(--navy)}h3{font-size:15px;margin:14px 0 6px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}th{background:#EEF0EA}
+.m{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}.pos{color:var(--pos)}.neg{color:var(--neg)}tr.hl td{background:#FFF6E0}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:#E4E8EF;color:var(--navy);margin-right:6px}
+.bar{display:flex;flex-wrap:wrap;gap:10px}.bar div{flex:1 1 200px;border:1px solid var(--line);border-radius:6px;padding:8px 10px}.bar b{font:700 20px ui-monospace,monospace}
+small{color:#5a6372}footer{font-size:12px;color:#5a6372;padding:0 16px 30px;max-width:1100px;margin:0 auto}
+</style></head><body>
+<style>.badge.p1{background:#B7791F}.stamp{border-color:#7FD1A6;color:#7FD1A6}.alarm{color:#C4372E;font-weight:800}</style>
+</head><body>
+<header><div class="stamp">AKTUALNA</div>
+<h1>Puls NDX100 — wtorek 03.11.2026 (D+1, wersja 2026-W10)</h1>
+<div class="sub">proces v2 — raport kontrolny · bieg 12:32–12:50 UTC · <b>stan PO rotacji</b> (rotacja W9 → W10 w biegu /run 02.11 13:45 UTC; wszystkie wpisy <code>ceny_wejscia</code> mają <code>wersja</code> = 2026-W10 = <code>sygnaly.version</code>, brak pozycji spoza koszyka) · ostatnia zakończona sesja: poniedziałek 02.11.2026 · D0 = 30.10.2026</div>
+<div class="ndx">^NDX 27 989,82 <small style="color:#cfd6e0">zamknięcie 02.11.2026, Yahoo (kursy.py) = TradingView · sesja −1,39 % · od D0 −1,39 %</small></div>
+<div class="badge p1">REŻIM P1 · drawdown −10,36 % od max 252 sesji (31 224,69) &gt; 10 % · NDX +0,18 % vs MA200 (27 939,5) · −6,0 % vs MA50 (29 769,9) · VIX 21,15 — potwierdzony dwoma źródłami (Yahoo, TradingView)</div>
+</header>
+<main>
+
+<section><h2>1. Najważniejsze zmiany</h2>
+<p><span class="tag">REŻIM</span><b>REŻIM P1 (flaga)</b> — nowy względem 02.11 (P0). Jedyny spełniony warunek: drawdown ^NDX −10,36 % od maksimum 252 sesji 31 224,69 (próg 10 %). ^NDX 27 989,82 (02.11) nadal powyżej MA200 27 939,5 (o 0,18 %, ok. 50 pkt); VIX 21,15 &lt; 28. Warunki P2 (dd &gt; 20 %, VIX &gt; 40, sesja ≤ −5 %) nie zachodzą. Źródła: Yahoo (kursy.py, sekcja REŻIM) i TradingView MCP (get-ohlcv NASDAQ:NDX 1D 260 i CBOE:VIX 1D 30, odczyt 12:33 UTC, dane opóźnione; MA z dokładnie 200/50 zakończonych zamknięć, ostatnia świeca 02.11; formująca się świeca VIX 03.11 = 21,66 odrzucona) — wartości identyczne. <b>W v2 P1 to wyłącznie flaga: żadnych wpisów REDUCE</b>; status pozostaje AKTUALNA.</p>
+<p><span class="tag">BOT</span>Rotacja do W10 wykonana w biegu 02.11 13:45 UTC: na rachunku 8 nóg z 10 (LONG 4/5, SHORT 4/5). <b>Brakuje SNDK (LONG) i CRWV (SHORT)</b> — bez wpisu exclude i bez wpisu stopu → <b class="alarm">EKSPOZYCJA_NIEPELNA</b> (sekcja 6). Stopy: brak (<code>wykonanie.stopy</code> nieobecne); próg miękki nieaktywny i nie włączy się w najbliższym biegu; kill: brak śladu, zatrzask = false.</p>
+<p><span class="tag">NEWS</span>Brak zdarzeń z listy zamkniętej R3/R11. Nogi z |ruch d/d 02.11| ≥ 3 % (Yahoo): CRWV −8,60 %, FTNT −7,25 %, SNDK −6,59 %, MU −5,78 %, RKLB −4,86 %, CRWD −3,44 %, PAYX +3,01 %, DXCM +3,00 % — po 1 zapytaniu WebSearch na nogę (12:34 UTC): brak dokumentu (8-K, komunikat, decyzja regulatora) o ofercie przejęcia, delistingu/zawieszeniu, szokowym raporcie lub cięciu guidance, ani (R11: SNDK, MU) o obniżce cen kontraktowych DRAM/NAND wg TrendForce czy missie guidance. 02.11 to dalsza szeroka wyprzedaż półprzewodników/AI (MRVL −12,72 %, INTC −8,80 %, STX −7,88 %, AMD −7,52 %, WDC −7,52 %, LITE −18,59 %; Yahoo), nie zdarzenie spółkowe. Pre-market żadnej nogi nie przekracza progu ±5 % w kierunku niekorzystnym. <code>exclude</code> = [] (bez zmian), <code>tactical</code> = [].</p>
+<p><span class="tag">WYNIKI</span>Brak nóg z raportem w 2 najbliższych sesjach (03.11, 04.11) — brak flag EVENT. Najbliższe: RKLB 09.11 21:05 UTC po sesji (potw.), CRWV 10.11 21:00 UTC po sesji (potw.) — TradingView MCP get-earnings-calendar, odczyt 12:33 UTC. FMP earnings-calendar: nie wołany (TV wystarczył; b.d.).</p>
+<p><span class="tag">MAKRO</span>03.11 10:00 ET / 15:00 UTC — JOLTS (wrz., prognoza 7,10 mln, poprz. 7,079 mln); 04.11 10:00 ET / 15:00 UTC — ISM Services PMI (paźdz., prognoza 54,8, poprz. 54,9). TradingView MCP get-economic-calendar (US, wysoka ważność), odczyt 12:33 UTC.</p>
+</section>
+
+<section><h2>2. Koszyki W10 (kolejność z signals.json — pary od najwyższej σ60)</h2>
+<p><small>Kurs ostatni = zamknięcie 02.11.2026 (Yahoo, kursy.py; TradingView Δ 0,00 %). Kurs wejścia = <code>fills.cena</code>; SNDK i CRWV nie mają wpisu w fills (nieotwarte) → „od wejścia” liczone od D0 z adnotacją. Relatywnie = zwrot od D0 minus ^NDX od D0 (−1,39 %). Pre-market: TradingView MCP get-symbol-data-batch (premarket_change), odczyt 12:33 UTC, dane opóźnione — nie jest zamknięciem. Grupa: data/ranking-2026-W10.json (konstrukcja E_pary_budzet_sox = signals.long/short jako zbiory). Walidacja D0 (30.10, 0,5 %): wszystkie nogi i ^NDX OK (kursy.py).</small></p>
+<h3>KOSZYK LONG</h3>
+<table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>wejście</th><th>D0</th><th>ostatni</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>EVENT</th><th>pre-market (TV, 12:33 UTC)</th></tr>
+<tr class="hl"><td>CRWD</td><td>BUY</td><td>Packaged Software</td><td class="m">261,67 (26.10)</td><td class="m">250,43</td><td class="m">241,81</td><td class="m neg">−7,59 %</td><td class="m neg">−3,44 %</td><td class="m neg">−2,05 p.p.</td><td>— (01.12, niepotw.)</td><td class="m pos">+1,32 %</td></tr>
+<tr><td>SNDK</td><td>BUY</td><td>Electronic Technology</td><td class="m">b.d. (nieotwarta)</td><td class="m">1 150,89</td><td class="m">1 075,08</td><td class="m neg">−6,59 % (od D0)</td><td class="m neg">−6,59 %</td><td class="m neg">−5,20 p.p.</td><td>— (04.02.2027)</td><td class="m pos">+4,78 %</td></tr>
+<tr class="hl"><td>FTNT</td><td>BUY</td><td>Technology Services</td><td class="m">131,83 (02.11)</td><td class="m">136,08</td><td class="m">126,21</td><td class="m neg">−4,26 %</td><td class="m neg">−7,25 %</td><td class="m neg">−5,86 p.p.</td><td>— (09.02.2027)</td><td class="m pos">+1,02 %</td></tr>
+<tr><td>MU</td><td>BUY</td><td>Semiconductors</td><td class="m">892,61 (26.10)</td><td class="m">884,74</td><td class="m">833,59</td><td class="m neg">−6,61 %</td><td class="m neg">−5,78 %</td><td class="m neg">−4,39 p.p.</td><td>— (23.12)</td><td class="m pos">+3,62 %</td></tr>
+<tr><td>DXCM</td><td>BUY</td><td>Medical Specialties</td><td class="m">83,65 (02.11)</td><td class="m">82,29</td><td class="m">84,76</td><td class="m pos">+1,33 %</td><td class="m pos">+3,00 %</td><td class="m pos">+4,39 p.p.</td><td>— (11.02.2027)</td><td class="m pos">+0,22 %</td></tr>
+</table>
+<h3>KOSZYK SHORT</h3>
+<table><tr><th>spółka</th><th>kier.</th><th>grupa</th><th>wejście</th><th>D0</th><th>ostatni</th><th>od wejścia</th><th>od D0</th><th>rel. vs ^NDX</th><th>EVENT</th><th>pre-market (TV, 12:33 UTC)</th></tr>
+<tr><td>CRWV</td><td>SELL</td><td>Packaged Software</td><td class="m">b.d. (nieotwarta)</td><td class="m">54,87</td><td class="m">50,15</td><td class="m neg">−8,60 % (od D0)</td><td class="m neg">−8,60 %</td><td class="m neg">−7,21 p.p.</td><td>— (10.11 po sesji, potw.)</td><td class="m pos">+2,67 %</td></tr>
+<tr><td>RKLB</td><td>SELL</td><td>Electronic Technology</td><td class="m">53,69 (02.11)</td><td class="m">54,73</td><td class="m">52,07</td><td class="m neg">−3,02 %</td><td class="m neg">−4,86 %</td><td class="m neg">−3,47 p.p.</td><td>— (09.11 po sesji, potw.)</td><td class="m pos">+2,04 %</td></tr>
+<tr><td>PAYX</td><td>SELL</td><td>Technology Services</td><td class="m">112,26 (02.11)</td><td class="m">112,12</td><td class="m">115,49</td><td class="m pos">+2,88 %</td><td class="m pos">+3,01 %</td><td class="m pos">+4,40 p.p.</td><td>— (17.12)</td><td class="m neg">−0,42 %</td></tr>
+<tr class="hl"><td>MPWR</td><td>SELL</td><td>Semiconductors</td><td class="m">1 254,45 (02.11)</td><td class="m">1 211,63</td><td class="m">1 243,95</td><td class="m neg">−0,84 %</td><td class="m pos">+2,67 %</td><td class="m pos">+4,06 p.p.</td><td>— (11.02.2027)</td><td class="m pos">+3,94 %</td></tr>
+<tr><td>ISRG</td><td>SELL</td><td>Medical Specialties</td><td class="m">438,68 (02.11)</td><td class="m">432,01</td><td class="m">436,87</td><td class="m neg">−0,41 %</td><td class="m pos">+1,12 %</td><td class="m pos">+2,52 p.p.</td><td>— (26.01.2027)</td><td class="m pos">+0,18 %</td></tr>
+</table>
+<p><small>Kolumny zwrotów = ruch kursu (dla SHORT spadek kursu jest korzystny). Wyróżnione wiersze — różnica „od wejścia” vs „od D0” &gt; 2 p.p.: <b>CRWD</b> −4,15 p.p. (noga kontynuowana, cena tezy 261,67 z 26.10 vs D0 250,43); <b>FTNT</b> +2,99 p.p. (otwarta 02.11 ok. 14:45 UTC po 131,83, już po spadku z D0 136,08); <b>MPWR</b> −3,50 p.p. (otwarta 02.11 po 1 254,45, powyżej D0 1 211,63). Różnica wynika z momentu wejścia w biegu 13:45 UTC, a nie z błędu danych.</small></p>
+</section>
+
+<section><h2>3. Spread koszyka W10 (D+1)</h2>
+<div class="bar">
+<div>od cen wejścia<br><b class="neg">−2,75 p.p.</b><br><small>LONG −4,74 % − SHORT −2,00 % (SNDK, CRWV od D0)</small></div>
+<div>od D0<br><b class="neg">−2,68 p.p.</b><br><small>LONG −4,01 % − SHORT −1,33 %</small></div>
+<div>różnica<br><b>−0,07 p.p.</b><br><small>ceny tezy vs D0 (CRWD, FTNT, MPWR i in.)</small></div>
+<div>σ ex ante (tydz.)<br><b>4,56 p.p.</b><br><small>sigma60_tyg_unit_pp, E_pary_budzet_sox, data/ranking-2026-W10.json; b_SOX net 0,196</small></div>
+</div>
+<p><small>Ruch dzienny spreadu od D0 (sesja 02.11 = pierwsza po D0): −2,68 p.p. = −1,31 σ dziennej ex ante (sigma60_unit_dzienna 2,041 %). Zwroty równoważone (średnia nóg). Uwaga: spread „od wejścia” liczy też SNDK i CRWV, których rachunek nie trzyma — wynik rachunku różni się od tej liczby. Puls nie ocenia koszyka — pomiar jakości robi sobota.</small></p>
+</section>
+
+<section><h2>4. Bramka — pomiar (protokół 4 %/8 % z potwierdzeniem drugą sesją; wpisy nie powstają)</h2>
+<table><tr><th>spółka</th><th>noga</th><th>ruch od wejścia (w kierunku pozycji)</th><th>ruch względny vs ^NDX od D0 (w kierunku pozycji)</th><th>sesje za progiem</th><th>werdykt protokołu</th></tr>
+<tr class="hl"><td>CRWD</td><td>LONG</td><td class="m neg">−7,59 %</td><td class="m neg">−2,05 p.p.</td><td>2 (30.10 −4,30 %, 02.11 −7,59 %) za 4 %</td><td><b>„REDUCE od 02.11”</b> (pomiar, wpis nie powstaje); 8 % nieprzekroczone</td></tr>
+<tr><td>SNDK</td><td>LONG</td><td class="m neg">−6,59 % (od D0)</td><td class="m neg">−5,20 p.p.</td><td>1 (02.11)</td><td>nic — bez potwierdzenia drugą sesją (pomiar, wpis nie powstaje); noga nieotwarta</td></tr>
+<tr><td>FTNT</td><td>LONG</td><td class="m neg">−4,26 %</td><td class="m neg">−5,86 p.p.</td><td>1 (02.11)</td><td>nic — bez potwierdzenia (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>MU</td><td>LONG</td><td class="m neg">−6,61 %</td><td class="m neg">−4,39 p.p.</td><td>1 (02.11; 30.10 było −0,88 %)</td><td>nic — bez potwierdzenia (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>DXCM</td><td>LONG</td><td class="m pos">+1,33 %</td><td class="m pos">+4,39 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>CRWV</td><td>SHORT</td><td class="m pos">+8,60 % (od D0)</td><td class="m pos">+7,21 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje); noga nieotwarta</td></tr>
+<tr><td>RKLB</td><td>SHORT</td><td class="m pos">+3,02 %</td><td class="m pos">+3,47 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>PAYX</td><td>SHORT</td><td class="m neg">−2,88 %</td><td class="m neg">−4,40 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>MPWR</td><td>SHORT</td><td class="m pos">+0,84 %</td><td class="m neg">−4,06 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje)</td></tr>
+<tr><td>ISRG</td><td>SHORT</td><td class="m pos">+0,41 %</td><td class="m neg">−2,52 p.p.</td><td>0</td><td>nic (pomiar, wpis nie powstaje)</td></tr>
+</table>
+<p><small>Wartość dodatnia = ruch korzystny dla pozycji. Dawny protokół dałby dziś jeden wpis (CRWD REDUCE od 02.11) — tylko do rachunku kosztu na papierze w sobotę. Stop bota v2: 15 % LONG / 10 % SHORT (<code>/status.ustawienia</code>) — wyliczenie Pulsu (bot liczy własny poziom): CRWD ≈ 222,42 (−8,0 % od 241,81), MU ≈ 758,72, FTNT ≈ 112,06, DXCM ≈ 71,10; RKLB ≈ 59,06, PAYX ≈ 123,49 (+6,9 % od 115,49), MPWR ≈ 1 379,90, ISRG ≈ 482,55.</small></p>
+</section>
+
+<section><h2>5. Kill switch i próg miękki</h2>
+<p>Kill switch (<code>/status.kill_switch</code>, odczyt 12:32 UTC): odniesienie 863,74 USD (szczyt kroczący, podłoga START_EQUITY aktywna), <b>próg 647,81 USD</b>, <b>zapas 23,38 %</b>, obsunięcie od szczytu bieżącego 2,11 %. Zatrzask: nie; wznowienie nie oczekuje; restart ręczny od kapitału 712,59 USD (dotyczy tylko po kill); ślad: brak.</p>
+<p>σ dzienna kapitału ≈ 5 × alloc_pct 0,08 × sigma60_unit_dzienna 0,02041 ≈ 0,82 % → <b>zapas ≈ 29 σ dziennych</b> (E_pary_budzet_sox, data/ranking-2026-W10.json).</p>
+<p>Obsunięcie od szczytu historycznego: najwyższy equity_peak w historii gita signals.json = 1 104,36 USD (historia pełna) → kapitał 845,53 USD to −23,4 % od szczytu historycznego. equity_peak w pliku 863,74 USD = /status 863,74.</p>
+<p>Próg miękki (<code>/status.prog_miekki</code>): włączony, próg 10 %, reset 5 %, 2 pary; stan ZAPISANY: aktywny = false (wyłączony 18.10); PRZEWIDYWANY: wlaczy_sie_w_najblizszym_biegu = false (dd 2,11 % &lt; 10 %). Nogi pierwszych 2 par W10: CRWD, CRWV, RKLB, SNDK.</p>
+</section>
+
+<section><h2>6. Kontrola rachunku — <span class="alarm">EKSPOZYCJA_NIEPELNA</span></h2>
+<p>Źródło: <code>$NDX_BOT_URL/status</code> (tylko odczyt), odczyt 03.11.2026 12:32 UTC; dry_run = false; aktywny rachunek: 1 z 5 (<code>aktywne_dla_bota</code> = true, „BOT - Nasdaq 100”), blad_przelaczenia_rachunku = null.</p>
+<p>Kapitał <b>845,53 USD</b> · gotówka 858,72 · wycena pozycji −13,19 · depozyt zabezpieczający 858,72 (pole raportuje wartość równą gotówce) · dostępne do handlu 747,78 · waluta USD. equity_peak: plik 863,74 = /status 863,74.</p>
+<p>Kontrola kapitału: zgodne = true; różnica 0,00 USD wobec tolerancji 16,91 USD; suma upl pozycji bota −13,19 = wycena z API −13,19; pozycje_spoza_ksiazki = [], pozycje_bez_wyceny = [].</p>
+<p><b>Pokrycie</b> (bot <code>pokrycie_koszyka</code>, wersja sygnałów 2026-W10, hedge_mode classic): LONG 4/5 (CRWD, FTNT, MU, DXCM; <b>brakująca SNDK</b>), SHORT 4/5 (RKLB, PAYX, MPWR, ISRG; <b>brakująca CRWV</b>) — <b>pokrycie 8/10</b>, stan PO rotacji. Zatrzymane stopem / zamknięte progiem miękkim / wykluczone / zredukowane przez Puls: brak; pozycje spoza koszyka: brak; taktyczne: brak. Obie brakujące nogi nie mają wpisu exclude ani stopu → <b>EKSPOZYCJA_NIEPELNA</b>. Przyczyny <code>/status</code> nie podaje (<code>wykonanie</code> nie zawiera adnotacji „nieotwarta”; <code>wykonanie.aktualizacja</code> = 18.10). Hipoteza dla SNDK: minimalny lot — przy kursie ≈ 1 150 (02.11) lot 0,1 akcji ≈ 115 USD przekraczał limit max_overshoot 1,6 × 0,08 × kapitał ≈ 108 USD (cel nogi ≈ 68 USD), czyli ograniczenie wielkości rachunku, nie awaria. Dla CRWV (cel ≈ 68 USD przy kursie ≈ 50) minimalny lot nie wyjaśnia braku — możliwy brak dostępności krótkiej sprzedaży/epiku u brokera; do sprawdzenia przez właściciela w logach biegu /run 02.11 13:45 i 17:05 UTC. Bieg 17:05 UTC (wyrównanie) również nie otworzył obu nóg.</p>
+<p>Wykonanie: <code>wykonanie.stopy</code> i <code>wykonanie.kill</code> nieobecne (bot v2 wdrożony — pola powstają przy pierwszym zdarzeniu; <code>kill_switch</code> i <code>prog_miekki</code> obecne w /status), <code>wykonanie.soft</code> nieaktywny od 18.10; reakcje i taktyczne puste.</p>
+<p>Kontrola wyceny brokera (poziom bieżący = wejście ± upl/size, „wyprowadzony z upl”, vs zamknięcie 02.11 TV/Yahoo): CRWD 243,96 vs 241,81 (+0,9 %); MU 862,74 vs 833,59 (+3,5 %); FTNT 125,96 vs 126,21; DXCM 84,65 vs 84,76; RKLB 53,19 vs 52,07 (+2,2 %); PAYX 115,71 vs 115,49; MPWR 1 298,40 vs 1 243,95 (+4,4 %); ISRG 436,91 vs 436,87. Wycena brokera do sprawdzenia (|Δ| &gt; 1 %): MU, RKLB, MPWR — kierunek i skala zgodne z pre-marketem 03.11 (MU +3,62 %, RKLB +2,04 %, MPWR +3,94 %; TV), czyli broker wycenia poza sesją, a nie błąd.</p>
+<p>Przestrzały lotów: limit max_overshoot 1,6 × alloc_pct 0,08 × kapitał ≈ 108,2 USD na nogę; największa ekspozycja MU ≈ 86,3 USD (poziom brokera) — brak przestrzałów.</p>
+</section>
+
+<section><h2>7. Źródła i problemy</h2>
+<p><b>STAN ŹRÓDEŁ</b> (data/tv-log.jsonl): 03.11 puls-ndx · TradingView MCP: OK · 7 wywołań (3× batch: 103 symbole epics + ^NDX, ohlcv NDX 260, ohlcv VIX 30, earnings-calendar, economic-calendar; rezerwa news/dokumenty nieużyta) · ok. 120 s · 11 porównań · max |Δ| 0,00 % · mediana 0,00 % · rozjazdów brak · adnotacji brak · missing: NASDAQ:WBD, NASDAQ:KHC (poza koszykiem) · faza 2 · werdykt zmieniony: nie · depesze: nie · blok nieprzerwany. Budżet 10 wywołań / 13:15 UTC zachowany.</p>
+<table><tr><th>ticker</th><th>Yahoo (02.11)</th><th>FMP</th><th>TV</th><th>Δ %</th></tr>
+<tr><td>^NDX</td><td class="m">27 989,82</td><td>b.d.</td><td class="m">27 989,82</td><td class="m">−0,00 (TV delayed_streaming_900)</td></tr>
+<tr><td>CRWD</td><td class="m">241,81</td><td>b.d.</td><td class="m">241,81</td><td class="m">0,00</td></tr>
+<tr><td>SNDK</td><td class="m">1 075,08</td><td>b.d.</td><td class="m">1 075,08</td><td class="m">0,00</td></tr>
+<tr><td>FTNT</td><td class="m">126,21</td><td>b.d.</td><td class="m">126,21</td><td class="m">0,00</td></tr>
+<tr><td>MU</td><td class="m">833,59</td><td>b.d.</td><td class="m">833,59</td><td class="m">0,00</td></tr>
+<tr><td>DXCM</td><td class="m">84,76</td><td>b.d.</td><td class="m">84,76</td><td class="m">0,00</td></tr>
+<tr><td>CRWV</td><td class="m">50,15</td><td>b.d.</td><td class="m">50,15</td><td class="m">0,00</td></tr>
+<tr><td>RKLB</td><td class="m">52,07</td><td>b.d.</td><td class="m">52,07</td><td class="m">0,00</td></tr>
+<tr><td>PAYX</td><td class="m">115,49</td><td>b.d.</td><td class="m">115,49</td><td class="m">0,00</td></tr>
+<tr><td>MPWR</td><td class="m">1 243,95</td><td>b.d.</td><td class="m">1 243,95</td><td class="m">0,00</td></tr>
+<tr><td>ISRG</td><td class="m">436,87</td><td>b.d.</td><td class="m">436,87</td><td class="m">0,00</td></tr>
+</table>
+<h3>Licznik histerezy (P1) — 5 ostatnich sesji</h3>
+<table><tr><th>sesja</th><th>NDX</th><th>MA50</th><th>MA200</th><th>VIX</th><th>VIX &lt; 25 i NDX &gt; MA50</th></tr>
+<tr><td>27.10</td><td class="m">29 651,4</td><td class="m">29 806,9</td><td class="m">27 874,3</td><td class="m">17,52</td><td>N</td></tr>
+<tr><td>28.10</td><td class="m">29 813,2</td><td class="m">29 813,3</td><td class="m">27 894,4</td><td class="m">16,91</td><td>N (o 0,1 pkt)</td></tr>
+<tr><td>29.10</td><td class="m">29 402,5</td><td class="m">29 812,9</td><td class="m">27 912,7</td><td class="m">17,20</td><td>N</td></tr>
+<tr><td>30.10</td><td class="m">28 384,8</td><td class="m">29 796,3</td><td class="m">27 927,3</td><td class="m">19,42</td><td>N</td></tr>
+<tr><td>02.11</td><td class="m">27 989,8</td><td class="m">29 769,9</td><td class="m">27 939,5</td><td class="m">21,15</td><td>N</td></tr>
+</table>
+<p><small>Źródło: TradingView MCP get-ohlcv (NASDAQ:NDX, CBOE:VIX, odczyt 12:33 UTC, dane opóźnione); dla 02.11 i 30.10 zgodne z Yahoo (kursy.py: 02.11 MA50 29 769,9, MA200 27 939,5, VIX 21,15; 30.10 — raport z 02.11). Seria kursy.py dla 27–29.10 nie jest drukowana — wartości TV bez nawiasu. Kolejne sesje spełniające warunek: 0/5.</small></p>
+<p>Problemy: kursy.py — 104/105 tickerów w 14 s (Yahoo), bez wyczerpania budżetu czasu; WBD: brak danych w Yahoo i TV (poza koszykiem, bez wpływu). FMP: nie wołany w tym biegu (drugie źródło zamknięć = TV). /status: odpowiedź w 1,3 s, bez błędów. WebSearch (8 zapytań): wyniki niedatowane/archiwalne — żaden nie wskazał zdarzenia z listy R3/R11.</p>
+</section>
+
+<section><h2>8. Kalendarz</h2>
+<p>Wyniki nóg (TradingView MCP get-earnings-calendar, 12:33 UTC): RKLB 09.11 21:05 UTC po sesji (potw.); CRWV 10.11 21:00 UTC po sesji (potw.); CRWD 01.12 (niepotw.); PAYX 17.12 (niepotw.); MU 23.12 (niepotw.); ISRG 26.01.2027; SNDK 04.02.2027; FTNT 09.02.2027; DXCM 11.02.2027; MPWR 11.02.2027 (wszystkie niepotw.).</p>
+<p>Makro (US, wysoka ważność): 03.11 10:00 ET / 15:00 UTC — JOLTS (wrz.); 04.11 10:00 ET / 15:00 UTC — ISM Services PMI (paźdz.).</p>
+</section>
+</main>
+<footer>Ustawienia bota (<code>/status.ustawienia</code>, 03.11 12:32 UTC): alloc_pct 0,08, alloc_pct_safe 0,04, tactical_alloc_pct 0 (tactical_enabled = false), kill_level 0,75 (kroczący), stop 15 % LONG / 10 % SHORT (stop_reopen = false), dd_soft 0,10 / reset 0,05, 2 pary, max_overshoot 1,6. Materiał analityczno-edukacyjny, nie stanowi rekomendacji inwestycyjnej. Raport przygotowany automatycznie przez AI (Claude, rutyna „Puls NDX100”, proces v2).</footer>
+</body></html>
