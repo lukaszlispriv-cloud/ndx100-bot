@@ -246,24 +246,6 @@
     "MRNA": "MRNA"
   },
   "fills": {
-    "CRWD": {
-      "cena": 261.67,
-      "kierunek": "BUY",
-      "wielkosc": 0.3,
-      "data": "2026-10-26",
-      "wersja": "2026-W10",
-      "epic": "CRWD",
-      "cena_brokera": 261.67
-    },
-    "MU": {
-      "cena": 892.61,
-      "kierunek": "BUY",
-      "wielkosc": 0.1,
-      "data": "2026-10-26",
-      "wersja": "2026-W10",
-      "epic": "MU",
-      "cena_brokera": 892.61
-    },
     "DXCM": {
       "cena": 83.65,
       "kierunek": "BUY",
@@ -320,6 +302,18 @@
         "data": "2026-11-04",
         "kierunek": "SELL",
         "opis": "STOP 10% (SELL): ISRG 10.6% pod ceną wejścia 438.68"
+      },
+      "CRWD": {
+        "wersja": "2026-W10",
+        "data": "2026-11-05",
+        "kierunek": "BUY",
+        "opis": "STOP 15% (BUY): CRWD 17.0% pod ceną wejścia 261.67"
+      },
+      "MU": {
+        "wersja": "2026-W10",
+        "data": "2026-11-05",
+        "kierunek": "BUY",
+        "opis": "STOP 15% (BUY): MU 18.2% pod ceną wejścia 892.61"
       }
     },
     "soft": {
@@ -331,6 +325,6 @@
       "wylaczono": "2026-10-18",
       "dd_koniec": 0.0
     },
-    "aktualizacja": "2026-11-04"
+    "aktualizacja": "2026-11-05"
   }
 }
