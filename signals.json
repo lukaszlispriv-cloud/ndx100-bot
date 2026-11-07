@@ -1,19 +1,19 @@
 {
   "_instrukcja": "System NASDAQ-100 (bliźniak WIG20). Plik zarządzany przez rutyny; epics = ticker (konwencja Capital.com dla akcji USA). Start: ręczny audyt tygodniowy nadpisze koszyki i status.",
-  "version": "2026-W10",
+  "version": "2026-W11",
   "status": "NIEAKTUALNA",
   "long": [
     "CRWD",
-    "SNDK",
     "FTNT",
     "MU",
+    "TRI",
     "DXCM"
   ],
   "short": [
-    "CRWV",
-    "RKLB",
+    "APP",
     "PAYX",
     "MPWR",
+    "NFLX",
     "ISRG"
   ],
   "exclude": [],
@@ -121,25 +121,37 @@
       "reaction_pp": 0.0,
       "rezim": "P0",
       "dane_b1": "yahoo"
+    },
+    {
+      "week": "2026-W10",
+      "spread_pp": -13.6,
+      "spread_fills_pp": -13.59,
+      "hit_top": "1/5",
+      "hit_bottom": "1/5",
+      "tactical_pp": null,
+      "managed_pp": -13.6,
+      "reaction_pp": 0.0,
+      "rezim": "P2",
+      "dane_b1": "yahoo"
     }
   ],
   "d0": {
-    "date": "2026-10-30",
-    "ndx": 28384.85,
+    "date": "2026-11-06",
+    "ndx": 26989.99,
     "prices": {
-      "CRWD": 250.43,
-      "SNDK": 1150.89,
-      "FTNT": 136.08,
-      "MU": 884.74,
-      "DXCM": 82.29,
-      "CRWV": 54.87,
-      "RKLB": 54.73,
-      "PAYX": 112.12,
-      "MPWR": 1211.63,
-      "ISRG": 432.01
+      "CRWD": 216.9,
+      "FTNT": 118.84,
+      "MU": 690.0,
+      "TRI": 112.57,
+      "DXCM": 79.41,
+      "APP": 391.22,
+      "PAYX": 117.06,
+      "MPWR": 1190.44,
+      "NFLX": 63.41,
+      "ISRG": 452.8
     }
   },
-  "generated": "2026-10-31",
+  "generated": "2026-11-07",
   "epics": {
     "NVDA": "NVDA",
     "AAPL": "AAPL",
