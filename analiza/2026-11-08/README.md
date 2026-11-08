@@ -36,3 +36,17 @@ z cen — co najwyżej mierzyłaby ją korelacja pozycji funduszy (13F), do któ
 dostępu. Niezmienione: koszyk E, sizing 0,08, stopy 15/10, wyłącznik P2 z histerezą.
 Nieprzetestowany pomysł nr 4 z rozmowy (przesunięcie biegu rotacji z 13:45 na późniejszą
 godzinę UTC) wymaga porównania `fills` z kursami zamknięcia na kilku tygodniach, nie backtestu.
+
+## Dodatek — pomysł nr 4: godzina wejścia (bieg 13:45 UTC) — `godzina_wejscia.py`, `godzina-wejscia.md`
+
+126 wpisów `fills` z historii gita (27.08–02.11.2026) porównanych z zamknięciem dnia wejścia
+i z poprzednim zamknięciem. Koszt wejścia vs zamknięcie dnia: śr. +0,13 % na nogę (mediana
++0,08 %, t 1,16; bez odstającego FER 19.10); poniedziałki rotacji +0,27 % (t 1,34), BUY ≈ 0,
+SELL +0,25 % (t 1,8). W przeliczeniu na koszyk ≈ 0,1 % kapitału na rotację, czyli rząd kosztów
+transakcyjnych (0,27 pp/tydz. w analizie 18.10), a nie luki wykonania z W10 (≈ 2 pp kapitału,
+która wynikła ze stopów i wyłącznika P2). **Wniosek: brak podstaw do przesuwania godziny
+biegu** — efekt nieodróżnialny od zera przy n = 126, a koszt zmiany (bieg bliżej 17:05 skraca
+okno między rotacją a wyrównaniem) nie jest zerowy. Jedyna sugestia warta obserwacji: strona
+SELL wchodzi średnio 0,5 % poniżej poprzedniego zamknięcia (t 2,25) — shorty otwierane po
+porannym spadku; przy 70 obserwacjach to kandydat do ponownego policzenia za ~3 miesiące,
+nie do działania.
